@@ -1,0 +1,25 @@
+{
+  "name": "icecreamdatabase",
+  "version": "1.0.0",
+  "private": true,
+  "description": "twitch bot",
+  "main": "index.js",
+  "keywords": [
+    "twitchbot",
+    "twitch",
+    "chatbot",
+    "bot",
+    "twitch chatbot",
+    "twitch bot"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "cineafx <cineafx@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mysql2": "^1.6.4",
+    "twitch-js": "^2.0.0-beta.30",
+    "util": "^0.11.1"
+  }
+}
