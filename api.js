@@ -16,7 +16,6 @@ module.exports = {
 async function userIdFromLogin (bot, username) {
   return new Promise((resolve, reject) => {
     bot.api.get('users', {'version': 'kraken', search: {'api_version': '5', 'client_id': bot.chat.botData.clientID, 'login': username}}).then(response => {
-      Logger.info(response)
       if (response.total === 0) {
         resolve("-1")
       } else {
