@@ -1,6 +1,7 @@
 const TwitchJs = require('twitch-js').default
 const Mysql = require('./sql.js')
 const OnX = require('./onX.js')
+const Sender = require('./send.js')
 const Logger = require('consola')
 
 const channel = 'icdb'
@@ -124,6 +125,9 @@ botSetup().then(() => {
       bots[i].chat.on('USERNOTICE/ANON_GIFT_PAID_UPGRADE', OnX.onAnonGiftPaidUpgrade)
       bots[i].chat.on('USERNOTICE/RITUAL', OnX.onRitual)
       bots[i].chat.on('USERNOTICE/RAID', OnX.onRaid)
+
+      bots[i].chat.sayQueue = Sender.sayQueue
+
       /*
       Logger.info(bots[i].chat.channels)
       for (var j in bots[i].chat.channels) {

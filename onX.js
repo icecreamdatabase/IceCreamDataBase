@@ -15,21 +15,27 @@ module.exports = {
 
 async function onChat (msg) {
   Logger.info(msg.channel + " " + msg.username + ": " + msg.message)
+
+  if (msg.message.startsWith("<sd") && msg.tags.userId === "38949074") {
+    this.sayQueue(this, msg.channel, "Shutting down FeelsBadMan")
+    setTimeout(function () {
+      for (index in bots) {
+        bots[index].chat.disconnect()
+        Logger.info("Disconnected bot: " + bots[index].chat.botData.username)
+      }
+      setTimeout(function () {
+        process.exit(0)
+      }, 200)
+    }, 1300)
+  }
+
   if (msg.message.startsWith("<")) {
     //this.say(msg.channel, ">")
-    this.say(msg.channel, "userdata: " + JSON.stringify(await Api.userStatus(bots[this.botData.dbID], msg.tags.userId, msg.tags.roomId)))
-    /*
-    let clientId = await Api.userIdFromLogin(bots[this.botData.dbID], msg.username)
-    Logger.info("clientId: " + clientId)
+    //this.say(msg.channel, "userdata: " + JSON.stringify(await Api.userStatus(bots[this.botData.dbID], msg.tags.userId, msg.tags.roomId)))
 
-    let userInfo = await Api.userInfo(bots[this.botData.dbID], msg.tags.userId)
-    Logger.info("userInfo: " + JSON.stringify(userInfo))
-
-    let userInChannelInfo = await Api.userInChannelInfo(bots[this.botData.dbID], msg.tags.userId, msg.tags.roomId)
-    Logger.info("userInChannelInfo: " + JSON.stringify(userInChannelInfo))
-    */
-    //this.say("> " + userInfo)
-
+    this.sayQueue(this, msg.channel, ">")
+    this.sayQueue(this, msg.channel, ">")
+    this.sayQueue(this, msg.channel, ">")
   }
 }
 
