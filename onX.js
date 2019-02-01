@@ -16,6 +16,7 @@ module.exports = {
 async function onChat (msg) {
   Logger.info(msg.channel + " " + msg.username + ": " + msg.message)
 
+  /* Shutting down the bot */
   if (msg.message.startsWith("<sd") && msg.tags.userId === "38949074") {
     this.sayQueue(this, msg.channel, "Shutting down FeelsBadMan")
     setTimeout(function () {
