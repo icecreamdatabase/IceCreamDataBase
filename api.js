@@ -3,7 +3,8 @@ const Logger = require('consola')
 module.exports = {
   userIdFromLogin,
   userInfo,
-  userInChannelInfo
+  userInChannelInfo,
+  userStatus
 }
 
 /**
@@ -86,4 +87,26 @@ async function userInChannelInfo (bot, userId, roomId) {
       reject(err)
     })
   })
+}
+
+async function userStatus (bot, userId, roomId) {
+  let userData = await userInChannelInfo(bot, userId, roomId)
+  let isBroadcaster = false
+  let isMod = false
+  let isVip = false
+
+  for (badge of userData.badges) {
+    if (badge.id === "broadcaster") {
+      isBroadcaster = true
+    }
+    if (badge.id === "moderator") {
+      isMod = true
+    }
+    if (badge.id === "vip") {
+      isVip = true
+    }
+  }
+
+  let isAny = isBroadcaster || isMod || isVip
+  return {isBroadcaster, isMod, isVip, isAny}
 }

@@ -16,9 +16,9 @@ module.exports = {
 async function onChat (msg) {
   Logger.info(msg.channel + " " + msg.username + ": " + msg.message)
   if (msg.message.startsWith("<")) {
-    this.say(msg.channel, ">")
-    Logger.info("dbID: " + this.botData.dbID)
-
+    //this.say(msg.channel, ">")
+    this.say(msg.channel, "userdata: " + JSON.stringify(await Api.userStatus(bots[this.botData.dbID], msg.tags.userId, msg.tags.roomId)))
+    /*
     let clientId = await Api.userIdFromLogin(bots[this.botData.dbID], msg.username)
     Logger.info("clientId: " + clientId)
 
@@ -27,7 +27,7 @@ async function onChat (msg) {
 
     let userInChannelInfo = await Api.userInChannelInfo(bots[this.botData.dbID], msg.tags.userId, msg.tags.roomId)
     Logger.info("userInChannelInfo: " + JSON.stringify(userInChannelInfo))
-
+    */
     //this.say("> " + userInfo)
 
   }

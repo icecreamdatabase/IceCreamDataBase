@@ -124,10 +124,12 @@ botSetup().then(() => {
       bots[i].chat.on('USERNOTICE/ANON_GIFT_PAID_UPGRADE', OnX.onAnonGiftPaidUpgrade)
       bots[i].chat.on('USERNOTICE/RITUAL', OnX.onRitual)
       bots[i].chat.on('USERNOTICE/RAID', OnX.onRaid)
+      /*
       Logger.info(bots[i].chat.channels)
       for (var j in bots[i].chat.channels) {
         Logger.info(j)
       }
+      */
     }
   })
 })
