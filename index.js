@@ -44,7 +44,7 @@ async function botSetup () {
         await bots[botData.dbID].chat.connect().then(() => {
           Logger.info("Connected!")
         }).catch(() => {
-          Logger.info("AAAAAAAAAAAAAAAAA")
+          Logger.info("AAAAAAAAAAAAAAAAA Something went wrong")
         })
       }
     }
