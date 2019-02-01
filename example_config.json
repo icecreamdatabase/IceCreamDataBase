@@ -1,0 +1,16 @@
+{
+  "waoptions": {
+    "appid": "XXXXXX-XXXXXXXXXX"
+  },
+  "mysqloptions": {
+    "host": "localhost",
+    "user": "root",
+    "password": "root",
+    "database": "example"
+  },
+  "botadmins": [
+    "XXXXXXXX",
+    "YYYYYYYY",
+    "ZZZZZZZZ"
+  ]
+}
