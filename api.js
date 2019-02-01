@@ -55,7 +55,6 @@ async function userInfo (bot, userId) {
   })
 }
 
-
 /**
  * Accesses the kraken/users/:userID/chat/channels/:roomID
  * Example: https://api.twitch.tv/kraken/users/38949074/chat/channels/38949074?api_version=5
@@ -89,12 +88,18 @@ async function userInChannelInfo (bot, userId, roomId) {
   })
 }
 
+/**
+ * Returns the userstate of a userId inside a room from the api
+ * @param  {TwitchJs bot} bot    TwitchJs bot
+ * @param  {String or number} userId The userID to check for
+ * @param  {String or number} userId The roomID to check in
+ * @return {isBroadcaster, isMod, isVip, isAny}        Object of the status
+ */
 async function userStatus (bot, userId, roomId) {
   let userData = await userInChannelInfo(bot, userId, roomId)
   let isBroadcaster = false
   let isMod = false
   let isVip = false
-
   for (badge of userData.badges) {
     if (badge.id === "broadcaster") {
       isBroadcaster = true
@@ -106,7 +111,6 @@ async function userStatus (bot, userId, roomId) {
       isVip = true
     }
   }
-
   let isAny = isBroadcaster || isMod || isVip
   return {isBroadcaster, isMod, isVip, isAny}
 }
