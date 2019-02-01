@@ -32,6 +32,10 @@ module.exports = {
   getChannelData
 }
 
+/**
+ * Gets all data about all bots from the database
+ * @return {dbID, username, token, clientID, chat: {isKnown, isVerified}, enabled} Return object with all data
+ */
 async function getBotData () {
   let results = await pool.query("SELECT * FROM bots order by ID asc;")
 
@@ -48,6 +52,11 @@ async function getBotData () {
   })
 }
 
+/**
+ * Get channel data about a singular bot
+ * @param  {Integer} botINDEX Database id of the bot in question
+ * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
+ */
 async function getChannelData (botINDEX) {
   let results = await pool.query(`SELECT botID, channelID, channelName, channels.enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
   FROM bots, channels, connections
