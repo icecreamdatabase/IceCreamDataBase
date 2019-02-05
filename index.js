@@ -1,13 +1,15 @@
 const TwitchJs = require('twitch-js').default
 const Mysql = require('./sql.js')
 const OnX = require('./onX.js')
+const Api = require('./api.js')
 const Sender = require('./send.js')
 const Logger = require('consola')
-
-const channel = 'icdb'
+const UserLevels = require('./ENUMS/UserLevels.js')
 
 global.bots = {}
 const logSetting = {log: { level: 2 }}
+const UPDATE_ALL_CHANNELS_INTERVAL = 15000 //ms
+
 /*
 const levels = {
   error: 0,
@@ -29,20 +31,23 @@ async function botSetup () {
   await Mysql.getBotData().then(async (allBotData) => {
     for (let botData of allBotData) {
       if (botData.enabled) {
-        Logger.info("Setting up bot: " + botData.username + " (" + botData.dbID + ")")
+        Logger.info("Setting up bot: " + botData.username + " (" + botData.userId + ")")
         //add log settings
         Object.assign(botData, logSetting)
         //create bot
         let {api, chat, chatConstants} = new TwitchJs(botData)
         //save bot to object
-        bots[botData.dbID] = {api, chat, chatConstants}
+        bots[botData.userId] = {api, chat, chatConstants}
         //add botData
-        bots[botData.dbID].chat.botData = botData
+        bots[botData.userId].chat.botData = botData
         //create empty channel array
-        bots[botData.dbID].chat.channels = []
+        bots[botData.userId].chat.channels = {}
+
+        bots[botData.userId].chat.botData.userId = await Api.userIdFromLogin(bots[botData.userId], bots[botData.userId].chat.botData.username)
+
         //Connecting the bot to the twich servers
         Logger.info("Connecting...")
-        await bots[botData.dbID].chat.connect().then(() => {
+        await bots[botData.userId].chat.connect().then(() => {
           Logger.info("Connected!")
         }).catch(() => {
           Logger.info("AAAAAAAAAAAAAAAAA Something went wrong")
@@ -55,47 +60,45 @@ async function botSetup () {
 
 async function updateBotChannel (bot) {
   return new Promise((resolve) => {
-    Mysql.getChannelData(bot.chat.botData.dbID).then(async (allChannelData) => {
+    Mysql.getChannelData(bot.chat.botData.userId).then(async (allChannelData) => {
       //remove unused channels
-      for (let index in bot.chat.channels) {
+      for (let channelId in bot.chat.channels) {
         //check
         let contains = false
-        for (let currentChannel of allChannelData) {
-          if (currentChannel.channelID === bot.chat.channels[index].channelID) {
+        for (let channelIndex in allChannelData) {
+          if (allChannelData[channelIndex].channelID === bot.chat.channels[channelId].channelID) {
             contains = true
           }
         }
         //part
         if (!contains) {
-          bot.chat.part(allChannelData[index].channelName)
-          Logger.info(bot.chat.botData.username + " Parted: #" + allChannelData[index].channelName)
+          bot.chat.part(allChannelData[channelId].channelName)
+          Logger.info(bot.chat.botData.username + " Parted: #" + allChannelData[channelId].channelName)
         }
       }
       //add new channels
-      for (let index in allChannelData) {
+      for (let channelId in allChannelData) {
         //check
         let contains = false
-        for (let currentChannel of bot.chat.channels) {
-          if (currentChannel.channelID === allChannelData[index].channelID) {
+        for (let currentChannelId in bot.chat.channels) {
+          if (bot.chat.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
             contains = true
           }
         }
         //join
         if (!contains) {
-          Logger.info(bot.chat.botData.username + " Joining: #" + allChannelData[index].channelName)
-          await bot.chat.join(allChannelData[index].channelName).then(() => {
-            Logger.info(bot.chat.botData.username + " Joined: #" + allChannelData[index].channelName)
-            allChannelData[index].alreadyConnected = true
+          Logger.info(bot.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
+          await bot.chat.join(allChannelData[channelId].channelName).then(() => {
+            Logger.info(bot.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
+            allChannelData[channelId].alreadyConnected = true
           }).catch((msg) => { Logger.error("JOIN: " + msg) })
-          allChannelData[index].isVip = false
-          allChannelData[index].isMod = false
-        } else {
-          allChannelData[index].isVip = bots[bot.chat.botData.dbID].chat.channels[index].isVip || false
-          allChannelData[index].isMod = bots[bot.chat.botData.dbID].chat.channels[index].isMod || false
+          //allChannelData[channelId].botStatus = UserLevels.PLEB
         }
       }
       //save changes to bot array
-      bots[bot.chat.botData.dbID].chat.channels = allChannelData
+      bots[bot.chat.botData.userId].chat.channels = allChannelData
+      //Update the knowledge about the mod / vip status of all bots
+      Api.updateBotStatus()
       //resolve the Promise
       resolve()
     })
@@ -114,7 +117,7 @@ botSetup().then(() => {
   Logger.info("Bot setup done")
   updateAllChannels().then(() => {
     Logger.info("First time channel joining done")
-    setInterval(updateAllChannels, 10000)
+    setInterval(updateAllChannels, UPDATE_ALL_CHANNELS_INTERVAL)
     for (i in bots) {
       bots[i].chat.on('PRIVMSG', OnX.onChat)
       bots[i].chat.on('USERNOTICE/SUBSCRIPTION', OnX.onSubscription)
@@ -128,12 +131,8 @@ botSetup().then(() => {
 
       bots[i].chat.sayQueue = Sender.sayQueue
 
-      /*
-      Logger.info(bots[i].chat.channels)
-      for (var j in bots[i].chat.channels) {
-        Logger.info(j)
-      }
-      */
+      Logger.info("Bot: " + i)
+      Logger.info("Channels: " + Object.keys(bots[i].chat.channels))
     }
   })
 })

@@ -1,10 +1,12 @@
 const Logger = require('consola')
+const UserLevels = require('./ENUMS/UserLevels.js')
 
 module.exports = {
   userIdFromLogin,
   userInfo,
   userInChannelInfo,
-  userStatus
+  userStatus,
+  updateBotStatus
 }
 
 /**
@@ -15,6 +17,7 @@ module.exports = {
  * @return {String}        userID or -1 when no user found
  */
 async function userIdFromLogin (bot, username) {
+  username = username.replace(/#/, '')
   return new Promise((resolve, reject) => {
     bot.api.get('users', {'version': 'kraken', search: {'api_version': '5', 'client_id': bot.chat.botData.clientID, 'login': username}}).then(response => {
       if (response.total === 0) {
@@ -100,6 +103,7 @@ async function userStatus (bot, userId, roomId) {
   let isBroadcaster = false
   let isMod = false
   let isVip = false
+  let isSubscriber = false
   for (badge of userData.badges) {
     if (badge.id === "broadcaster") {
       isBroadcaster = true
@@ -110,7 +114,34 @@ async function userStatus (bot, userId, roomId) {
     if (badge.id === "vip") {
       isVip = true
     }
+    if (badge.id === "subscriber") {
+      isSubscriber = true
+    }
   }
   let isAny = isBroadcaster || isMod || isVip
-  return {isBroadcaster, isMod, isVip, isAny}
+  return {isBroadcaster, isMod, isVip, isAny, isSubscriber}
+}
+
+async function updateBotStatus () {
+  for (let i in bots) {
+    let bot = bots[i]
+    let chat = bot.chat
+    for (let j in chat.channels) {
+      let channel = chat.channels[j]
+      let botStatus = await userStatus(bot, chat.botData.userId, channel.channelID)
+      channel.botStatus = UserLevels.PLEB
+      if (botStatus.isSubscriber) {
+        channel.botStatus = UserLevels.SUBSCRIBER
+      }
+      if (botStatus.isVip) {
+        channel.botStatus = UserLevels.VIP
+      }
+      if (botStatus.isMod) {
+        channel.botStatus = UserLevels.MODERATOR
+      }
+      if (botStatus.isBroadcaster) {
+        channel.botStatus = UserLevels.BROADCASTER
+      }
+    }
+  }
 }

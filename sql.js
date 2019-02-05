@@ -34,13 +34,13 @@ module.exports = {
 
 /**
  * Gets all data about all bots from the database
- * @return {dbID, username, token, clientID, chat: {isKnown, isVerified}, enabled} Return object with all data
+ * @return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled} Return object with all data
  */
 async function getBotData () {
   let results = await pool.query("SELECT * FROM bots order by ID asc;")
 
   return results.map((row) => {
-    let dbID = row.ID || -1
+    let userId = row.ID || -1
     let username = row.username || ""
     let token = row.password || ""
     let clientID = row.krakenClientId || ""
@@ -48,7 +48,7 @@ async function getBotData () {
     let isKnown = row.knownBot || false
     let isVerified = row.verifiedBot || false
 
-    return {dbID, username, token, clientID, chat: {isKnown, isVerified}, enabled}
+    return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}
   })
 }
 
@@ -57,14 +57,14 @@ async function getBotData () {
  * @param  {Integer} botINDEX Database id of the bot in question
  * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
  */
-async function getChannelData (botINDEX) {
+async function getChannelData (botID) {
   let results = await pool.query(`SELECT botID, channelID, channelName, channels.enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
   FROM bots, channels, connections
   WHERE bots.ID = botID
   AND channels.ID = channelID
-  AND bots.ID = ?`, botINDEX)
+  AND bots.ID = ?`, botID)
 
-  return results.map((row) => {
+  results = results.map((row) => {
     let botID = row.botID || -1
     let channelID = row.channelID || -1
     let channelName = row.channelName || -1
@@ -76,4 +76,11 @@ async function getChannelData (botINDEX) {
 
     return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}
   })
+
+  //make sure the index is the channelID
+  let channels = {}
+  for (var index in results) {
+    channels[results[index].channelID] = results[index]
+  }
+  return channels
 }
