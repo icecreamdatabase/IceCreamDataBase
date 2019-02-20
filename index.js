@@ -91,7 +91,6 @@ async function updateBotChannel (bot) {
           Logger.info(bot.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
           await bot.chat.join(allChannelData[channelId].channelName).then(() => {
             Logger.info(bot.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
-            allChannelData[channelId].alreadyConnected = true
           }).catch((msg) => { Logger.error("JOIN: " + msg) })
           //allChannelData[channelId].botStatus = UserLevels.PLEB
         }
