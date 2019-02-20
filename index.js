@@ -1,3 +1,4 @@
+"use strict";
 const TwitchJs = require('twitch-js').default
 const Mysql = require('./sql.js')
 const OnX = require('./onX.js')
@@ -65,15 +66,15 @@ async function updateBotChannel (bot) {
       for (let channelId in bot.chat.channels) {
         //check
         let contains = false
-        for (let channelIndex in allChannelData) {
-          if (allChannelData[channelIndex].channelID === bot.chat.channels[channelId].channelID) {
+        for (let currentChannelId in allChannelData) {
+          if (allChannelData[currentChannelId].channelID === bot.chat.channels[channelId].channelID) {
             contains = true
           }
         }
         //part
         if (!contains) {
-          bot.chat.part(allChannelData[channelId].channelName)
-          Logger.info(bot.chat.botData.username + " Parted: #" + allChannelData[channelId].channelName)
+          bot.chat.part(bot.chat.channels[channelId].channelName)
+          Logger.info(bot.chat.botData.username + " Parted: #" + bot.chat.channels[channelId].channelName)
         }
       }
       //add new channels
@@ -118,7 +119,7 @@ botSetup().then(() => {
   updateAllChannels().then(() => {
     Logger.info("First time channel joining done")
     setInterval(updateAllChannels, UPDATE_ALL_CHANNELS_INTERVAL)
-    for (i in bots) {
+    for (let i in bots) {
       bots[i].chat.on('PRIVMSG', OnX.onChat)
       bots[i].chat.on('USERNOTICE/SUBSCRIPTION', OnX.onSubscription)
       bots[i].chat.on('USERNOTICE/RESUBSCRIPTION', OnX.onResubscription)

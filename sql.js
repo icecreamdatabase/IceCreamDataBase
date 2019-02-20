@@ -1,3 +1,4 @@
+"use strict";
 const mysql = require('mysql2')
 const util = require('util')
 const options = require('./config.json')
@@ -58,23 +59,23 @@ async function getBotData () {
  * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
  */
 async function getChannelData (botID) {
-  let results = await pool.query(`SELECT botID, channelID, channelName, channels.enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
+  let results = await pool.query(`SELECT botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
   FROM bots, channels, connections
   WHERE bots.ID = botID
   AND channels.ID = channelID
+  AND channels.enabled = B'1'
   AND bots.ID = ?`, botID)
 
   results = results.map((row) => {
     let botID = row.botID || -1
     let channelID = row.channelID || -1
     let channelName = row.channelName || -1
-    let enabled = row.enabled || false
     let shouldModerate = row.shouldModerate || false
     let useLocalCommands = row.useLocalCommands || false
     let useGlobalCommands = row.useGlobalCommands || false
     let useHardcodedCommands = row.useHardcodedCommands || false
 
-    return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}
+    return {botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}
   })
 
   //make sure the index is the channelID

@@ -1,3 +1,4 @@
+"use strict";
 const Logger = require('consola')
 const UserLevels = require('./ENUMS/UserLevels.js')
 
@@ -104,7 +105,7 @@ async function userStatus (bot, userId, roomId) {
   let isMod = false
   let isVip = false
   let isSubscriber = false
-  for (badge of userData.badges) {
+  for (let badge of userData.badges) {
     if (badge.id === "broadcaster") {
       isBroadcaster = true
     }

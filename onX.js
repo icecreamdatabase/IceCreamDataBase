@@ -1,3 +1,4 @@
+"use strict";
 const Logger = require('consola')
 const Api = require('./api.js')
 
@@ -34,9 +35,8 @@ async function onChat (msg) {
     //this.say(msg.channel, ">")
     //this.say(msg.channel, "userdata: " + JSON.stringify(await Api.userStatus(bots[this.botData.dbID], msg.tags.userId, msg.tags.roomId)))
 
-    this.sayQueue(this, msg.channel, ">", msg.tags.userId)
-    //this.sayQueue(this, msg.channel, ">", msg.tags.userId)
-    //this.sayQueue(this, msg.channel, ">", msg.tags.userId)
+    this.sayQueue(this, msg.channel, ">{nl}>{nl}>", msg.tags.userId)
+    this.sayQueue(this, msg.channel, ">{nl1000}", msg.tags.userId)
   }
 }
 
