@@ -34,8 +34,6 @@ module.exports = class Bot {
         Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") Connected!")
 
         this.updateBotChannels().then(()=>{
-          Logger.info("+++++++++++" + this)
-          Logger.info("***********" + this.chat.botData.userId)
           setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
           this.apiFunctions = new ApiFunctions({api, chat, chatConstants})
