@@ -1,7 +1,8 @@
 "use strict";
-const mysql = require('mysql2')
-const util = require('util')
-const options = require('./config.json')
+const Mysql = require('mysql2')
+const Util = require('util')
+
+const options = require('../config.json')
 
 //cast bit(1) to boolean
 //https://www.bennadel.com/blog/3188-casting-bit-fields-to-booleans-using-the-node-js-mysql-driver.htm
@@ -22,13 +23,12 @@ options.mysqloptions.typeCast = function castField ( field, useDefaultTypeCastin
   return ( useDefaultTypeCasting() )
 }
 
-var pool = mysql.createPool(options.mysqloptions)
+var pool = Mysql.createPool(options.mysqloptions)
 
-pool.query = util.promisify(pool.query) // Magic happens here.
-pool.execute = util.promisify(pool.execute) // Magic happens here.
+pool.query = Util.promisify(pool.query) // Magic happens here.
+pool.execute = Util.promisify(pool.execute) // Magic happens here.
 
 module.exports = {
-  /*pool,*/
   getBotData,
   getChannelData
 }
@@ -42,6 +42,7 @@ async function getBotData () {
 
   return results.map((row) => {
     let userId = row.ID || -1
+    //get username through userIdLoginCache instead of storing in db
     let username = row.username || ""
     let token = row.password || ""
     let clientID = row.krakenClientId || ""
@@ -69,6 +70,7 @@ async function getChannelData (botID) {
   results = results.map((row) => {
     let botID = row.botID || -1
     let channelID = row.channelID || -1
+    //get channelname through userIdLoginCache instead of storing in db
     let channelName = row.channelName || -1
     let shouldModerate = row.shouldModerate || false
     let useLocalCommands = row.useLocalCommands || false
