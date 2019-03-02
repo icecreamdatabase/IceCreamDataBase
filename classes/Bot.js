@@ -20,12 +20,13 @@ module.exports = class Bot {
       Object.assign(botData, logSetting)
       //create bot
       let {api, chat, chatConstants} = new TwitchJs(botData)
+      //save api, chat and chatConstants in the Bot instance
       this.api = api
       this.chat = chat
       this.chatConstants = chatConstants
-      //add botData
+      //add botData to chat object
       this.chat.botData = botData
-      //create empty channel array
+      //create empty channel array to chat object
       this.chat.channels = {}
 
       //Connecting the bot to the twich servers
@@ -44,7 +45,7 @@ module.exports = class Bot {
 
 
       }).catch(() => {
-        Logger.info("AAAAAAAAAAAAAAAAA Something went wrong")
+        Logger.info("AAAAAAAAAAAAAAAAA Something went wrong during connecting!")
       })
     }
   }
