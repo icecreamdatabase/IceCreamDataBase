@@ -2,6 +2,9 @@
 .ftpconfig
 .ftpignore
 
+#google sdk secret
+client_secret_*.json
+
 #config
 config.json
 
