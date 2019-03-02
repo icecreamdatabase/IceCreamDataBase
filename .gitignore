@@ -4,6 +4,7 @@
 
 #google sdk secret
 client_secret_*.json
+credentials.json
 
 #config
 config.json
