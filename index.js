@@ -4,8 +4,6 @@ const Bot = require('./classes/Bot.js')
 const Logger = require('consola')
 
 var bots = {}
-const logSetting = {log: { level: 2 }}
-const UPDATE_ALL_CHANNELS_INTERVAL = 15000 //ms
 
 /*
 const levels = {
