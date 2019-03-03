@@ -29,10 +29,15 @@ module.exports = class OnX {
       }, 1200)
     }
 
-    if (msg.message.startsWith("<")) {
-      this.queue.sayWithChannelName(msg.channel, ">", msg.tags.userId)
-      //this.sayQueue(this, msg.channel, "1{nl}2{nl}3{nl1000}4", msg.tags.userId)
+    if (msg.message.startsWith("<tags")) {
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags,null,2), msg.tags.userId)
     }
+    
+    if (msg.message.startsWith("<")) {
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+      //"1{nl}2{nl}3{nl1000}4"
+    }
+
   }
   async onSubscription (msg) {}
   async onResubscription (msg) {}
