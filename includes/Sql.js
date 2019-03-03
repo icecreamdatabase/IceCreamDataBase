@@ -23,67 +23,68 @@ options.mysqloptions.typeCast = function castField ( field, useDefaultTypeCastin
   return ( useDefaultTypeCasting() )
 }
 
-var pool = Mysql.createPool(options.mysqloptions)
+const pool = Mysql.createPool(options.mysqloptions)
 
 pool.query = Util.promisify(pool.query) // Magic happens here.
 pool.execute = Util.promisify(pool.execute) // Magic happens here.
 
-module.exports = {
-  getBotData,
-  getChannelData
-}
+module.exports = class Sql {
+  constructor() {
 
-/**
- * Gets all data about all bots from the database
- * @return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled} Return object with all data
- */
-async function getBotData () {
-  let results = await pool.query("SELECT * FROM bots order by ID asc;")
-
-  return results.map((row) => {
-    let userId = row.ID || -1
-    //get username through userIdLoginCache instead of storing in db
-    let username = row.username || ""
-    let token = row.password || ""
-    let clientID = row.krakenClientId || ""
-    let enabled = row.enabled || false
-    let isKnown = row.knownBot || false
-    let isVerified = row.verifiedBot || false
-
-    return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}
-  })
-}
-
-/**
- * Get channel data about a singular bot
- * @param  {Integer} botINDEX Database id of the bot in question
- * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
- */
-async function getChannelData (botID) {
-  let results = await pool.query(`SELECT botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
-  FROM bots, channels, connections
-  WHERE bots.ID = botID
-  AND channels.ID = channelID
-  AND channels.enabled = B'1'
-  AND bots.ID = ?`, botID)
-
-  results = results.map((row) => {
-    let botID = row.botID || -1
-    let channelID = row.channelID || -1
-    //get channelname through userIdLoginCache instead of storing in db
-    let channelName = row.channelName || -1
-    let shouldModerate = row.shouldModerate || false
-    let useLocalCommands = row.useLocalCommands || false
-    let useGlobalCommands = row.useGlobalCommands || false
-    let useHardcodedCommands = row.useHardcodedCommands || false
-
-    return {botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}
-  })
-
-  //make sure the index is the channelID
-  let channels = {}
-  for (var index in results) {
-    channels[results[index].channelID] = results[index]
   }
-  return channels
+
+  /**
+   * Gets all data about all bots from the database
+   * @return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled} Return object with all data
+   */
+  static async getBotData () {
+    let results = await pool.query("SELECT * FROM bots order by ID asc;")
+
+    return results.map((row) => {
+      let userId = row.ID || -1
+      //get username through userIdLoginCache instead of storing in db
+      let username = row.username || ""
+      let token = row.password || ""
+      let clientID = row.krakenClientId || ""
+      let enabled = row.enabled || false
+      let isKnown = row.knownBot || false
+      let isVerified = row.verifiedBot || false
+
+      return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}
+    })
+  }
+
+  /**
+   * Get channel data about a singular bot
+   * @param  {Integer} botINDEX Database id of the bot in question
+   * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
+   */
+  static async getChannelData (botID) {
+    let results = await pool.query(`SELECT botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
+    FROM bots, channels, connections
+    WHERE bots.ID = botID
+    AND channels.ID = channelID
+    AND channels.enabled = B'1'
+    AND bots.ID = ?`, botID)
+
+    results = results.map((row) => {
+      let botID = row.botID || -1
+      let channelID = row.channelID || -1
+      //get channelname through userIdLoginCache instead of storing in db
+      let channelName = row.channelName || -1
+      let shouldModerate = row.shouldModerate || false
+      let useLocalCommands = row.useLocalCommands || false
+      let useGlobalCommands = row.useGlobalCommands || false
+      let useHardcodedCommands = row.useHardcodedCommands || false
+
+      return {botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}
+    })
+
+    //make sure the index is the channelID
+    let channels = {}
+    for (var index in results) {
+      channels[results[index].channelID] = results[index]
+    }
+    return channels
+  }
 }
