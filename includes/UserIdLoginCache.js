@@ -3,43 +3,43 @@ const Logger = require('consola')
 //CLASSES
 const Api = require('../classes/ApiFunctions.js')
 
-module.exports = {
-  idToName,
-  nameToId,
-  clearMaps
-}
-
 var mapIdToName = {}
-var mapNameToId
+var mapNameToId = {}
 
-function idToName(id) {
-  if (!mapIdToName.hasOwnProperty(id)) {
-    //DO IT
+module.exports = class UserIdLoginCache {
+  constructor() {
 
-    syncIdToNameMap()
   }
 
-  return mapIdToName[id].name
-}
+  static idToName(id) {
+    if (!mapIdToName.hasOwnProperty(id)) {
+      //DO IT
 
-function nameToId(name) {
-  if (!mapNameToId.hasOwnProperty(name)) {
-    //DO IT
+      syncIdToNameMap()
+    }
 
-    syncNameToIdMap()
+    return mapIdToName[id].name
   }
 
-  return mapNameToId[id].name
-}
+  static nameToId(name) {
+    if (!mapNameToId.hasOwnProperty(name)) {
+      //DO IT
 
-function clearMaps(){
+      syncNameToIdMap()
+    }
 
-}
+    return mapNameToId[id].name
+  }
 
-function syncIdToNameMap(){
+  static clearMaps(){
 
-}
+  }
 
-function syncNameToIdMap(){
+  static syncIdToNameMap(){
 
+  }
+
+  static syncNameToIdMap(){
+
+  }
 }
