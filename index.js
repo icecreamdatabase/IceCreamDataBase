@@ -6,17 +6,6 @@ const Logger = require('consola')
 var bots = {}
 
 /*
-const levels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  verbose: 3,
-  debug: 4,
-  silly: 5
-};
-*/
-
-/*
 global.VERSION.REVISION = require('child_process')
   .execSync('git rev-parse HEAD')
   .toString().trim()
@@ -31,5 +20,4 @@ Mysql.getBotData().then(async (allBotData) => {
     }
   }
   return Promise.resolve(1)
-  Logger.info("Bot setup done")
 })

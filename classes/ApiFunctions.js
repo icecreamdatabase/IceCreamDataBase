@@ -7,10 +7,8 @@ const UPDATE_BOT_STATUS_INTERVAL = 15000 //ms
 
 
 module.exports = class ApiFunctions {
-  constructor({api, chat, chatConstants}) {
-    this.api = api
-    this.chat = chat
-    this.chatConstants = chatConstants
+  constructor(bot) {
+    this.bot = bot
 
     this.updateBotStatus()
     setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
@@ -25,7 +23,7 @@ module.exports = class ApiFunctions {
   async userIdFromLogin (username) {
     username = username.replace(/#/, '')
     return new Promise((resolve, reject) => {
-      this.api.get('users', {'version': 'kraken', search: {'api_version': '5', 'client_id': this.chat.botData.clientID, 'login': username}}).then(response => {
+      this.bot.api.get('users', {'version': 'kraken', search: {'api_version': '5', 'client_id': this.bot.chat.botData.clientID, 'login': username}}).then(response => {
         if (response.total === 0) {
           resolve("-1")
         } else {
@@ -55,7 +53,7 @@ module.exports = class ApiFunctions {
    */
   async userInfo (userId) {
     return new Promise((resolve, reject) => {
-      this.api.get('users/' + userId + '/chat', {'version': 'kraken', search: {'api_version': '5', 'client_id': this.chat.botData.clientID}}).then(response => {
+      this.bot.api.get('users/' + userId + '/chat', {'version': 'kraken', search: {'api_version': '5', 'client_id': this.bot.chat.botData.clientID}}).then(response => {
         resolve(response)
       }).catch((err) => {
         reject(err)
@@ -87,7 +85,7 @@ module.exports = class ApiFunctions {
    */
   async userInChannelInfo (userId, roomId) {
     return new Promise((resolve, reject) => {
-      this.api.get('users/' + userId + '/chat/channels/' + roomId, {'version': 'kraken', search: {'api_version': '5', 'client_id': this.chat.botData.clientID}}).then(response => {
+      this.bot.api.get('users/' + userId + '/chat/channels/' + roomId, {'version': 'kraken', search: {'api_version': '5', 'client_id': this.bot.chat.botData.clientID}}).then(response => {
         resolve(response)
       }).catch((err) => {
         reject(err)
@@ -126,9 +124,9 @@ module.exports = class ApiFunctions {
   }
 
   async updateBotStatus () {
-    for (let i in this.chat.channels) {
-      let channel = this.chat.channels[i]
-      let botStatus = await this.userStatus(this.chat.botData.userId, channel.channelID)
+    for (let i in this.bot.chat.channels) {
+      let channel = this.bot.chat.channels[i]
+      let botStatus = await this.userStatus(this.bot.chat.botData.userId, channel.channelID)
       channel.botStatus = UserLevels.PLEB
       if (botStatus.isSubscriber) {
         channel.botStatus = UserLevels.SUBSCRIBER

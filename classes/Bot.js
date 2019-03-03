@@ -1,13 +1,24 @@
 "use strict";
 const Logger = require('consola')
 const TwitchJs = require('twitch-js').default
-//INCLUDES
+//CLASSES
 const Mysql = require('../classes/Sql.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
-//CLASSES
 const OnX = require('../classes/OnX.js')
+const Queue = require('../classes/Queue.js')
 //ENUMS
 const UserLevels = require('../ENUMS/UserLevels.js')
+
+/*
+const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  verbose: 3,
+  debug: 4,
+  silly: 5
+};
+*/
 
 const logSetting = {log: { level: 2 }}
 const UPDATE_ALL_CHANNELS_INTERVAL = 15000 //ms
@@ -37,8 +48,9 @@ module.exports = class Bot {
         this.updateBotChannels().then(()=>{
           setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
-          this.apiFunctions = new ApiFunctions({api, chat, chatConstants})
-          this.onX = new OnX(chat)
+          this.apiFunctions = new ApiFunctions(this)
+          this.onX = new OnX(this)
+          this.chat.queue = new Queue(this)
 
           Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") is fully setup!")
         })
@@ -52,6 +64,10 @@ module.exports = class Bot {
 
   get userId(){
     return this.chat.botData.userId
+  }
+
+  get userName(){
+    return this.chat.botData.username
   }
 
   async updateBotChannels() {
