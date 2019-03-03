@@ -19,7 +19,6 @@ module.exports = class ApiFunctions {
   /**
    * Return the UserID from a username
    * Example: https://api.twitch.tv/kraken/users?api_version=5&login=icdb
-   * @param  {TwitchJs bot} bot    TwitchJs bot
    * @param  {String} username The name to check for
    * @return {String}        userID or -1 when no user found
    */
@@ -51,7 +50,6 @@ module.exports = class ApiFunctions {
    *   "isKnownBot":false,
    *   "badges":[]
    * }
-   * @param  {TwitchJs bot} bot    TwitchJs bot
    * @param  {String or number} userId The userID to check for
    * @return {Object}        [description]
    */
@@ -83,7 +81,6 @@ module.exports = class ApiFunctions {
    *     }
    *   ]
    * }
-   * @param  {TwitchJs bot} bot    TwitchJs bot
    * @param  {String or number} userId The userID to check for
    * @param  {String or number} userId The roomID to check in
    * @return {Object}        [description]
@@ -100,7 +97,6 @@ module.exports = class ApiFunctions {
 
   /**
    * Returns the userstate of a userId inside a room from the api
-   * @param  {TwitchJs bot} bot    TwitchJs bot
    * @param  {String or number} userId The userID to check for
    * @param  {String or number} userId The roomID to check in
    * @return {isBroadcaster, isMod, isVip, isAny}        Object of the status
