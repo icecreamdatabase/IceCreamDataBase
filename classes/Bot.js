@@ -2,7 +2,7 @@
 const Logger = require('consola')
 const TwitchJs = require('twitch-js').default
 //INCLUDES
-const Mysql = require('../includes/Sql.js')
+const Mysql = require('../classes/Sql.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
 //CLASSES
 const OnX = require('../classes/OnX.js')

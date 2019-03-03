@@ -1,5 +1,5 @@
 "use strict";
-const Mysql = require('./includes/Sql.js')
+const Mysql = require('./classes/Sql.js')
 const Bot = require('./classes/Bot.js')
 const Logger = require('consola')
 
