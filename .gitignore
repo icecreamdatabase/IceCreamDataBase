@@ -1,3 +1,6 @@
+#IntelliJ
+.idea/
+
 #atom remote ftp
 .ftpconfig
 .ftpignore
