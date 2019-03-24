@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 const Mysql = require('mysql2')
 const Util = require('util')
 
@@ -29,7 +29,7 @@ pool.query = Util.promisify(pool.query) // Magic happens here.
 pool.execute = Util.promisify(pool.execute) // Magic happens here.
 
 module.exports = class Sql {
-  constructor() {
+  constructor () {
 
   }
 

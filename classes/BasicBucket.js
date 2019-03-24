@@ -1,27 +1,27 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 
 const TICKET_RETURN_TIMEOUT = 30000
 
 module.exports = class BasicBucket {
-  constructor(limit) {
+  constructor (limit) {
     this.usedTickets = 0
     this._limit = limit || 30
   }
 
-  set limit(limit) {
+  set limit (limit) {
     this._limit = limit
   }
 
-  get limit() {
+  get limit () {
     return this._limit
   }
 
-  get ticketsRemaining() {
+  get ticketsRemaining () {
     return Object.keys(this.bucket).length
   }
 
-  takeTicket() {
+  takeTicket () {
     if (this.usedTickets < this.limit) {
       this.usedTickets++
       setTimeout(this.returnTicket.bind(this), TICKET_RETURN_TIMEOUT)
@@ -36,7 +36,7 @@ module.exports = class BasicBucket {
  * Returns one used ticket and therefor reduces the usedTickets amount by one.
  * don't forget to bind this. E.g.: `this.returnTicket.bind(this)`
  */
-function returnTicket() {
+function returnTicket () {
   if (this.usedTickets > 0) {
     this.usedTickets--
   } else {

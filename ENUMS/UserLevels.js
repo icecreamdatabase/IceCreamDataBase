@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 module.exports = Object.freeze({
                   "DEFAULT": 0,
                   "PLEB": 0,

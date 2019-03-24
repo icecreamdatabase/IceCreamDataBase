@@ -1,10 +1,10 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 //CLASSES
 const ApiFunctions = require('../classes/ApiFunctions.js')
 
 module.exports = class OnX {
-  constructor(bot) {
+  constructor (bot) {
     this.bot = bot
 
     bot.chat.on('PRIVMSG', this.onChat)
@@ -21,6 +21,17 @@ module.exports = class OnX {
   async onChat (msg) {
     Logger.info("--> " + msg.channel + " " + msg.username + ": " + msg.message)
 
+    /* update the bot */
+    if (msg.message.startsWith("<update") && msg.tags.userId === "38949074") {
+      let { spawn } = require( 'child_process' ); let ls = spawn( 'git', [ 'pull' ] )
+
+      ls.on( 'close', code => {
+          if (code === 0) {
+            this.say(msg.channel, "Updated... Please restart bot to apply updates.")
+          }
+      } )
+    }
+
     /* Shutting down the bot */
     if (msg.message.startsWith("<sd") && msg.tags.userId === "38949074") {
       this.say(msg.channel, "Shutting down FeelsBadMan")
@@ -30,9 +41,9 @@ module.exports = class OnX {
     }
 
     if (msg.message.startsWith("<tags")) {
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags,null,2), msg.tags.userId)
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags, null, 2), msg.tags.userId)
     }
-    
+
     if (msg.message.startsWith("<")) {
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       //"1{nl}2{nl}3{nl1000}4"

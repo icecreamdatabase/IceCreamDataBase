@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 //CLASSES
 const Api = require('../classes/ApiFunctions.js')
@@ -7,11 +7,11 @@ var mapIdToName = {}
 var mapNameToId = {}
 
 module.exports = class UserIdLoginCache {
-  constructor() {
+  constructor () {
 
   }
 
-  static idToName(id) {
+  static idToName (id) {
     if (!mapIdToName.hasOwnProperty(id)) {
       //DO IT
 
@@ -21,7 +21,7 @@ module.exports = class UserIdLoginCache {
     return mapIdToName[id].name
   }
 
-  static nameToId(name) {
+  static nameToId (name) {
     if (!mapNameToId.hasOwnProperty(name)) {
       //DO IT
 
@@ -31,15 +31,15 @@ module.exports = class UserIdLoginCache {
     return mapNameToId[id].name
   }
 
-  static clearMaps(){
+  static clearMaps () {
 
   }
 
-  static syncIdToNameMap(){
+  static syncIdToNameMap () {
 
   }
 
-  static syncNameToIdMap(){
+  static syncNameToIdMap () {
 
   }
 }

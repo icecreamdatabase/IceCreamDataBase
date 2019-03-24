@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 //ENUMS
 const UserLevels = require('../ENUMS/UserLevels.js')
@@ -7,7 +7,7 @@ const UPDATE_BOT_STATUS_INTERVAL = 15000 //ms
 
 
 module.exports = class ApiFunctions {
-  constructor(bot) {
+  constructor (bot) {
     this.bot = bot
 
     this.updateBotStatus()

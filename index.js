@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 const Mysql = require('./classes/Sql.js')
 const Bot = require('./classes/Bot.js')
 const Logger = require('consola')

@@ -1,22 +1,22 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 //CLASSES
 const BasicBucket = require('../classes/BasicBucket.js')
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 
 module.exports = class Queue {
-  constructor(bot) {
+  constructor (bot) {
     this.bot = bot
 
-    this.privmsgModeratorbucket = new BasicBucket();
-    this.privsgUserBucket = new BasicBucket();
+    this.privmsgModeratorbucket = new BasicBucket()
+    this.privsgUserBucket = new BasicBucket()
   }
 
-  sayWithChannelId(channelId, message, userId) {
+  sayWithChannelId (channelId, message, userId) {
     this.sayWithBoth(channelId, UserIdLoginCache.idToName(channelId), message, userId)
   }
 
-  sayWithChannelName(channelName, message, userId) {
+  sayWithChannelName (channelName, message, userId) {
     this.sayWithBoth(UserIdLoginCache.nameToId(channelName), channelName, message, userId)
   }
 
@@ -28,13 +28,13 @@ module.exports = class Queue {
    * @param  {[type]} userId      [description]
    * @return {[type]}             [description]
    */
-  sayWithBoth(channelId, channelName, message, userId) {
+  sayWithBoth (channelId, channelName, message, userId) {
     //if userId paramter is missing just set it to "-1"
     userId = userId || "-1"
 
     let botStatus = this.bot.chat.channels[channelId].botStatus
 
-    this.bot.chat.say(channelName, message);
+    this.bot.chat.say(channelName, message)
     Logger.info("<-- " + channelName + " " + this.bot.userName + ": " + message)
   }
 }

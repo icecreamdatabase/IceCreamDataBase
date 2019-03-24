@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 const EventEmitter = require('eventemitter3')
 const UserLevels = require('../ENUMS/UserLevels.js')
@@ -102,10 +102,10 @@ function handleNewLine (chat, channel, userId, message) {
     message += "{nl}"
     let matchArray = []
 
-    let match = regExNewLine.exec(message);
+    let match = regExNewLine.exec(message)
     while (match != null) {
       matchArray.push([match[1], parseInt(match[2]) || 0])
-      match = regExNewLine.exec(message);
+      match = regExNewLine.exec(message)
     }
 
     for (var matchElement of matchArray) {
@@ -140,7 +140,7 @@ async function sendMessage (chat, channel, userId, message) {
   var delay = (isSelfMessage && !elevatedUser) ? 1250 : 0
 
   if (delay > 0) {
-    await sleep(delay);
+    await sleep(delay)
   }
 
   var currentTimeMillis = new Date().getTime()

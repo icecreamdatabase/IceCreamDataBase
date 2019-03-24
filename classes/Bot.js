@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 const Logger = require('consola')
 const TwitchJs = require('twitch-js').default
 //CLASSES
@@ -24,7 +24,7 @@ const logSetting = {log: { level: 2 }}
 const UPDATE_ALL_CHANNELS_INTERVAL = 15000 //ms
 
 module.exports = class Bot {
-  constructor(botData) {
+  constructor (botData) {
     if (botData.enabled) {
       Logger.info("Setting up bot: " + botData.userId + " (" + botData.username + ")")
       //add log settings
@@ -62,15 +62,15 @@ module.exports = class Bot {
     }
   }
 
-  get userId(){
+  get userId () {
     return this.chat.botData.userId
   }
 
-  get userName(){
+  get userName () {
     return this.chat.botData.username
   }
 
-  async updateBotChannels() {
+  async updateBotChannels () {
     let allChannelData = await Mysql.getChannelData(this.chat.botData.userId)
 
     //remove unused channels

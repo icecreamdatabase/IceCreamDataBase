@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 module.exports = Object.freeze({
                   "NORMAL": 30,
                   "NORMAL_MOD": 100,
