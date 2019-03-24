@@ -22,11 +22,10 @@ module.exports = class Queue {
 
   /**
    * channelId and channelName have to match else there might be unpredictable problems
-   * @param  {[type]} channelId   [description]
-   * @param  {[type]} channelName [description]
-   * @param  {[type]} message     [description]
-   * @param  {[type]} userId      [description]
-   * @return {[type]}             [description]
+   * @param  {int} channelId   [description]
+   * @param  {String} channelName [description]
+   * @param  {String} message     [description]
+   * @param  {int} userId      [description]
    */
   sayWithBoth (channelId, channelName, message, userId) {
     //if userId paramter is missing just set it to "-1"

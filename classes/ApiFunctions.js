@@ -48,7 +48,7 @@ module.exports = class ApiFunctions {
    *   "isKnownBot":false,
    *   "badges":[]
    * }
-   * @param  {String or number} userId The userID to check for
+   * @param  {String|int} userId The userID to check for
    * @return {Object}        [description]
    */
   async userInfo (userId) {
@@ -79,8 +79,8 @@ module.exports = class ApiFunctions {
    *     }
    *   ]
    * }
-   * @param  {String or number} userId The userID to check for
-   * @param  {String or number} userId The roomID to check in
+   * @param  {String|int} userId The userID to check for
+   * @param  {String|int} roomId The roomID to check in
    * @return {Object}        [description]
    */
   async userInChannelInfo (userId, roomId) {
@@ -95,8 +95,8 @@ module.exports = class ApiFunctions {
 
   /**
    * Returns the userstate of a userId inside a room from the api
-   * @param  {String or number} userId The userID to check for
-   * @param  {String or number} userId The roomID to check in
+   * @param  {String|int} userId The userID to check for
+   * @param  {String|int} roomId The roomID to check in
    * @return {isBroadcaster, isMod, isVip, isAny}        Object of the status
    */
   async userStatus (userId, roomId) {

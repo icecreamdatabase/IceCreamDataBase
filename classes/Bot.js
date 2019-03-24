@@ -78,8 +78,10 @@ module.exports = class Bot {
       //check
       let contains = false
       for (let currentChannelId in allChannelData) {
-        if (allChannelData[currentChannelId].channelID === this.chat.channels[channelId].channelID) {
-          contains = true
+        if (allChannelData.hasOwnProperty(currentChannelId)) {
+          if (allChannelData[currentChannelId].channelID === this.chat.channels[channelId].channelID) {
+            contains = true
+          }
         }
       }
       //part
@@ -90,19 +92,25 @@ module.exports = class Bot {
     }
     //add new channels
     for (let channelId in allChannelData) {
-      //check
-      let contains = false
-      for (let currentChannelId in this.chat.channels) {
-        if (this.chat.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
-          contains = true
+      if (allChannelData.hasOwnProperty(channelId)) {
+        //check
+        let contains = false
+        for (let currentChannelId in this.chat.channels) {
+          if (this.chat.channels.hasOwnProperty(currentChannelId)) {
+            if (this.chat.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
+              contains = true
+            }
+          }
         }
-      }
-      //join
-      if (!contains) {
-        Logger.info(this.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
-        await this.chat.join(allChannelData[channelId].channelName).then(() => {
-          Logger.info(this.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
-        }).catch((msg) => { Logger.error("JOIN: " + msg) })
+        //join
+        if (!contains) {
+          Logger.info(this.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
+          await this.chat.join(allChannelData[channelId].channelName).then(() => {
+            Logger.info(this.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
+          }).catch((msg) => {
+            Logger.error("JOIN: " + msg)
+          })
+        }
       }
     }
     //save changes to bot array

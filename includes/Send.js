@@ -3,12 +3,6 @@ const Logger = require('consola')
 const EventEmitter = require('eventemitter3')
 const UserLevels = require('../ENUMS/UserLevels.js')
 
-module.exports = {
-  pastMessages,
-  cleanupGlobalTimeout,
-  checkGlobalTimeout,
-  sayQueue
-}
 //regex
 //group #1 is the text infront of the {nlXXXX}
 //group #2 is the delay in {nlXXXX} ... if XXXX is not there group#2 is ""
@@ -22,10 +16,10 @@ const VERIFIED_RATELIMIT = 7500
 const queueEmitter = new EventEmitter()
 
 //make this per bot
-var messageQueue = []
+let messageQueue = []
 //make this per channel
-var pastMessages = []
-var addSpecialCharacter = {}
+let pastMessages = []
+let addSpecialCharacter = {}
 
 async function cleanupGlobalTimeout () {
   while (pastMessages.length > 0 && pastMessages[0] + 30000 < new Date().getTime()) {
@@ -55,7 +49,7 @@ function checkGlobalTimeout (chat, channel) {
 //TODO: use userIdLoginCache
 function channelIdFromName (chat, channel) {
   let channelId = -1
-  for (var channelIndex in chat.channels) {
+  for (let channelIndex in chat.channels) {
     if (channel.replace(/#/, '') === chat.channels[channelIndex].channelName) {
       channelId = chat.channels[channelIndex].channelID
     }
@@ -108,7 +102,7 @@ function handleNewLine (chat, channel, userId, message) {
       match = regExNewLine.exec(message)
     }
 
-    for (var matchElement of matchArray) {
+    for (let matchElement of matchArray) {
       Logger.info(currentDelay)
       Logger.info(delay)
       Logger.info(matchElement)
@@ -137,13 +131,13 @@ async function sendMessage (chat, channel, userId, message) {
 
   let isSelfMessage = chat.botData.userID === userId
   let elevatedUser = channel.botStatus >= UserLevels.VIP
-  var delay = (isSelfMessage && !elevatedUser) ? 1250 : 0
+  let delay = (isSelfMessage && !elevatedUser) ? 1250 : 0
 
   if (delay > 0) {
     await sleep(delay)
   }
 
-  var currentTimeMillis = new Date().getTime()
+  let currentTimeMillis = new Date().getTime()
   //more than 1250ms since last message
   if ((channel.lastMessageTime || 0) + 1225 < currentTimeMillis || elevatedUser) {
     channel.lastMessageTime = currentTimeMillis
@@ -152,7 +146,7 @@ async function sendMessage (chat, channel, userId, message) {
     cleanupGlobalTimeout()
     if (!checkGlobalTimeout(chat, elevatedUser)) {
       pastMessages.push(new Date().getTime())
-      var shouldAdd = addSpecialCharacter[channel] || false
+      let shouldAdd = addSpecialCharacter[channel] || false
       if (shouldAdd && !elevatedUser) {
         message = message + " \u206D"
       }
@@ -165,4 +159,12 @@ async function sendMessage (chat, channel, userId, message) {
   } else {
     console.log("ratelimit: Too fast as pleb " + (currentTimeMillis - (channel.lastMessageTime || 0)) + "ms")
   }
+}
+
+
+module.exports = {
+  pastMessages,
+  cleanupGlobalTimeout,
+  checkGlobalTimeout,
+  sayQueue
 }

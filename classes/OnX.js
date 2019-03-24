@@ -7,18 +7,20 @@ module.exports = class OnX {
   constructor (bot) {
     this.bot = bot
 
-    bot.chat.on('PRIVMSG', this.onChat)
-    bot.chat.on('USERNOTICE/SUBSCRIPTION', this.onSubscription)
-    bot.chat.on('USERNOTICE/RESUBSCRIPTION', this.onResubscription)
-    bot.chat.on('USERNOTICE/SUBSCRIPTION_GIFT', this.onSubscriptionGift)
-    bot.chat.on('USERNOTICE/SUBSCRIPTION_GIFT_COMMUNITY', this.onSubscriptionGiftCommunity)
-    bot.chat.on('USERNOTICE/GIFT_PAID_UPGRADE', this.onGiftPaidUpgrade)
-    bot.chat.on('USERNOTICE/ANON_GIFT_PAID_UPGRADE', this.onAnonGiftPaidUpgrade)
-    bot.chat.on('USERNOTICE/RITUAL', this.onRitual)
-    bot.chat.on('USERNOTICE/RAID', this.onRaid)
+    bot.chat.on('PRIVMSG', onChat)
+    bot.chat.on('USERNOTICE/SUBSCRIPTION', onSubscription)
+    bot.chat.on('USERNOTICE/RESUBSCRIPTION', onResubscription)
+    bot.chat.on('USERNOTICE/SUBSCRIPTION_GIFT', onSubscriptionGift)
+    bot.chat.on('USERNOTICE/SUBSCRIPTION_GIFT_COMMUNITY', onSubscriptionGiftCommunity)
+    bot.chat.on('USERNOTICE/GIFT_PAID_UPGRADE', onGiftPaidUpgrade)
+    bot.chat.on('USERNOTICE/ANON_GIFT_PAID_UPGRADE', onAnonGiftPaidUpgrade)
+    bot.chat.on('USERNOTICE/RITUAL', onRitual)
+    bot.chat.on('USERNOTICE/RAID', onRaid)
   }
 
-  async onChat (msg) {
+}
+
+  async function onChat (msg) {
     Logger.info("--> " + msg.channel + " " + msg.username + ": " + msg.message)
 
     /* update the bot */
@@ -50,12 +52,11 @@ module.exports = class OnX {
     }
 
   }
-  async onSubscription (msg) {}
-  async onResubscription (msg) {}
-  async onSubscriptionGift (msg) {}
-  async onSubscriptionGiftCommunity (msg) {}
-  async onGiftPaidUpgrade (msg) {}
-  async onAnonGiftPaidUpgrade (msg) {}
-  async onRitual (msg) {}
-  async onRaid (msg) {}
-}
+  async function onSubscription (msg) {}
+  async function onResubscription (msg) {}
+  async function onSubscriptionGift (msg) {}
+  async function onSubscriptionGiftCommunity (msg) {}
+  async function onGiftPaidUpgrade (msg) {}
+  async function onAnonGiftPaidUpgrade (msg) {}
+  async function onRitual (msg) {}
+  async function onRaid (msg) {}

@@ -10,7 +10,7 @@ options.mysqloptions.typeCast = function castField ( field, useDefaultTypeCastin
   // We only want to cast bit fields that have a single-bit in them. If the field
   // has more than one bit, then we cannot assume it is supposed to be a Boolean.
   if ( ( field.type === "BIT" ) && ( field.length === 1 ) ) {
-    var bytes = field.buffer()
+    let bytes = field.buffer()
     //Account for the (hopefully rare) case in which a BIT(1) field would be NULL
     if (bytes === null) {
       return null
@@ -35,7 +35,7 @@ module.exports = class Sql {
 
   /**
    * Gets all data about all bots from the database
-   * @return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled} Return object with all data
+   * @return {{userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}} botData Return object with all data
    */
   static async getBotData () {
     let results = await pool.query("SELECT * FROM bots order by ID asc;")
@@ -56,7 +56,7 @@ module.exports = class Sql {
 
   /**
    * Get channel data about a singular bot
-   * @param  {Integer} botINDEX Database id of the bot in question
+   * @param  {int} botID Database id of the bot in question
    * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
    */
   static async getChannelData (botID) {
@@ -82,8 +82,10 @@ module.exports = class Sql {
 
     //make sure the index is the channelID
     let channels = {}
-    for (var index in results) {
-      channels[results[index].channelID] = results[index]
+    for (let index in results) {
+      if (results.hasOwnProperty(index)) {
+        channels[results[index].channelID] = results[index]
+      }
     }
     return channels
   }

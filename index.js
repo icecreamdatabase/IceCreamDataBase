@@ -3,7 +3,7 @@ const Mysql = require('./classes/Sql.js')
 const Bot = require('./classes/Bot.js')
 const Logger = require('consola')
 
-var bots = {}
+let bots = {}
 
 /*
 global.VERSION.REVISION = require('child_process')

@@ -21,7 +21,8 @@
     "mysql2": "^1.6.4",
     "twitch-js": "^2.0.0-beta.30",
     "util": "^0.11.1",
-    "consola": "^2.3.0"
+    "consola": "^2.3.0",
+    "eventemitter3": "latest"
   },
   "devDependencies": {
     "eslint": "^5.15.3",

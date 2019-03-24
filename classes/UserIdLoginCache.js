@@ -3,8 +3,8 @@ const Logger = require('consola')
 //CLASSES
 const Api = require('../classes/ApiFunctions.js')
 
-var mapIdToName = {}
-var mapNameToId = {}
+let mapIdToName = {}
+let mapNameToId = {}
 
 module.exports = class UserIdLoginCache {
   constructor () {
