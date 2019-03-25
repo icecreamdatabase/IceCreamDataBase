@@ -9,9 +9,9 @@ module.exports = class BasicBucket {
     this._limit = limit || 30
   }
 
-  set limit (limit) {
-    this._limit = limit
-  }
+  //set limit (limit) {
+  //  this._limit = limit
+  //}
 
   get limit () {
     return this._limit

@@ -86,6 +86,7 @@ module.exports = class Bot {
       }
       //part
       if (!contains) {
+        // noinspection JSUnresolvedFunction
         this.chat.part(this.chat.channels[channelId].channelName)
         Logger.info(this.chat.botData.username + " Parted: #" + this.chat.channels[channelId].channelName)
       }
