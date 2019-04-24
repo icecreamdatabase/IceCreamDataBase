@@ -18,7 +18,7 @@ module.exports = class BasicBucket {
   }
 
   get ticketsRemaining () {
-    return Object.keys(this.bucket).length
+    return this.limit - this.usedTickets
   }
 
   takeTicket () {
