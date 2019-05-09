@@ -148,7 +148,7 @@ async function sendMessage (chat, channel, userId, message) {
       pastMessages.push(new Date().getTime())
       let shouldAdd = addSpecialCharacter[channel] || false
       if (shouldAdd && !elevatedUser) {
-        message = message + " \u2800"
+        message = message + " \u{E0000}"
       }
       addSpecialCharacter[channel] = !shouldAdd
       Logger.info("--> " + channel.channelName + ": " + message)
