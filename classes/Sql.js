@@ -47,10 +47,8 @@ module.exports = class Sql {
       let token = row.password || ""
       let clientID = row.krakenClientId || ""
       let enabled = row.enabled || false
-      let isKnown = row.knownBot || false
-      let isVerified = row.verifiedBot || false
 
-      return {userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}
+      return {userId, username, token, clientID, enabled}
     })
   }
 

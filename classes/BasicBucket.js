@@ -6,7 +6,7 @@ const TICKET_RETURN_TIMEOUT = 30000
 module.exports = class BasicBucket {
   constructor (limit) {
     this.usedTickets = 0
-    this._limit = limit || 30
+    this._limit = limit || 20
   }
 
   //set limit (limit) {
@@ -24,7 +24,7 @@ module.exports = class BasicBucket {
   takeTicket () {
     if (this.usedTickets < this.limit) {
       this.usedTickets++
-      setTimeout(this.returnTicket.bind(this), TICKET_RETURN_TIMEOUT)
+      setTimeout(returnTicket.bind(this), TICKET_RETURN_TIMEOUT)
       return true
     } else {
       return false
@@ -34,7 +34,7 @@ module.exports = class BasicBucket {
 
 /**
  * Returns one used ticket and therefor reduces the usedTickets amount by one.
- * don't forget to bind this. E.g.: `this.returnTicket.bind(this)`
+ * don't forget to bind this. E.g.: `returnTicket.bind(this)`
  */
 function returnTicket () {
   if (this.usedTickets > 0) {

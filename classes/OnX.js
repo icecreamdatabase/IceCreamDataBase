@@ -3,6 +3,8 @@ const Logger = require('consola')
 //CLASSES
 const ApiFunctions = require('../classes/ApiFunctions.js')
 
+const util = require('util')
+
 module.exports = class OnX {
   constructor (bot) {
     this.bot = bot
@@ -35,7 +37,7 @@ module.exports = class OnX {
     }
 
     /* Shutting down the bot */
-    if (msg.message.startsWith("<sd") && msg.tags.userId === "38949074") {
+    if (msg.message.startsWith("<s") && msg.tags.userId === "38949074") {
       this.say(msg.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.exit(0)

@@ -2,6 +2,7 @@
 const Logger = require('consola')
 //ENUMS
 const UserLevels = require('../ENUMS/UserLevels.js')
+const ChatLimit = require('../ENUMS/ChatLimit.js')
 
 const UPDATE_BOT_STATUS_INTERVAL = 15000 //ms
 
@@ -36,6 +37,21 @@ module.exports = class ApiFunctions {
   }
 
   /**
+   * Users object returned by
+   * kraken/users/XXXXXX/chat and
+   * kraken/users/XXXXXX/chat/channels/YYYYYY
+   *
+   * @typedef {Object} Users
+   * @property {string} id
+   * @property {string} login
+   * @property {string} displayName
+   * @property {string} color
+   * @property {boolean} isVerifiedBot
+   * @property {boolean} isKnownBot
+   * @property {Object} Badges
+   */
+
+  /**
    * Accesses the kraken/users/:userID/chat
    * Example: https://api.twitch.tv/kraken/users/38949074/chat?api_version=5
    * Example return:
@@ -49,7 +65,7 @@ module.exports = class ApiFunctions {
    *   "badges":[]
    * }
    * @param  {String|int} userId The userID to check for
-   * @return {Object}        [description]
+   * @return {Users} [description]
    */
   async userInfo (userId) {
     return new Promise((resolve, reject) => {
@@ -60,6 +76,7 @@ module.exports = class ApiFunctions {
       })
     })
   }
+
 
   /**
    * Accesses the kraken/users/:userID/chat/channels/:roomID
@@ -81,7 +98,7 @@ module.exports = class ApiFunctions {
    * }
    * @param  {String|int} userId The userID to check for
    * @param  {String|int} roomId The roomID to check in
-   * @return {Object}        [description]
+   * @return {Users} [description]
    */
   async userInChannelInfo (userId, roomId) {
     return new Promise((resolve, reject) => {
@@ -120,7 +137,10 @@ module.exports = class ApiFunctions {
       }
     }
     let isAny = isBroadcaster || isMod || isVip
-    return {isBroadcaster, isMod, isVip, isAny, isSubscriber}
+    let isKnownBot = userData.isKnownBot || false
+    let isVerifiedBot = userData.isVerifiedBot || false
+
+    return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
 
   async updateBotStatus () {
@@ -139,6 +159,17 @@ module.exports = class ApiFunctions {
       }
       if (botStatus.isBroadcaster) {
         channel.botStatus = UserLevels.BROADCASTER
+      }
+
+      if (botStatus.isVerifiedBot) {
+        this.bot.chat.rateLimitUser = ChatLimit.VERIFIED
+        this.bot.chat.rateLimitModerator = ChatLimit.VERIFIED_MOD
+      } else if (botStatus.isKnownBot) {
+        this.bot.chat.rateLimitUser = ChatLimit.KNOWN
+        this.bot.chat.rateLimitModerator = ChatLimit.KNOWN_MOD
+      } else {
+        this.bot.chat.rateLimitUser = ChatLimit.NORMAL
+        this.bot.chat.rateLimitModerator = ChatLimit.NORMAL_MOD
       }
     }
   }

@@ -4,16 +4,20 @@ const EventEmitter = require('eventemitter3')
 //CLASSES
 const BasicBucket = require('../classes/BasicBucket.js')
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
+//ENUMS
+const UserLevels = require('../ENUMS/UserLevels.js')
 
 module.exports = class Queue {
   constructor (bot) {
     this.bot = bot
 
+    this.previousMessage = ""
+
     this.messageQueue = []
     this.queueEmitter = new EventEmitter()
 
-    this.privmsgModeratorbucket = new BasicBucket()
-    this.privsgUserBucket = new BasicBucket()
+    this.privmsgModeratorbucket = new BasicBucket(this.bot.chat.rateLimitModerator)
+    this.privsgUserBucket = new BasicBucket(this.bot.chat.rateLimitUser)
 
     this.queueEmitter.on('event', this.checkQueue.bind(this))
 
@@ -49,12 +53,26 @@ module.exports = class Queue {
       let msgObj = this.messageQueue[0]
 
       let botStatus = this.bot.chat.channels[msgObj.channelId].botStatus
-      /*TODO:  UserBucket */
-      /*TODO:  if mod / vip / broadcaster*/
-      /*TODO:  ModeratorBucket */
+
+      if (botStatus < UserLevels.VIP) {
+        if (!this.privsgUserBucket.takeTicket()) {
+          return
+        }
+        Logger.info("Took user ticket")
+      }
+
+      if (!this.privmsgModeratorbucket.takeTicket()) {
+        return
+      }
+      Logger.info("Took moderator ticket")
 
       /*TODO:  is message safe to post --- else: this.messageQueue.shift() */
       /*TODO:  is timeout over? (sending message too fast) */
+
+      if (msgObj.message === this.previousMessage) {
+        msgObj.message += " \u{E0000}"
+      }
+      this.previousMessage = msgObj.message
 
       this.bot.chat.say(msgObj.channelName, msgObj.message)
       this.messageQueue.shift()
