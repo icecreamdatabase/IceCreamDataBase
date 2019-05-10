@@ -49,12 +49,12 @@ module.exports = class Bot {
           setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
           this.apiFunctions = new ApiFunctions(this)
-          this.onX = new OnX(this)
-          this.chat.queue = new Queue(this)
-
-          Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") is fully setup!")
+          this.apiFunctions.updateBotStatus().then(() => {
+            this.onX = new OnX(this)
+            this.chat.queue = new Queue(this)
+            Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") is fully setup!")
+          })
         })
-
 
       }).catch(() => {
         Logger.info("AAAAAAAAAAAAAAAAA Something went wrong during connecting!")
@@ -100,6 +100,8 @@ module.exports = class Bot {
           if (this.chat.channels.hasOwnProperty(currentChannelId)) {
             if (this.chat.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
               contains = true
+              allChannelData[channelId].lastMessage = this.chat.channels[currentChannelId].lastMessage || ""
+              allChannelData[channelId].lastMessageTimeMillis = this.chat.channels[currentChannelId].lastMessageTimeMillis || 0
             }
           }
         }
@@ -108,6 +110,8 @@ module.exports = class Bot {
           Logger.info(this.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
           await this.chat.join(allChannelData[channelId].channelName).then(() => {
             Logger.info(this.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
+            allChannelData[channelId].lastMessage = ""
+            allChannelData[channelId].lastMessageTimeMillis = 0
           }).catch((msg) => {
             Logger.error("JOIN: " + msg)
           })

@@ -3,8 +3,6 @@ const Logger = require('consola')
 //CLASSES
 const ApiFunctions = require('../classes/ApiFunctions.js')
 
-const util = require('util')
-
 module.exports = class OnX {
   constructor (bot) {
     this.bot = bot
@@ -50,6 +48,8 @@ module.exports = class OnX {
 
     if (msg.message.startsWith("<")) {
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)
       //"1{nl}2{nl}3{nl1000}4"
     }
 

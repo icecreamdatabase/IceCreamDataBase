@@ -11,7 +11,6 @@ module.exports = class ApiFunctions {
   constructor (bot) {
     this.bot = bot
 
-    this.updateBotStatus()
     setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
   }
 
