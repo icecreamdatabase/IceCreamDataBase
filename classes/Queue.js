@@ -45,12 +45,28 @@ module.exports = class Queue {
     //if userId paramter is missing just set it to "-1"
     userId = userId || "-1"
 
+    //split message if too long
     message = this.splitRecursively(message)
 
-    /* TODO: newLine stuff */
+    //handle newline
+    let messageArray = message.split(NEWLINE_SEPERATOR)
 
-    this.messageQueue.push({checked: false, isBeingChecked: false, channelId, channelName, message, userId})
-    this.queueEmitter.emit('event')
+    for (let messageElement of messageArray) {
+      messageElement = messageElement.trim()
+
+      //is message not just an empty string
+      if (messageElement) {
+        this.messageQueue.push({
+          checked: false,
+          isBeingChecked: false,
+          channelId,
+          channelName,
+          message: messageElement,
+          userId
+        })
+        this.queueEmitter.emit('event')
+      }
+    }
   }
 
   /**
