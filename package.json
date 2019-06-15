@@ -18,15 +18,15 @@
   "author": "cineafx <cineafx@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "mysql2": "^1.6.4",
+    "consola": "^2.7.1",
+    "eventemitter3": "latest",
+    "mysql2": "^1.6.5",
     "twitch-js": "^2.0.0-beta.30",
-    "util": "^0.11.1",
-    "consola": "^2.3.0",
-    "eventemitter3": "latest"
+    "util": "^0.11.1"
   },
   "devDependencies": {
-    "eslint": "^5.15.3",
-    "eslint-plugin-html": "^5.0.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-html": "^5.0.5",
     "eslint-plugin-standard": "^4.0.0"
   }
 }
