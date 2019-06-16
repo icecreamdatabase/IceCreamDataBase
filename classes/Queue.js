@@ -23,15 +23,14 @@ module.exports = class Queue {
     this.privmsgModeratorbucket = new BasicBucket(this.bot.chat.rateLimitModerator)
     this.privsgUserBucket = new BasicBucket(this.bot.chat.rateLimitUser)
     this.queueEmitter.on('event', this.checkQueue.bind(this))
-
   }
 
-  sayWithChannelId (channelId, message, userId) {
-    this.sayWithBoth(channelId, UserIdLoginCache.idToName(channelId), message, userId)
+  async sayWithChannelId (channelId, message, userId) {
+    this.sayWithBoth(channelId, await UserIdLoginCache.idToName(channelId), message, userId)
   }
 
-  sayWithChannelName (channelName, message, userId) {
-    this.sayWithBoth(UserIdLoginCache.nameToId(channelName), channelName, message, userId)
+  async sayWithChannelName (channelName, message, userId) {
+    this.sayWithBoth(await UserIdLoginCache.nameToId(channelName), channelName, message, userId)
   }
 
   /**
