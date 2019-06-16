@@ -11,6 +11,8 @@ const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 //ENUMS
 const UserLevels = require('../ENUMS/UserLevels.js')
 
+global.clientIdFallback = null
+
 /*
 const levels = {
   error: 0,
@@ -31,6 +33,11 @@ module.exports = class Bot {
       Logger.info("Setting up bot: " + botData.userId + " (" + botData.username + ")")
       //add log settings
       Object.assign(botData, logSetting)
+
+      if (botData.clientID && !global.clientIdFallback) {
+        global.clientIdFallback = botData.clientID
+      }
+
       //create bot
       let {api, chat, chatConstants} = new TwitchJs(botData)
       //save api, chat and chatConstants in the Bot instance
@@ -88,9 +95,10 @@ module.exports = class Bot {
       }
       //part
       if (!contains) {
+        let channelName = await UserIdLoginCache.idToName(channelId)
         // noinspection JSUnresolvedFunction
-        this.chat.part(this.chat.channels[channelId].channelName)
-        Logger.info(this.chat.botData.username + " Parted: #" + this.chat.channels[channelId].channelName)
+        this.chat.part(channelName)
+        Logger.info(this.chat.botData.username + " Parted: #" + channelName)
       }
     }
     //add new channels
@@ -109,10 +117,10 @@ module.exports = class Bot {
         }
         //join
         if (!contains) {
-          //Logger.info("Id: " + allChannelData[channelId] + " Name: " + await UserIdLoginCache.idToName(allChannelData[channelId]))
-          Logger.info(this.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
-          await this.chat.join(allChannelData[channelId].channelName).then(() => {
-            Logger.info(this.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
+          let channelName = await UserIdLoginCache.idToName(channelId)
+          Logger.info(this.chat.botData.username + " Joining: #" + channelName)
+          await this.chat.join(channelName).then(() => {
+            Logger.info(this.chat.botData.username + " Joined: #" + channelName)
             allChannelData[channelId].lastMessage = ""
             allChannelData[channelId].lastMessageTimeMillis = 0
           }).catch((msg) => {

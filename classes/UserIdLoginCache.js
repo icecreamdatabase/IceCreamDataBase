@@ -12,6 +12,8 @@ module.exports = class UserIdLoginCache {
   }
 
   static async idToName (id) {
+    return await Api.loginFromUserId(global.clientIdFallback, id)
+    /*
     if (!mapIdToName.hasOwnProperty(id)) {
       //DO IT
 
@@ -19,9 +21,12 @@ module.exports = class UserIdLoginCache {
     }
 
     return mapIdToName[id].name
+    */
   }
 
   static async nameToId (name) {
+    return await Api.userIdFromLogin(global.clientIdFallback, name)
+    /*
     if (!mapNameToId.hasOwnProperty(name)) {
       //DO IT
 
@@ -29,6 +34,7 @@ module.exports = class UserIdLoginCache {
     }
 
     return mapNameToId[id].name
+    */
   }
 
   static clearMaps () {

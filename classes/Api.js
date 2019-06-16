@@ -93,8 +93,8 @@ module.exports = class ApiFunctions {
    */
   static async loginFromUserId (clientID, userId) {
     let response = await this.userInfo(clientID, userId)
-    if (response.hasOwnProperty('_id')) {
-      return response['_id']
+    if (response.hasOwnProperty('login')) {
+      return response['login']
     } else {
       return ""
     }
