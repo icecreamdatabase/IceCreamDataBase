@@ -52,16 +52,20 @@ module.exports = class Bot {
       //Connecting the bot to the twich servers
       Logger.info("Connecting...")
       this.chat.connect().then(() => {
-        Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") Connected!")
+        //get botName from id through api
+        UserIdLoginCache.idToName(this.chat.botData.userId).then((botName) => {
+          this.chat.botData.username = botName
+          Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") Connected!")
 
-        this.updateBotChannels().then(()=>{
-          setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
+          this.updateBotChannels().then(()=>{
+            setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
-          this.apiFunctions = new ApiFunctions(this)
-          this.apiFunctions.updateBotStatus().then(() => {
-            this.onX = new OnX(this)
-            this.chat.queue = new Queue(this)
-            Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") is fully setup!")
+            this.apiFunctions = new ApiFunctions(this)
+            this.apiFunctions.updateBotStatus().then(() => {
+              this.onX = new OnX(this)
+              this.chat.queue = new Queue(this)
+              Logger.info(this.chat.botData.userId + " (" + this.chat.botData.username + ") is fully setup!")
+            })
           })
         })
 
