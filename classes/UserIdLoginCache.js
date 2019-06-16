@@ -1,7 +1,7 @@
 "use strict"
 const Logger = require('consola')
 //CLASSES
-const Api = require('../classes/ApiFunctions.js')
+const Api = require('../classes/Api.js')
 
 let mapIdToName = {}
 let mapNameToId = {}
@@ -11,21 +11,21 @@ module.exports = class UserIdLoginCache {
 
   }
 
-  static idToName (id) {
+  static async idToName (id) {
     if (!mapIdToName.hasOwnProperty(id)) {
       //DO IT
 
-      syncIdToNameMap()
+      this.syncIdToNameMap()
     }
 
     return mapIdToName[id].name
   }
 
-  static nameToId (name) {
+  static async nameToId (name) {
     if (!mapNameToId.hasOwnProperty(name)) {
       //DO IT
 
-      syncNameToIdMap()
+      this.syncNameToIdMap()
     }
 
     return mapNameToId[id].name

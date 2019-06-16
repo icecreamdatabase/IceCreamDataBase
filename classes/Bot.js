@@ -6,6 +6,8 @@ const Mysql = require('../classes/Sql.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
 const OnX = require('../classes/OnX.js')
 const Queue = require('../classes/Queue.js')
+
+const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 //ENUMS
 const UserLevels = require('../ENUMS/UserLevels.js')
 
@@ -107,6 +109,7 @@ module.exports = class Bot {
         }
         //join
         if (!contains) {
+          //Logger.info("Id: " + allChannelData[channelId] + " Name: " + await UserIdLoginCache.idToName(allChannelData[channelId]))
           Logger.info(this.chat.botData.username + " Joining: #" + allChannelData[channelId].channelName)
           await this.chat.join(allChannelData[channelId].channelName).then(() => {
             Logger.info(this.chat.botData.username + " Joined: #" + allChannelData[channelId].channelName)
