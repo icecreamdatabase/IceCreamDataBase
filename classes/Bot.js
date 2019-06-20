@@ -2,7 +2,7 @@
 const Logger = require('consola')
 const TwitchJs = require('twitch-js').default
 //CLASSES
-const Mysql = require('../classes/Sql.js')
+const Sql = require('./sql/main/SqlChannels.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
 const OnX = require('../classes/OnX.js')
 const Queue = require('../classes/Queue.js')
@@ -84,7 +84,7 @@ module.exports = class Bot {
   }
 
   async updateBotChannels () {
-    let allChannelData = await Mysql.getChannelData(this.chat.botData.userId)
+    let allChannelData = await Sql.getChannelData(this.chat.botData.userId)
 
     //remove unused channels
     for (let channelId in this.chat.channels) {
