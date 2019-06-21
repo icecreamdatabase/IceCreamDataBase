@@ -1,14 +1,14 @@
 "use strict"
 const Logger = require('consola')
 //CLASSES
-const SubNotifications = require('../modules/SubNotifications.js')
+const UserNotice = require('../modules/UserNotice.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
 
 
 module.exports = class OnX {
   constructor (bot) {
     this.bot = bot
-    this.subNotifications = new SubNotifications(bot)
+    this.UserNotice = new UserNotice(bot)
 
     bot.chat.on('PRIVMSG', this.onChat)
   }

@@ -1,7 +1,7 @@
 "use strict"
 const Logger = require('consola')
 //CLASSES
-const Sql = require('../classes/sql/modules/SqlSubNotifications.js')
+const Sql = require('../classes/sql/modules/SqlUserNotice.js')
 const Api = require('../classes/Api.js')
 
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
