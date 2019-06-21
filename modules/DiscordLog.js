@@ -72,6 +72,7 @@ function queueRunner () {
 
 async function sendToWebhook (postContent) {
   return new Promise((resolve, reject) => {
+    Logger.info(JSON.stringify(postContent, null, 2))
     if (options.hasOwnProperty("discord") && options.discord.hasOwnProperty("logwebhook")) {
       let request = Object.assign({}, WEBHOOK)
       request.path += options.discord.logwebhook.id + "/" + options.discord.logwebhook.token
