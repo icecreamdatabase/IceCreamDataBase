@@ -30,10 +30,12 @@ module.exports = class SubNotifications {
   }
 
   async onSubscription (msg) {
+    Logger.info(JSON.stringify(msg))
     if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
       let announcementMessage = this.methodToMessage(this.notificationData[msg["room-id"]], "sub")
       if (announcementMessage) {
-
+        announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
+        this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       }
     }
   }
@@ -85,7 +87,7 @@ module.exports = class SubNotifications {
     return announcementMessage
   }
 
-  notificationParameter (message, data) {
+  static notificationParameter (message, data) {
     //customLog(JSON.stringify(data))
 
     let channel = data.channel.substring(1) || null

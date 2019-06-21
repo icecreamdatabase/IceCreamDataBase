@@ -3,6 +3,7 @@ const Logger = require('consola')
 //CLASSES
 const UserNotice = require('../modules/UserNotice.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
+const DiscordLog = require('../modules/DiscordLog')
 
 
 module.exports = class OnX {
@@ -47,6 +48,11 @@ module.exports = class OnX {
     }
 
     if (msg.message.startsWith("< ")) {
+      DiscordLog.error("Error message")
+      DiscordLog.warn("Warn message")
+      DiscordLog.info("Info message")
+      DiscordLog.debug("Debug message")
+      DiscordLog.trace("Trace message")
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)
