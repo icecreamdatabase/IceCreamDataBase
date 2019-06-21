@@ -4,6 +4,7 @@ const Logger = require('consola')
 const Sql = require('../classes/sql/modules/SqlUserNotice.js')
 const Api = require('../classes/Api.js')
 
+const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
 
 module.exports = class SubNotifications {
@@ -28,7 +29,14 @@ module.exports = class SubNotifications {
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
   }
 
-  async onSubscription (msg) {}
+  async onSubscription (msg) {
+    if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
+      let announcementMessage = this.methodToMessage(this.notificationData[msg["room-id"]], "sub")
+      if (announcementMessage) {
+
+      }
+    }
+  }
   async onResubscription (msg) {}
   async onSubscriptionGift (msg) {}
   async onSubscriptionGiftCommunity (msg) {}
@@ -36,6 +44,70 @@ module.exports = class SubNotifications {
   async onAnonGiftPaidUpgrade (msg) {}
   async onRitual (msg) {}
   async onRaid (msg) {}
+
+
+
+  methodToMessage (channel, methods) {
+    //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
+    //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
+    //{"plan":"1000","planName":"Channel Subscription (forsenlol)"}
+    let announcementMessage = ""
+
+    if (methods.type === "sub" || methods.type === "resub") {
+      let plans = ["Prime", "1000", "2000", "3000"]
+      let planMsgs = new Array(4).fill(null)
+
+      if (methods.type === "sub") {
+        let subPrime = this.notificationData[channel].subPrime || null
+        let subT1 = this.notificationData[channel].subT1 || null
+        let subT2 = this.notificationData[channel].subT2 || subT1
+        let subT3 = this.notificationData[channel].subT3 || subT2
+        planMsgs = [subPrime, subT1, subT2, subT3]
+      } else {
+        let resubPrime = this.notificationData[channel].resubPrime || null
+        let resubT1 = this.notificationData[channel].resubT1 || null
+        let resubT2 = this.notificationData[channel].resubT2 || resubT1
+        let resubT3 = this.notificationData[channel].resubT3 || resubT2
+        planMsgs = [resubPrime, resubT1, resubT2, resubT3]
+      }
+      announcementMessage = planMsgs[plans.indexOf(methods.plan)]
+
+    } else if (methods.type === "subGift") {
+      announcementMessage = this.notificationData[channel].subGift || null
+
+    } else if (methods.type === "subMysteryGift") {
+      announcementMessage = this.notificationData[channel].subMysteryGift || null
+
+    } else if (methods.type === "giftPaidUpgrade") {
+      announcementMessage = this.notificationData[channel].giftPaidUpgrade || null
+    }
+
+    return announcementMessage
+  }
+
+  notificationParameter (message, data) {
+    //customLog(JSON.stringify(data))
+
+    let channel = data.channel.substring(1) || null
+    let username = data.username || null
+    let secondUser = data.recipient || data.sender || null
+    let months = data.months || 0
+    let massGiftCount = parseInt(data.massGiftCount) || 1
+    let senderCount = parseInt(data.senderCount) || 0
+    let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
+    let extraS = months === 1 ? "" : "s"
+
+    message = message.replace(new RegExp("\\${channel}", 'g'), channel)
+    message = message.replace(new RegExp("\\${user}", 'g'), username)
+    message = message.replace(new RegExp("\\${secondUser}", 'g'), secondUser)
+    message = message.replace(new RegExp("\\${months}", 'g'), months)
+    message = message.replace(new RegExp("\\${massGiftCount}", 'g'), massGiftCount)
+    message = message.replace(new RegExp("\\${senderCount}", 'g'), senderCount)
+    message = message.replace(new RegExp("\\${timeunit}", 'g'), timeunit)
+    message = message.replace(new RegExp("\\${extraS}", 'g'), extraS)
+
+    return message
+  }
 
 
   async updateNotificationData () {
