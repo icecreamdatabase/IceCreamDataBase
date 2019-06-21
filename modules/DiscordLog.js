@@ -63,6 +63,9 @@ function queueRunner () {
     sendToWebhook(MESSAGE_QUEUE.shift()).then(()=>{
       QUEUE_BEING_CHECKED = false
       LOG_QUEUE_EMITTER.emit("event")
+    }, () => {
+      QUEUE_BEING_CHECKED = false
+      LOG_QUEUE_EMITTER.emit("event")
     })
   }
 }
