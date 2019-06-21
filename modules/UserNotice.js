@@ -70,6 +70,7 @@ module.exports = class SubNotifications {
   }
   async onRaid (msg) {
 
+    DiscordLog.info(util.inspect(msg))
   }
 
 
