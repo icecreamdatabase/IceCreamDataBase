@@ -1,6 +1,8 @@
 "use strict"
 const Logger = require('consola')
+const util = require('util')
 //CLASSES
+const DiscordLog = require('../modules/DiscordLog')
 const Sql = require('../classes/sql/modules/SqlUserNotice.js')
 const Api = require('../classes/Api.js')
 
@@ -30,22 +32,45 @@ module.exports = class SubNotifications {
   }
 
   async onSubscription (msg) {
+    DiscordLog.info(util.inspect(msg))
+
     Logger.info(JSON.stringify(msg))
     if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
       let announcementMessage = this.methodToMessage(this.notificationData[msg["room-id"]], "sub")
       if (announcementMessage) {
         announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
-        this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+        DiscordLog.info("Would have send: " + announcementMessage)
+        //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       }
     }
   }
-  async onResubscription (msg) {}
-  async onSubscriptionGift (msg) {}
-  async onSubscriptionGiftCommunity (msg) {}
-  async onGiftPaidUpgrade (msg) {}
-  async onAnonGiftPaidUpgrade (msg) {}
-  async onRitual (msg) {}
-  async onRaid (msg) {}
+  async onResubscription (msg) {
+
+    DiscordLog.info(util.inspect(msg))
+  }
+  async onSubscriptionGift (msg) {
+
+    DiscordLog.info(util.inspect(msg))
+  }
+  async onSubscriptionGiftCommunity (msg) {
+
+    DiscordLog.info(util.inspect(msg))
+  }
+  async onGiftPaidUpgrade (msg) {
+
+    DiscordLog.info(util.inspect(msg))
+  }
+  async onAnonGiftPaidUpgrade (msg) {
+
+    DiscordLog.info(util.inspect(msg))
+  }
+  async onRitual (msg) {
+
+    DiscordLog.info(util.inspect(msg))
+  }
+  async onRaid (msg) {
+
+  }
 
 
 

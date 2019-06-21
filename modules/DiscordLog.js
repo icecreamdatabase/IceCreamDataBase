@@ -83,11 +83,10 @@ async function sendToWebhook (postContent) {
         Logger.error(err)
         reject(err)
       })
-      Logger.info(JSON.stringify(postContent))
       req.write(JSON.stringify(postContent))
       req.end()
     } else {
-      Logger.info("no options.discord.logwebhook")
+      Logger.warn("no options.discord.logwebhook")
       reject()
     }
   })

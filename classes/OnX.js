@@ -39,6 +39,8 @@ module.exports = class OnX {
       }, 1200)
     }
 
+    return
+
     if (msg.message.startsWith("<tags ")) {
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags, null, 2), msg.tags.userId)
     }
