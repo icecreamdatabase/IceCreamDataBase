@@ -39,7 +39,7 @@ module.exports = class OnX {
       }, 1200)
     }
 
-    return
+    //return
 
     if (msg.message.startsWith("<tags ")) {
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags, null, 2), msg.tags.userId)
@@ -50,14 +50,16 @@ module.exports = class OnX {
     }
 
     if (msg.message.startsWith("< ")) {
-      DiscordLog.error("Error message")
-      DiscordLog.warn("Warn message")
-      DiscordLog.info("Info message")
-      DiscordLog.debug("Debug message")
-      DiscordLog.trace("Trace message")
+      //DiscordLog.error("Error message")
+      //DiscordLog.warn("Warn message")
+      //DiscordLog.info("Info message")
+      //DiscordLog.debug("Debug message")
+      //DiscordLog.trace("Trace message")
+      DiscordLog.custom("usernotice", "Title test", "message test")
+      DiscordLog.custom("usernotice", "Title test", "message test", DiscordLog.getDecimalFromHexString("#FFFFFF"))
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)
+      //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+      //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)
       //"1{nl}2{nl}3{nl1000}4"
     }
   }
