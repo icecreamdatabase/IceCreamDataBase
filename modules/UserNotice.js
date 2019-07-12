@@ -32,7 +32,7 @@ module.exports = class SubNotifications {
   }
 
   async onSubscription (msg) {
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "Subscription", util.inspect(msg))
 
     Logger.info(JSON.stringify(msg))
     if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
@@ -46,31 +46,31 @@ module.exports = class SubNotifications {
   }
   async onResubscription (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "Resubscription", util.inspect(msg))
   }
   async onSubscriptionGift (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "SubscriptionGift", util.inspect(msg))
   }
   async onSubscriptionGiftCommunity (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "SubscriptionGiftcommunity", util.inspect(msg))
   }
   async onGiftPaidUpgrade (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "GiftPaidUpgrade", util.inspect(msg))
   }
   async onAnonGiftPaidUpgrade (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "AnonGiftPaidUpgrade", util.inspect(msg))
   }
   async onRitual (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "Ritual", util.inspect(msg))
   }
   async onRaid (msg) {
 
-    DiscordLog.info(util.inspect(msg))
+    DiscordLog.custom("usernotice", "Raid", util.inspect(msg))
   }
 
 
