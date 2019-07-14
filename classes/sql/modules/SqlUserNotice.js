@@ -12,17 +12,20 @@ module.exports = class SqlSubNotifications {
       SELECT 
         botID,
         channelID,
-        subT1,
-        subT2,
-        subT3,
-        subPrime,
-        resubT1,
-        resubT2,
-        resubT3,
-        resubPrime,
-        subGift,
-        subMysteryGift,
-        giftPaidUpgrade
+        SUBSCRIPTION,
+        SUBSCRIPTION_T2,
+        SUBSCRIPTION_T3,
+        SUBSCRIPTION_PRIME,
+        RESUBSCRIPTION,
+        RESUBSCRIPTION_T2,
+        RESUBSCRIPTION_T3,
+        RESUBSCRIPTION_PRIME,
+        SUBSCRIPTION_GIFT,
+        SUBSCRIPTION_GIFT_COMMUNITY,
+        GIFT_PAID_UPGRADE,
+        ANON_GIFT_PAID_UPGRADE,
+        RITUAL,
+        RAID
       FROM notifications
       WHERE botID = ?;
     `, botID)
@@ -30,19 +33,28 @@ module.exports = class SqlSubNotifications {
 
     results = results.map((row) => {
       let channelID = row.channelId || ""
-      let subT1 = row.subT1 || ""
-      let subT2 = row.subT2 || ""
-      let subT3 = row.subT3 || ""
-      let subPrime = row.resubPrime || ""
-      let resubT1 = row.resubT1 || ""
-      let resubT2 = row.resubT2 || ""
-      let resubT3 = row.resubT3 || ""
-      let resubPrime = row.resubPrime || ""
-      let subGift = row.subGift || ""
-      let subMysteryGift = row.subMysteryGift || ""
-      let giftPaidUpgrade = row.giftPaidUpgrade || ""
+      let SUBSCRIPTION = row.SUBSCRIPTION
+      let SUBSCRIPTION_T2 = row.SUBSCRIPTION_T2 || SUBSCRIPTION
+      let SUBSCRIPTION_T3 = row.SUBSCRIPTION_T3 || SUBSCRIPTION_T2
+      let SUBSCRIPTION_PRIME = row.SUBSCRIPTION_PRIME || SUBSCRIPTION
 
-      return {channelID, subT1, subT2, subT3, subPrime, resubT1, resubT2, resubT3, resubPrime, subGift, subMysteryGift, giftPaidUpgrade}
+      let RESUBSCRIPTION = row.RESUBSCRIPTION
+      let RESUBSCRIPTION_T2 = row.RESUBSCRIPTION_T2 || RESUBSCRIPTION
+      let RESUBSCRIPTION_T3 = row.RESUBSCRIPTION_T3 || RESUBSCRIPTION_T2
+      let RESUBSCRIPTION_PRIME = row.RESUBSCRIPTION_PRIME || RESUBSCRIPTION
+
+      let SUBSCRIPTION_GIFT = row.SUBSCRIPTION_GIFT || ""
+      let SUBSCRIPTION_GIFT_COMMUNITY = row.SUBSCRIPTION_GIFT_COMMUNITY || ""
+      let GIFT_PAID_UPGRADE = row.GIFT_PAID_UPGRADE || ""
+      let ANON_GIFT_PAID_UPGRADE = row.ANON_GIFT_PAID_UPGRADE || ""
+
+      let RITUAL = row.RITUAL || ""
+      let RAID = row.RAID || ""
+
+      return {channelID, SUBSCRIPTION, SUBSCRIPTION_T2, SUBSCRIPTION_T3, SUBSCRIPTION_PRIME,
+              RESUBSCRIPTION, RESUBSCRIPTION_T2, RESUBSCRIPTION_T3, RESUBSCRIPTION_PRIME,
+              SUBSCRIPTION_GIFT, SUBSCRIPTION_GIFT_COMMUNITY, GIFT_PAID_UPGRADE, ANON_GIFT_PAID_UPGRADE,
+              RITUAL, RAID}
     })
 
     //make sure the index is the channelID
