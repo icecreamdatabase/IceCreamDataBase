@@ -44,7 +44,7 @@ module.exports = class SubNotifications {
               //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
             }
           } else {
-            DiscordLog.error(__filename + ": No data for " + msg.tags.roomId + " in notificationData \n" + Object.keys(this.notificationData) )
+            DiscordLog.debug(__filename + ": No data for " + msg.tags.roomId + " in notificationData")
           }
         } else {
           DiscordLog.error(__filename + ": No roomId in msg.tags")
