@@ -34,13 +34,19 @@ module.exports = class SubNotifications {
   async onUsernotice (msg) {
     DiscordLog.custom("usernotice", msg.event, util.inspect(msg))
     if (msg.hasOwnProperty("event")) {
-      if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
-        let announcementMessage = this.methodToMessage(this.notificationData[msg["room-id"]], msg)
-        if (announcementMessage) {
-          announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
-          DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
-          //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+      if (msg.hasOwnProperty("tags")) {
+        if (msg.tags.hasOwnProperty("roomId") && this.notificationData.hasOwnProperty(msg.tags.roomId)) {
+          let announcementMessage = this.methodToMessage(this.notificationData[msg.tags.roomId], msg)
+          if (announcementMessage) {
+            announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
+            DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
+            //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+          }
+        } else {
+          DiscordLog.error(__filename + ": No roomId in msg.tags")
         }
+      } else {
+        DiscordLog.error(__filename + ": No tags in msg")
       }
     } else {
       DiscordLog.error(__filename + ": Received USERNOTICE without msg.event")
