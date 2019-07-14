@@ -8,9 +8,8 @@ const OnX = require('../classes/OnX.js')
 const Queue = require('../classes/Queue.js')
 
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
-//ENUMS
-const UserLevels = require('../ENUMS/UserLevels.js')
 
+// noinspection JSUndefinedPropertyAssignment
 global.clientIdFallback = null
 
 /*

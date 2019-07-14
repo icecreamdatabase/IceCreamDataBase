@@ -39,7 +39,7 @@ module.exports = class OnX {
       }, 1200)
     }
 
-    //return
+    return
 
     if (msg.message.startsWith("<tags ")) {
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags, null, 2), msg.tags.userId)
@@ -55,8 +55,8 @@ module.exports = class OnX {
       //DiscordLog.info("Info message")
       //DiscordLog.debug("Debug message")
       //DiscordLog.trace("Trace message")
-      DiscordLog.custom("usernotice", "Title test", "message test")
-      DiscordLog.custom("usernotice", "Title test", "message test", DiscordLog.getDecimalFromHexString("#FFFFFF"))
+      //DiscordLog.custom("usernotice-handled", "Title test", "message test")
+      //DiscordLog.custom("usernotice", "Title test", "message test", DiscordLog.getDecimalFromHexString("#FFFFFF"))
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
       //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)

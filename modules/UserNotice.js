@@ -1,10 +1,12 @@
 "use strict"
-const Logger = require('consola')
 const util = require('util')
 //CLASSES
 const DiscordLog = require('../modules/DiscordLog')
 const Sql = require('../classes/sql/modules/SqlUserNotice.js')
 const Api = require('../classes/Api.js')
+
+//ENUMS
+const UserNoticeTypes = require('../ENUMS/UserNoticeTypes.js')
 
 const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
@@ -17,100 +19,84 @@ module.exports = class SubNotifications {
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `notificationData` array.
 
-    bot.chat.on('USERNOTICE/SUBSCRIPTION', this.onSubscription.bind(this))
-    bot.chat.on('USERNOTICE/RESUBSCRIPTION', this.onResubscription.bind(this))
-    bot.chat.on('USERNOTICE/SUBSCRIPTION_GIFT', this.onSubscriptionGift.bind(this))
-    bot.chat.on('USERNOTICE/SUBSCRIPTION_GIFT_COMMUNITY', this.onSubscriptionGiftCommunity.bind(this))
-    bot.chat.on('USERNOTICE/GIFT_PAID_UPGRADE', this.onGiftPaidUpgrade.bind(this))
-    bot.chat.on('USERNOTICE/ANON_GIFT_PAID_UPGRADE', this.onAnonGiftPaidUpgrade.bind(this))
-    bot.chat.on('USERNOTICE/RITUAL', this.onRitual.bind(this))
-    bot.chat.on('USERNOTICE/RAID', this.onRaid.bind(this))
+    //for in loops through the keys
+    for (let eventType in UserNoticeTypes) {
+      if (UserNoticeTypes[eventType] < 100) {
+        bot.chat.on('USERNOTICE/' + eventType, this.onUsernotice.bind(this))
+      }
+    }
 
     //run it once and start the interval
     this.updateNotificationData.bind(this)
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
   }
 
-  async onSubscription (msg) {
-    DiscordLog.custom("usernotice", "Subscription", util.inspect(msg))
-
-    Logger.info(JSON.stringify(msg))
-    if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
-      let announcementMessage = this.methodToMessage(this.notificationData[msg["room-id"]], "sub")
-      if (announcementMessage) {
-        announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
-        DiscordLog.info("Would have send: " + announcementMessage)
-        //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+  async onUsernotice (msg) {
+    DiscordLog.custom("usernotice", msg.event, util.inspect(msg))
+    if (msg.hasOwnProperty("event")) {
+      if (msg.hasOwnProperty("room-id") && this.notificationData.hasOwnProperty(msg["room-id"])) {
+        let announcementMessage = this.methodToMessage(this.notificationData[msg["room-id"]], msg)
+        if (announcementMessage) {
+          announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
+          DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
+          //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+        }
       }
+    } else {
+      DiscordLog.error(__filename + ": Received USERNOTICE without msg.event")
     }
   }
-  async onResubscription (msg) {
 
-    DiscordLog.custom("usernotice", "Resubscription", util.inspect(msg))
-  }
-  async onSubscriptionGift (msg) {
-
-    DiscordLog.custom("usernotice", "SubscriptionGift", util.inspect(msg))
-  }
-  async onSubscriptionGiftCommunity (msg) {
-
-    DiscordLog.custom("usernotice", "SubscriptionGiftcommunity", util.inspect(msg))
-  }
-  async onGiftPaidUpgrade (msg) {
-
-    DiscordLog.custom("usernotice", "GiftPaidUpgrade", util.inspect(msg))
-  }
-  async onAnonGiftPaidUpgrade (msg) {
-
-    DiscordLog.custom("usernotice", "AnonGiftPaidUpgrade", util.inspect(msg))
-  }
-  async onRitual (msg) {
-
-    DiscordLog.custom("usernotice", "Ritual", util.inspect(msg))
-  }
-  async onRaid (msg) {
-
-    DiscordLog.custom("usernotice", "Raid", util.inspect(msg))
-  }
-
-
-
-  methodToMessage (channel, methods) {
+  methodToMessage (channel, eventMsg) {
+    //eventMsg.parameters is build like this:
     //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
     //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
     //{"plan":"1000","planName":"Channel Subscription (forsenlol)"}
-    let announcementMessage = ""
+    let UserNoticeType = UserNoticeTypes[eventMsg.event]
 
-    if (methods.type === "sub" || methods.type === "resub") {
-      let plans = ["Prime", "1000", "2000", "3000"]
-      let planMsgs = new Array(4).fill(null)
-
-      if (methods.type === "sub") {
-        let subPrime = this.notificationData[channel].subPrime || null
-        let subT1 = this.notificationData[channel].subT1 || null
-        let subT2 = this.notificationData[channel].subT2 || subT1
-        let subT3 = this.notificationData[channel].subT3 || subT2
-        planMsgs = [subPrime, subT1, subT2, subT3]
+    //TODO: make this look nicer and be more compact
+    if (UserNoticeType === UserNoticeTypes.SUBSCRIPTION) {
+      if (eventMsg.parameters.hasOwnProperty("subPlan")) {
+        switch (eventMsg.parameters.subPlan) {
+          case "Prime":
+            UserNoticeType = UserNoticeTypes.SUBSCRIPTION_PRIME
+            break
+          case "2000":
+            UserNoticeType = UserNoticeTypes.SUBSCRIPTION_T2
+            break
+          case "3000":
+            UserNoticeType = UserNoticeTypes.SUBSCRIPTION_T3
+            break
+        }
       } else {
-        let resubPrime = this.notificationData[channel].resubPrime || null
-        let resubT1 = this.notificationData[channel].resubT1 || null
-        let resubT2 = this.notificationData[channel].resubT2 || resubT1
-        let resubT3 = this.notificationData[channel].resubT3 || resubT2
-        planMsgs = [resubPrime, resubT1, resubT2, resubT3]
+        DiscordLog.error(__filename + ": SUBSCRIPTION event without eventMsg.parameters.subPlan")
       }
-      announcementMessage = planMsgs[plans.indexOf(methods.plan)]
-
-    } else if (methods.type === "subGift") {
-      announcementMessage = this.notificationData[channel].subGift || null
-
-    } else if (methods.type === "subMysteryGift") {
-      announcementMessage = this.notificationData[channel].subMysteryGift || null
-
-    } else if (methods.type === "giftPaidUpgrade") {
-      announcementMessage = this.notificationData[channel].giftPaidUpgrade || null
     }
-
-    return announcementMessage
+    if (UserNoticeType === UserNoticeTypes.RESUBSCRIPTION) {
+      if (eventMsg.parameters.hasOwnProperty("subPlan")) {
+        switch (eventMsg.parameters.subPlan) {
+          case "Prime":
+            UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_PRIME
+            break
+          case "2000":
+            UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_T2
+            break
+          case "3000":
+            UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_T3
+            break
+        }
+      } else {
+        DiscordLog.error(__filename + ": RESUBSCRIPTION event without eventMsg.parameters.subPlan")
+      }
+    }
+    //Get first key by value ... convert the enum int to it's name
+    UserNoticeType = Object.keys(UserNoticeTypes).find(key => UserNoticeTypes[key] === UserNoticeType)
+    if (this.notificationData[channel].hasOwnProperty(UserNoticeType)) {
+      return this.notificationData[channel][UserNoticeType] || null
+    } else {
+      DiscordLog.error(__filename + ": Get first key by value failed")
+      return null
+    }
   }
 
   static notificationParameter (message, data) {
