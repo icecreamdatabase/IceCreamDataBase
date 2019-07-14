@@ -32,7 +32,7 @@ module.exports = class SqlSubNotifications {
 
 
     results = results.map((row) => {
-      let channelID = row.channelId || ""
+      let channelID = row.channelID || ""
       let SUBSCRIPTION = row.SUBSCRIPTION
       let SUBSCRIPTION_T2 = row.SUBSCRIPTION_T2 || SUBSCRIPTION
       let SUBSCRIPTION_T3 = row.SUBSCRIPTION_T3 || SUBSCRIPTION_T2

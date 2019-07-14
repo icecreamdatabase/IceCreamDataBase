@@ -88,7 +88,7 @@ function queueRunner () {
 
 async function sendToWebhook (messageQueueObj) {
   return new Promise((resolve, reject) => {
-    Logger.info(JSON.stringify(messageQueueObj, null, 2))
+    //Logger.info(JSON.stringify(messageQueueObj, null, 2))
     if (options.hasOwnProperty("discord") && options.discord.hasOwnProperty(messageQueueObj.webhookName)) {
       let request = Object.assign({}, WEBHOOK)
       request.path += options.discord[messageQueueObj.webhookName].id + "/" + options.discord[messageQueueObj.webhookName].token
