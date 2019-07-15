@@ -136,7 +136,6 @@ module.exports = class UserNotice{
 
   async updateNotificationData () {
     this.notificationData = await Sql.getNotificationData(this.bot.chat.botData.userId)
-    DiscordLog.debug(util.inspect(this.notificationData))
   }
 }
 
