@@ -41,7 +41,7 @@ module.exports = class OnX {
 
 
     if (msg.message.startsWith("<bot ")) {
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, msg.username + ", I'm the not so shitty V2 version of the IceCreamDataBase bot. Made by icdb in nodejs. FeelsDankMan ", msg.tags.userId)
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, "I'm the not so shitty V2 version of the IceCreamDataBase bot. Made by icdb in nodejs. FeelsDankMan ", msg.tags.userId)
     }
 
     if (msg.message.startsWith("<uptime ")) {
