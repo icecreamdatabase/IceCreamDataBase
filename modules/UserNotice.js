@@ -115,12 +115,13 @@ module.exports = class UserNotice {
     let channel = data.channel.substring(1) || null
     let username = data.tags.displayName || data.tags.login || null
     let secondUser = data.recipient || data.sender || null
-    let months = data.months || 0
+    //msgParamMonths is months in a row
+    let months = data.msgParamCumulativeMonths || 0
     let massGiftCount = data.msgParamMassGiftCount || 1
     let senderCount = data.msgParamSenderCount || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
-    let viewerCount = data.parameters.viewerCount || 0
+    let viewerCount = data.msgParamViewerCount || 0
 
     message = message.replace(new RegExp("\\${channel}", 'g'), channel)
     message = message.replace(new RegExp("\\${user}", 'g'), username)
