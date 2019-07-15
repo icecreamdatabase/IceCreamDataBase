@@ -11,7 +11,7 @@ const UserNoticeTypes = require('../ENUMS/UserNoticeTypes.js')
 const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
 
-module.exports = class SubNotifications {
+module.exports = class UserNotice{
   constructor (bot) {
     this.bot = bot
     this.notificationData = {}
@@ -27,8 +27,8 @@ module.exports = class SubNotifications {
     }
 
     //run it once and start the interval
-    this.updateNotificationData.bind(this)
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
+    this.updateNotificationData.bind(this)
   }
 
   async onUsernotice (msg) {
@@ -37,9 +37,9 @@ module.exports = class SubNotifications {
       if (msg.hasOwnProperty("tags")) {
         if (msg.tags.hasOwnProperty("roomId")) {
           if (this.notificationData.hasOwnProperty(msg.tags.roomId)) {
-            let announcementMessage = this.methodToMessage(this.notificationData[msg.tags.roomId], msg)
+            let announcementMessage = UserNotice.methodToMessage(this.notificationData[msg.tags.roomId], msg)
             if (announcementMessage) {
-              announcementMessage = SubNotifications.notificationParameter(announcementMessage, msg)
+              announcementMessage = UserNotice.notificationParameter(announcementMessage, msg)
               DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
               //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
             }
@@ -57,7 +57,7 @@ module.exports = class SubNotifications {
     }
   }
 
-  methodToMessage (channel, eventMsg) {
+  static methodToMessage (notificationData, eventMsg) {
     //eventMsg.parameters is build like this:
     //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
     //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
@@ -101,8 +101,8 @@ module.exports = class SubNotifications {
     }
     //Get first key by value ... convert the enum int to it's name
     UserNoticeType = Object.keys(UserNoticeTypes).find(key => UserNoticeTypes[key] === UserNoticeType)
-    if (this.notificationData[channel].hasOwnProperty(UserNoticeType)) {
-      return this.notificationData[channel][UserNoticeType] || null
+    if (notificationData.hasOwnProperty(UserNoticeType)) {
+      return notificationData[UserNoticeType] || null
     } else {
       DiscordLog.error(__filename + ": Get first key by value failed")
       return null
@@ -136,6 +136,7 @@ module.exports = class SubNotifications {
 
   async updateNotificationData () {
     this.notificationData = await Sql.getNotificationData(this.bot.chat.botData.userId)
+    DiscordLog.debug(util.inspect(this.notificationData))
   }
 }
 
