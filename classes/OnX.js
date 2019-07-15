@@ -39,6 +39,10 @@ module.exports = class OnX {
       }, 1200)
     }
 
+    if (msg.message.startsWith("<uptime ")) {
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, msg.username + ", Bot running for " + OnX.msToDDHHMMSS(process.uptime()), msg.tags.userId)
+    }
+
     return
 
     if (msg.message.startsWith("<tags ")) {
@@ -62,5 +66,32 @@ module.exports = class OnX {
       //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)
       //"1{nl}2{nl}3{nl1000}4"
     }
+  }
+
+  //TODO: move somewhere useful
+  static msToDDHHMMSS (ms) {
+    let secNum = parseInt(ms + "", 10) // don't forget the second param
+    let days = Math.floor(secNum / 86400)
+    let hours = Math.floor((secNum - (days * 86400)) / 3600)
+    let minutes = Math.floor((secNum - (days * 86400) - (hours * 3600)) / 60)
+    let seconds = secNum - (days * 86400) - (hours * 3600) - (minutes * 60)
+
+    /*
+    if (hours < 10) { hours = "0" + hours }
+    if (minutes < 10) { minutes = "0" + minutes }
+    if (seconds < 10) { seconds = "0" + seconds }
+    */
+
+    var time = seconds + 's'
+    if (minutes > 0 || hours > 0) {
+      time = minutes + 'm ' + time
+    }
+    if (hours > 0) {
+      time = hours + 'h ' + time
+    }
+    if (days > 0) {
+      time = days + 'd ' + time
+    }
+    return time
   }
 }
