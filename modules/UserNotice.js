@@ -11,7 +11,7 @@ const UserNoticeTypes = require('../ENUMS/UserNoticeTypes.js')
 const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
 
-module.exports = class UserNotice{
+module.exports = class UserNotice {
   constructor (bot) {
     this.bot = bot
     this.notificationData = {}
@@ -113,13 +113,14 @@ module.exports = class UserNotice{
     //customLog(JSON.stringify(data))
 
     let channel = data.channel.substring(1) || null
-    let username = data.username || null
+    let username = data.tags.displayName || data.tags.login || null
     let secondUser = data.recipient || data.sender || null
     let months = data.months || 0
-    let massGiftCount = parseInt(data.massGiftCount) || 1
-    let senderCount = parseInt(data.senderCount) || 0
+    let massGiftCount = data.msgParamMassGiftCount || 1
+    let senderCount = data.msgParamSenderCount || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
+    let viewerCount = data.parameters.viewerCount || 0
 
     message = message.replace(new RegExp("\\${channel}", 'g'), channel)
     message = message.replace(new RegExp("\\${user}", 'g'), username)
@@ -129,6 +130,7 @@ module.exports = class UserNotice{
     message = message.replace(new RegExp("\\${senderCount}", 'g'), senderCount)
     message = message.replace(new RegExp("\\${timeunit}", 'g'), timeunit)
     message = message.replace(new RegExp("\\${extraS}", 'g'), extraS)
+    message = message.replace(new RegExp("\\${viewerCount}", 'g'), viewerCount)
 
     return message
   }
