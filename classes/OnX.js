@@ -39,6 +39,11 @@ module.exports = class OnX {
       }, 1200)
     }
 
+
+    if (msg.message.startsWith("<bot ")) {
+      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, msg.username + ", I'm the not so shitty V2 version of the IceCreamDataBase bot. Made by icdb in nodejs. FeelsDankMan ", msg.tags.userId)
+    }
+
     if (msg.message.startsWith("<uptime ")) {
       this.queue.sayWithBoth(msg.tags.roomId, msg.channel, msg.username + ", Bot running for " + OnX.msToDDHHMMSS(process.uptime()), msg.tags.userId)
     }
