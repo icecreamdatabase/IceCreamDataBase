@@ -114,7 +114,7 @@ module.exports = class UserNotice {
 
     let channel = data.channel.substring(1) || null
     let username = data.tags.displayName || data.tags.login || null
-    let secondUser = data.recipient || data.sender || null
+    let secondUser = data.tags.msgParamRecipientDisplayName || data.tags.msgParamRecipientUserName || data.tags.msgParamSenderName || data.tags.msgParamSenderLogin || null
     //msgParamMonths is months in a row
     let months = data.tags.msgParamCumulativeMonths || 0
     let massGiftCount = data.tags.msgParamMassGiftCount || 1
