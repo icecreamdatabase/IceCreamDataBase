@@ -116,9 +116,9 @@ module.exports = class UserNotice {
     let username = data.tags.displayName || data.tags.login || null
     let secondUser = data.recipient || data.sender || null
     //msgParamMonths is months in a row
-    let months = data.msgParamCumulativeMonths || 0
-    let massGiftCount = data.msgParamMassGiftCount || 1
-    let senderCount = data.msgParamSenderCount || 0
+    let months = data.tags.msgParamCumulativeMonths || 0
+    let massGiftCount = data.tags.msgParamMassGiftCount || 1
+    let senderCount = data.tags.msgParamSenderCount || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
     let viewerCount = data.msgParamViewerCount || 0
