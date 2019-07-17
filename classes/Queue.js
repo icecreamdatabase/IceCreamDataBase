@@ -115,7 +115,7 @@ module.exports = class Queue {
     }
     //TEMP
     if (this.noBotStatus > 0) {
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n noBotstatus for " + (this.noBotStatus * 10) + "ms")
+      DiscordLog.debug("no botStatus for " + (this.noBotStatus * 10) + "ms")
       this.noBotStatus = 0
     }
 
