@@ -1,7 +1,9 @@
 "use strict"
+const util = require('util')
 const Logger = require('consola')
 const EventEmitter = require('eventemitter3')
 //CLASSES
+const DiscordLog = require('../modules/DiscordLog')
 const BasicBucket = require('../classes/BasicBucket.js')
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 //ENUMS
@@ -65,6 +67,7 @@ module.exports = class Queue {
         })
         this.queueEmitter.emit('event')
       }
+      this.queueEmitter.emit('event')
     }
   }
 
@@ -142,7 +145,8 @@ module.exports = class Queue {
     }).catch(async () => {
       Logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
       Logger.info("Dropped: " + msgObj.message)
-      await sleep(5000)
+      DiscordLog.warn("Dropped: " + util.inspect(msgObj))
+      await sleep(2000)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
     })
