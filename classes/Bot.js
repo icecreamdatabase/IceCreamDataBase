@@ -1,4 +1,5 @@
 "use strict"
+const util = require('util')
 const Logger = require('consola')
 const TwitchJs = require('twitch-js').default
 //CLASSES
@@ -24,7 +25,8 @@ const levels = {
 */
 
 const logSetting = {log: { level: 2 }}
-const UPDATE_ALL_CHANNELS_INTERVAL = 15000 //ms
+//update channels every 150 seconds (2.5 minutes)
+const UPDATE_ALL_CHANNELS_INTERVAL = 150000 //ms
 
 module.exports = class Bot {
   constructor (botData) {
@@ -113,6 +115,7 @@ module.exports = class Bot {
           if (this.chat.channels.hasOwnProperty(currentChannelId)) {
             if (this.chat.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
               contains = true
+              allChannelData[channelId].botStatus = this.chat.channels[currentChannelId].botStatus || null
               allChannelData[channelId].lastMessage = this.chat.channels[currentChannelId].lastMessage || ""
               allChannelData[channelId].lastMessageTimeMillis = this.chat.channels[currentChannelId].lastMessageTimeMillis || 0
             }
@@ -124,6 +127,7 @@ module.exports = class Bot {
           Logger.info(this.chat.botData.username + " Joining: #" + channelName)
           await this.chat.join(channelName).then(() => {
             Logger.info(this.chat.botData.username + " Joined: #" + channelName)
+            allChannelData[channelId].botStatus = null
             allChannelData[channelId].lastMessage = ""
             allChannelData[channelId].lastMessageTimeMillis = 0
           }).catch((msg) => {

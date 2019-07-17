@@ -94,12 +94,10 @@ module.exports = class Queue {
 
   async checkQueue () {
     if (this.messageQueue.length <= 0) {
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n No queue")
       return
     }
     let msgObj = this.messageQueue[0]
     if (msgObj.isBeingChecked) {
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n Already being checked")
       return
     }
     msgObj.isBeingChecked = true
@@ -108,21 +106,21 @@ module.exports = class Queue {
     if (typeof botStatus === 'undefined' || botStatus === null
       || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
     ) {
+      Logger.info("channel.botStatus: " + (typeof channel.botStatus === 'undefined' || channel.botStatus === null))
       this.noBotStatus++
-      await sleep(5)
+      await sleep(10)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
       return
     }
     //TEMP
     if (this.noBotStatus > 0) {
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n noBotstatus for " + this.noBotStatus + " cycles")
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n noBotstatus for " + (this.noBotStatus * 10) + "ms")
       this.noBotStatus = 0
     }
 
     let currentTimeMillis = Date.now()
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n timeout")
       await sleep(channel.lastMessageTimeMillis - currentTimeMillis + 1000 + TIMEOUT_OFFSET)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
@@ -151,11 +149,9 @@ module.exports = class Queue {
       msgObj.message += " \u{E0000}"
     }
     channel.lastMessage = msgObj.message
-    DiscordLog.debug(process.uptime() + "\nQueue state:\n before sending")
     this.bot.chat.say(msgObj.channelName, msgObj.message).then(() => {
 
       this.messageQueue.shift()
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n Message sent")
       Logger.info("<-- " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
       this.queueEmitter.emit('event')
     }).catch(async () => {
