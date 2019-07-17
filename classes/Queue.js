@@ -108,7 +108,7 @@ module.exports = class Queue {
     if (typeof botStatus === 'undefined' || botStatus === null
       || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
     ) {
-      this.noBotStatus++;
+      this.noBotStatus++
       await sleep(5)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
