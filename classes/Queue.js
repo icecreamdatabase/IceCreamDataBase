@@ -92,10 +92,12 @@ module.exports = class Queue {
 
   async checkQueue () {
     if (this.messageQueue.length <= 0) {
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n No queue")
       return
     }
     let msgObj = this.messageQueue[0]
     if (msgObj.isBeingChecked) {
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n Already being checked")
       return
     }
     msgObj.isBeingChecked = true
@@ -111,6 +113,7 @@ module.exports = class Queue {
     }
     let currentTimeMillis = Date.now()
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n timeout")
       await sleep(channel.lastMessageTimeMillis - currentTimeMillis + 1000 + TIMEOUT_OFFSET)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
@@ -119,6 +122,7 @@ module.exports = class Queue {
     channel.lastMessageTimeMillis = currentTimeMillis
     if (botStatus < UserLevels.VIP) {
       if (!this.privsgUserBucket.takeTicket()) {
+        DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied uzser ticket")
         Logger.info("Denied user ticket")
         await sleep(1500)
         msgObj.isBeingChecked = false
@@ -127,6 +131,7 @@ module.exports = class Queue {
       }
     }
     if (!this.privmsgModeratorbucket.takeTicket()) {
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied moderator ticket")
       Logger.info("Denied moderator ticket")
       await sleep(1500)
       msgObj.isBeingChecked = false
@@ -137,14 +142,17 @@ module.exports = class Queue {
       msgObj.message += " \u{E0000}"
     }
     channel.lastMessage = msgObj.message
+    DiscordLog.debug(process.uptime() + "\nQueue state:\n before sending")
     this.bot.chat.say(msgObj.channelName, msgObj.message).then(() => {
 
       this.messageQueue.shift()
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n Message sent")
       Logger.info("<-- " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
       this.queueEmitter.emit('event')
     }).catch(async () => {
       Logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
       Logger.info("Dropped: " + msgObj.message)
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n Message dropped")
       DiscordLog.warn("Dropped: " + util.inspect(msgObj))
       await sleep(2000)
       msgObj.isBeingChecked = false
