@@ -41,7 +41,7 @@ module.exports = class UserNotice {
             if (announcementMessage) {
               announcementMessage = UserNotice.notificationParameter(announcementMessage, msg)
               DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
-              //this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
+              this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, announcementMessage, msg.tags.userId)
             }
           } else {
             DiscordLog.debug(__filename + ": No data for " + msg.tags.roomId + " in notificationData")
