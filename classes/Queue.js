@@ -19,6 +19,8 @@ module.exports = class Queue {
   constructor (bot) {
     this.bot = bot
 
+    this.noBotStatus = 0
+
     this.messageQueue = []
     this.queueEmitter = new EventEmitter()
 
@@ -106,11 +108,18 @@ module.exports = class Queue {
     if (typeof botStatus === 'undefined' || botStatus === null
       || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
     ) {
+      this.noBotStatus++;
       await sleep(5)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
       return
     }
+    //TEMP
+    if (this.noBotStatus > 0) {
+      DiscordLog.debug(process.uptime() + "\nQueue state:\n noBotstatus for " + this.noBotStatus + " cycles")
+      this.noBotStatus = 0
+    }
+
     let currentTimeMillis = Date.now()
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
       DiscordLog.debug(process.uptime() + "\nQueue state:\n timeout")
