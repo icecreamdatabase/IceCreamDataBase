@@ -6,7 +6,8 @@ const Api = require('../classes/Api.js')
 const UserLevels = require('../ENUMS/UserLevels.js')
 const ChatLimit = require('../ENUMS/ChatLimit.js')
 
-const UPDATE_BOT_STATUS_INTERVAL = 15000 //ms
+//update bot status every 60 seconds (1 minute)
+const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
 
 module.exports = class ApiFunctions {
   constructor (bot) {
