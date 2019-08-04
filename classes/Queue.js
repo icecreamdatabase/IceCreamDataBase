@@ -155,10 +155,11 @@ module.exports = class Queue {
       this.messageQueue.shift()
       Logger.info("<-- " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
       this.queueEmitter.emit('event')
-    }).catch(async () => {
+    }).catch(async (msg) => {
       Logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
       Logger.info("Dropped: " + msgObj.message)
       //DiscordLog.debug(process.uptime() + "\nQueue state:\n Message dropped")
+      DiscordLog.warn(util.inspect(msg))
       DiscordLog.warn("Dropped: " + util.inspect(msgObj))
       await sleep(5000)
       msgObj.isBeingChecked = false
