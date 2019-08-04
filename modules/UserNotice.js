@@ -32,7 +32,7 @@ module.exports = class UserNotice {
   }
 
   async onUsernotice (msg) {
-    DiscordLog.custom("usernotice", msg.event, util.inspect(msg))
+    //DiscordLog.custom("usernotice", msg.event, util.inspect(msg))
     if (msg.hasOwnProperty("event")) {
       if (msg.hasOwnProperty("tags")) {
         if (msg.tags.hasOwnProperty("roomId")) {
@@ -40,7 +40,7 @@ module.exports = class UserNotice {
             let announcementMessage = UserNotice.methodToMessage(this.notificationData[msg.tags.roomId], msg)
             if (announcementMessage) {
               announcementMessage = UserNotice.notificationParameter(announcementMessage, msg)
-              DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
+              //DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
               this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, announcementMessage, msg.tags.userId)
             }
           } else {
