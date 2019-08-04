@@ -149,8 +149,9 @@ module.exports = class Queue {
       msgObj.message += " \u{E0000}"
     }
     channel.lastMessage = msgObj.message
-    this.bot.chat.say(msgObj.channelName, msgObj.message).then(() => {
+    this.bot.chat.say(msgObj.channelName, msgObj.message).then(async () => {
 
+      await sleep(20)
       this.messageQueue.shift()
       Logger.info("<-- " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
       this.queueEmitter.emit('event')
