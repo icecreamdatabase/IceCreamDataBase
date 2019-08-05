@@ -107,9 +107,14 @@ module.exports = class Queue {
     }
     msgObj.isBeingChecked = true
     let channel = this.bot.channels[msgObj.channelId]
-    let botStatus = channel.botStatus
+    let botStatus = channel.botStatus || UserLevels.DEFAULT
+    if (typeof botStatus === 'undefined' || botStatus === null) {
+      botStatus = UserLevels.DEFAULT
+      DiscordLog.debug("No botStatus. Using UserLevels.DEFAULT")
+    }
+    /*
     if (typeof botStatus === 'undefined' || botStatus === null
-      || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
+    || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
     ) {
       console.info("channel.botStatus: " + (typeof channel.botStatus === 'undefined' || channel.botStatus === null))
       this.noBotStatus++
@@ -123,6 +128,7 @@ module.exports = class Queue {
       DiscordLog.debug("no botStatus for " + (this.noBotStatus * 10) + "ms")
       this.noBotStatus = 0
     }
+    */
 
     let currentTimeMillis = Date.now()
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
