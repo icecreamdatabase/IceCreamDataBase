@@ -3,7 +3,7 @@ const util = require('util')
 //CLASSES
 const DiscordLog = require('../modules/DiscordLog')
 const Sql = require('../classes/sql/modules/SqlUserNotice.js')
-const Api = require('../classes/Api.js')
+const Api = require('../classes/api/Api.js')
 
 //ENUMS
 const UserNoticeTypes = require('../ENUMS/UserNoticeTypes.js')

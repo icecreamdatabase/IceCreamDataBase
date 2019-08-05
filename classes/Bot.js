@@ -2,8 +2,8 @@
 //CLASSES
 const Sql = require('./sql/main/SqlChannels.js')
 const TwitchIRCConnection = require('../classes/TwitchIRCConnection.js')
-const ApiFunctions = require('../classes/ApiFunctions.js')
-const OnX = require('../modules/OnX.js')
+const ApiFunctions = require('./api/ApiFunctions.js')
+const PrivMsg = require('../modules/PrivMsg.js')
 const UserNotice = require('../modules/UserNotice.js')
 const Queue = require('../classes/Queue.js')
 
@@ -44,7 +44,11 @@ module.exports = class Bot {
           this.apiFunctions = new ApiFunctions(this)
           this.apiFunctions.updateBotStatus().then(() => {
             this.TwitchIRCConnection.queue = new Queue(this)
-            this.onX = new OnX(this)
+
+            //OnX modules
+            this.privMsg = new PrivMsg(this)
+            this.userNotice = new UserNotice(this)
+
             console.info(this.TwitchIRCConnection.botData.userId + " (" + this.TwitchIRCConnection.botData.username + ") is fully setup!")
           })
         })

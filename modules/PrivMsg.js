@@ -1,15 +1,13 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const UserNotice = require('./UserNotice.js')
-const ApiFunctions = require('../classes/ApiFunctions.js')
+const ApiFunctions = require('../classes/api/ApiFunctions.js')
 const DiscordLog = require('./DiscordLog')
 
 
-module.exports = class OnX {
+module.exports = class PrivMsg {
   constructor (bot) {
     this.bot = bot
-    this.UserNotice = new UserNotice(bot)
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -58,7 +56,7 @@ module.exports = class OnX {
     }
 
     if (message.startsWith("<uptime ")) {
-      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, username + ", Bot running for " + OnX.msToDDHHMMSS(process.uptime()), userId)
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, username + ", Bot running for " + PrivMsg.msToDDHHMMSS(process.uptime()), userId)
     }
 
     return

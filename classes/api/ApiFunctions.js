@@ -1,10 +1,10 @@
 "use strict"
 const Logger = require('consola')
 const https = require('https')
-const Api = require('../classes/Api.js')
+const Api = require('./Api.js')
 //ENUMS
-const UserLevels = require('../ENUMS/UserLevels.js')
-const ChatLimit = require('../ENUMS/ChatLimit.js')
+const UserLevels = require('../../ENUMS/UserLevels.js')
+const ChatLimit = require('../../ENUMS/ChatLimit.js')
 
 //update bot status every 60 seconds (1 minute)
 const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
