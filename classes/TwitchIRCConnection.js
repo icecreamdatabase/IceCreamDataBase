@@ -128,9 +128,9 @@ class TwitchIRCConnection extends EventEmitter {
 
   say (channel, message) {
     if (channel.charAt(0) !== '#') {
-      channel = '#' * channel
+      channel = '#' + channel
     }
-    this.send(`PRIVMSG ${channel} ${message}`)
+    this.send(`PRIVMSG ${channel} :${message}`)
   }
 
   send (data) {
