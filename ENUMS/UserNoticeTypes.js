@@ -15,3 +15,4 @@ module.exports = Object.freeze({
                   "RESUBSCRIPTION_T3": 201,
                   "RESUBSCRIPTION_PRIME": 202,
                 })
+//sub, resub, subgift, anonsubgift, submysterygift, giftpaidupgrade, rewardgift, anongiftpaidupgrade, raid, unraid, ritual, bitsbadgetier

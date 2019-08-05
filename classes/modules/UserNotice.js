@@ -31,42 +31,32 @@ module.exports = class UserNotice {
     //let msg-id =
 
     DiscordLog.custom("usernotice", obj.command, util.inspect(obj))
-    return
-    if (msg.hasOwnProperty("event")) {
-      if (msg.hasOwnProperty("tags")) {
-        if (msg.tags.hasOwnProperty("roomId")) {
-          if (this.notificationData.hasOwnProperty(msg.tags.roomId)) {
-            let announcementMessage = UserNotice.methodToMessage(this.notificationData[msg.tags.roomId], msg)
-            if (announcementMessage) {
-              announcementMessage = UserNotice.notificationParameter(announcementMessage, msg)
-              //DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
-              this.bot.TwitchIRCConnection.queue.sayWithBoth(msg.tags.roomId, msg.channel, announcementMessage, msg.tags.userId)
-            }
-          } else {
-            //DiscordLog.debug(__filename + ": No data for " + msg.tags.roomId + " in notificationData")
-          }
-        } else {
-          DiscordLog.error(__filename + ": No roomId in msg.tags")
+
+    if (obj.hasOwnProperty("command")) {
+      if (this.notificationData.hasOwnProperty(obj.tags["room-id"])) {
+        let announcementMessage = UserNotice.methodToMessage(this.notificationData[obj.tags["room-id"]], obj)
+        if (announcementMessage) {
+          announcementMessage = UserNotice.notificationParameter(announcementMessage, obj)
+          DiscordLog.custom("usernotice-handled", obj.command, announcementMessage)
+          this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
         }
-      } else {
-        DiscordLog.error(__filename + ": No tags in msg")
       }
     } else {
-      DiscordLog.error(__filename + ": Received USERNOTICE without msg.event")
+      DiscordLog.error("USERNOTICE without command property!")
     }
   }
 
-  static methodToMessage (notificationData, eventMsg) {
+  static methodToMessage (notificationData, obj) {
     //eventMsg.parameters is build like this:
     //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
     //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
     //{"plan":"1000","planName":"Channel Subscription (forsenlol)"}
-    let UserNoticeType = UserNoticeTypes[eventMsg.event]
+    let UserNoticeType = UserNoticeTypes[obj.tags["msg-id"]]
 
     //TODO: make this look nicer and be more compact
     if (UserNoticeType === UserNoticeTypes.SUBSCRIPTION) {
-      if (eventMsg.parameters.hasOwnProperty("subPlan")) {
-        switch (eventMsg.parameters.subPlan) {
+      if (obj.tags.hasOwnProperty("msg-param-sub-plan")) {
+        switch (obj.tags["msg-param-sub-plan"]) {
           case "Prime":
             UserNoticeType = UserNoticeTypes.SUBSCRIPTION_PRIME
             break
@@ -78,12 +68,12 @@ module.exports = class UserNotice {
             break
         }
       } else {
-        DiscordLog.error(__filename + ": SUBSCRIPTION event without eventMsg.parameters.subPlan")
+        DiscordLog.error(__filename + ": SUBSCRIPTION event without obj.tags[\"msg-param-sub-plan\"]")
       }
     }
     if (UserNoticeType === UserNoticeTypes.RESUBSCRIPTION) {
-      if (eventMsg.parameters.hasOwnProperty("subPlan")) {
-        switch (eventMsg.parameters.subPlan) {
+      if (obj.tags.hasOwnProperty("msg-param-sub-plan")) {
+        switch (obj.tags["msg-param-sub-plan"]) {
           case "Prime":
             UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_PRIME
             break
@@ -95,7 +85,7 @@ module.exports = class UserNotice {
             break
         }
       } else {
-        DiscordLog.error(__filename + ": RESUBSCRIPTION event without eventMsg.parameters.subPlan")
+        DiscordLog.error(__filename + ": RESUBSCRIPTION event without obj.tags[\"msg-param-sub-plan\"]")
       }
     }
     //Get first key by value ... convert the enum int to it's name
@@ -108,16 +98,16 @@ module.exports = class UserNotice {
     }
   }
 
-  static notificationParameter (message, data) {
+  static notificationParameter (message, obj) {
     //customLog(JSON.stringify(data))
 
-    let channel = data.channel.substring(1) || null
-    let username = data.tags.displayName || data.tags.login || null
-    let secondUser = data.tags.msgParamRecipientDisplayName || data.tags.msgParamRecipientUserName || data.tags.msgParamSenderName || data.tags.msgParamSenderLogin || null
+    let channel = obj.param.substring(1) || null
+    let username = obj.tags["display-name"] || obj.tags["login"] || null
+    let secondUser = obj.tags["msg-param-recipient-display-name"] || obj.tags["msg-param-recipient-user-name"] || obj.tags["msg-param-sender-name"] || obj.tags["msg-param-sender-name"] || null
     //msgParamMonths is months in a row
-    let months = data.tags.msgParamCumulativeMonths || 0
-    let massGiftCount = data.tags.msgParamMassGiftCount || 1
-    let senderCount = data.tags.msgParamSenderCount || 0
+    let months = obj.tags["msg-param-cumulative-months"] || 0
+    let massGiftCount = obj.tags["msg-param-mass-gift-count"] || 1
+    let senderCount = obj.tags[msgParamSenderCount] || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
     let viewerCount = data.msgParamViewerCount || 0
