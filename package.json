@@ -21,7 +21,6 @@
     "consola": "^2.9.0",
     "eventemitter3": "^4.0.0",
     "mysql2": "^1.6.5",
-    "twitch-js": "^2.0.0-beta.30",
     "util": "^0.11.1"
   },
   "devDependencies": {
