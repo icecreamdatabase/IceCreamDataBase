@@ -3,8 +3,8 @@
 const Sql = require('./sql/main/SqlChannels.js')
 const TwitchIRCConnection = require('../classes/TwitchIRCConnection.js')
 const ApiFunctions = require('./api/ApiFunctions.js')
-const PrivMsg = require('../modules/PrivMsg.js')
-const UserNotice = require('../modules/UserNotice.js')
+const PrivMsg = require('./modules/PrivMsg.js')
+const UserNotice = require('./modules/UserNotice.js')
 const Queue = require('../classes/Queue.js')
 
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')

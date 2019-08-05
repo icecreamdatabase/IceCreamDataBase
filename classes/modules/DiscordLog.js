@@ -2,7 +2,7 @@
 const Logger = require('consola')
 const https = require('https')
 const EventEmitter = require('eventemitter3')
-const options = require('../config.json')
+const options = require('../../config.json')
 
 const WEBHOOK = {
   host: "discordapp.com",

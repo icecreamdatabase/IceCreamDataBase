@@ -2,7 +2,7 @@
 const util = require('util')
 const EventEmitter = require('eventemitter3')
 //CLASSES
-const DiscordLog = require('../modules/DiscordLog')
+const DiscordLog = require('./modules/DiscordLog')
 const BasicBucket = require('../classes/BasicBucket.js')
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 //ENUMS

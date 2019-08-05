@@ -1,7 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const ApiFunctions = require('../classes/api/ApiFunctions.js')
+const ApiFunctions = require('../api/ApiFunctions.js')
 const DiscordLog = require('./DiscordLog')
 
 
