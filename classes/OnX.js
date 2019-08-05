@@ -61,7 +61,7 @@ module.exports = class OnX {
       this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, username + ", Bot running for " + OnX.msToDDHHMMSS(process.uptime()), userId)
     }
 
-    //return
+    return
 
     if (message.startsWith("<tags ")) {
       this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, JSON.stringify(obj), userId)
