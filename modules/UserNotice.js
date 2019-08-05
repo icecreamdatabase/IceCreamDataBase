@@ -19,20 +19,19 @@ module.exports = class UserNotice {
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `notificationData` array.
 
-    //for in loops through the keys
-    for (let eventType in UserNoticeTypes) {
-      if (UserNoticeTypes[eventType] < 100) {
-        bot.chat.on('USERNOTICE/' + eventType, this.onUsernotice.bind(this))
-      }
-    }
+    this.bot.TwitchIRCConnection.on('USERNOTICE', this.onUsernotice.bind(this))
 
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
     this.updateNotificationData.bind(this)
   }
 
-  async onUsernotice (msg) {
-    //DiscordLog.custom("usernotice", msg.event, util.inspect(msg))
+  async onUsernotice (obj) {
+    let tags = obj.tags
+    //let msg-id =
+
+    DiscordLog.custom("usernotice", obj.command, util.inspect(obj))
+    return
     if (msg.hasOwnProperty("event")) {
       if (msg.hasOwnProperty("tags")) {
         if (msg.tags.hasOwnProperty("roomId")) {
@@ -41,7 +40,7 @@ module.exports = class UserNotice {
             if (announcementMessage) {
               announcementMessage = UserNotice.notificationParameter(announcementMessage, msg)
               //DiscordLog.custom("usernotice-handled", msg.event, announcementMessage)
-              this.bot.chat.queue.sayWithBoth(msg.tags.roomId, msg.channel, announcementMessage, msg.tags.userId)
+              this.bot.TwitchIRCConnection.queue.sayWithBoth(msg.tags.roomId, msg.channel, announcementMessage, msg.tags.userId)
             }
           } else {
             //DiscordLog.debug(__filename + ": No data for " + msg.tags.roomId + " in notificationData")
@@ -138,7 +137,7 @@ module.exports = class UserNotice {
 
 
   async updateNotificationData () {
-    this.notificationData = await Sql.getNotificationData(this.bot.chat.botData.userId)
+    this.notificationData = await Sql.getNotificationData(this.bot.TwitchIRCConnection.botData.userId)
   }
 }
 

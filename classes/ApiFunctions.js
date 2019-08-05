@@ -12,7 +12,7 @@ const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
 module.exports = class ApiFunctions {
   constructor (bot) {
     this.bot = bot
-    this.clientID = bot.chat.botData.clientID
+    this.clientID = bot.TwitchIRCConnection.botData.clientID
 
     setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
   }
@@ -91,9 +91,9 @@ module.exports = class ApiFunctions {
   }
 
   async updateBotStatus () {
-    for (let i in this.bot.chat.channels) {
-      let channel = this.bot.chat.channels[i]
-      let botStatus = await this.userStatus(this.bot.chat.botData.userId, channel.channelID)
+    for (let i in this.bot.channels) {
+      let channel = this.bot.channels[i]
+      let botStatus = await this.userStatus(this.bot.TwitchIRCConnection.botData.userId, channel.channelID)
       channel.botStatus = UserLevels.PLEB
       if (botStatus.isSubscriber) {
         channel.botStatus = UserLevels.SUBSCRIBER
@@ -109,14 +109,14 @@ module.exports = class ApiFunctions {
       }
 
       if (botStatus.isVerifiedBot) {
-        this.bot.chat.rateLimitUser = ChatLimit.VERIFIED
-        this.bot.chat.rateLimitModerator = ChatLimit.VERIFIED_MOD
+        this.bot.rateLimitUser = ChatLimit.VERIFIED
+        this.bot.rateLimitModerator = ChatLimit.VERIFIED_MOD
       } else if (botStatus.isKnownBot) {
-        this.bot.chat.rateLimitUser = ChatLimit.KNOWN
-        this.bot.chat.rateLimitModerator = ChatLimit.KNOWN_MOD
+        this.bot.rateLimitUser = ChatLimit.KNOWN
+        this.bot.rateLimitModerator = ChatLimit.KNOWN_MOD
       } else {
-        this.bot.chat.rateLimitUser = ChatLimit.NORMAL
-        this.bot.chat.rateLimitModerator = ChatLimit.NORMAL_MOD
+        this.bot.rateLimitUser = ChatLimit.NORMAL
+        this.bot.rateLimitModerator = ChatLimit.NORMAL_MOD
       }
     }
   }

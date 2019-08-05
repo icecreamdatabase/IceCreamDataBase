@@ -1,6 +1,5 @@
 "use strict"
 const util = require('util')
-const Logger = require('consola')
 const EventEmitter = require('eventemitter3')
 //CLASSES
 const DiscordLog = require('../modules/DiscordLog')
@@ -24,8 +23,8 @@ module.exports = class Queue {
     this.messageQueue = []
     this.queueEmitter = new EventEmitter()
 
-    this.privmsgModeratorbucket = new BasicBucket(this.bot.chat.rateLimitModerator)
-    this.privsgUserBucket = new BasicBucket(this.bot.chat.rateLimitUser)
+    this.privmsgModeratorbucket = new BasicBucket(this.bot.rateLimitModerator)
+    this.privsgUserBucket = new BasicBucket(this.bot.rateLimitUser)
     this.queueEmitter.on('event', this.checkQueue.bind(this))
   }
 
@@ -47,6 +46,12 @@ module.exports = class Queue {
   sayWithBoth (channelId, channelName, message, userId) {
     //if userId paramter is missing just set it to "-1"
     userId = userId || "-1"
+
+    //remove newline characters
+    if (message.indexOf("\n") >= 0) {
+      console.info('Removed new line character')
+      message = message.replace(/[\r\n]/g, '')
+    }
 
     //split message if too long
     message = this.splitRecursively(message)
@@ -101,12 +106,12 @@ module.exports = class Queue {
       return
     }
     msgObj.isBeingChecked = true
-    let channel = this.bot.chat.channels[msgObj.channelId]
+    let channel = this.bot.channels[msgObj.channelId]
     let botStatus = channel.botStatus
     if (typeof botStatus === 'undefined' || botStatus === null
       || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
     ) {
-      Logger.info("channel.botStatus: " + (typeof channel.botStatus === 'undefined' || channel.botStatus === null))
+      console.info("channel.botStatus: " + (typeof channel.botStatus === 'undefined' || channel.botStatus === null))
       this.noBotStatus++
       await sleep(10)
       msgObj.isBeingChecked = false
@@ -130,7 +135,7 @@ module.exports = class Queue {
     if (botStatus < UserLevels.VIP) {
       if (!this.privsgUserBucket.takeTicket()) {
         DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied uzser ticket")
-        Logger.info("Denied user ticket")
+        console.info("Denied user ticket")
         await sleep(1500)
         msgObj.isBeingChecked = false
         this.queueEmitter.emit('event')
@@ -139,7 +144,7 @@ module.exports = class Queue {
     }
     if (!this.privmsgModeratorbucket.takeTicket()) {
       DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied moderator ticket")
-      Logger.info("Denied moderator ticket")
+      console.info("Denied moderator ticket")
       await sleep(1500)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
@@ -149,22 +154,12 @@ module.exports = class Queue {
       msgObj.message += " \u{E0000}"
     }
     channel.lastMessage = msgObj.message
-    this.bot.chat.say(msgObj.channelName, msgObj.message).then(async () => {
 
-      await sleep(20)
-      this.messageQueue.shift()
-      Logger.info("<-- " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
-      this.queueEmitter.emit('event')
-    }).catch(async (msg) => {
-      Logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-      Logger.info("Dropped: " + msgObj.message)
-      //DiscordLog.debug(process.uptime() + "\nQueue state:\n Message dropped")
-      DiscordLog.warn(util.inspect(msg))
-      DiscordLog.warn("Dropped: " + util.inspect(msgObj))
-      await sleep(5000)
-      msgObj.isBeingChecked = false
-      this.queueEmitter.emit('event')
-    })
+    this.bot.TwitchIRCConnection.say(msgObj.channelName, msgObj.message)
+
+    this.messageQueue.shift()
+    //console.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
+    this.queueEmitter.emit('event')
   }
 }
 

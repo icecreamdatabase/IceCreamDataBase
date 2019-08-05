@@ -1,5 +1,5 @@
 "use strict"
-const Logger = require('consola')
+const util = require('util')
 //CLASSES
 const UserNotice = require('../modules/UserNotice.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
@@ -11,65 +11,68 @@ module.exports = class OnX {
     this.bot = bot
     this.UserNotice = new UserNotice(bot)
 
-    bot.chat.on('PRIVMSG', this.onChat)
+    bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
 
 
-  async onChat (msg) {
-    Logger.info("--> " + msg.channel + " " + msg.username + ": " + msg.message)
+  async onChat (obj) {
+    let channel = obj.param
+    let roomId = obj.tags['room-id']
+    let userId = obj.tags['user-id']
+    let username = obj.tags['display-name']
+    let message = obj.trailing
 
-    msg.message += " "
+    //Handle ACTION /me messages
+    let isACTION = false
+    if (message.startsWith("\u0001ACTION")) {
+      message = message.substring(7, message.length - 1)
+      isACTION = true
+    }
+
+    console.info("<-- " + channel + " " + username + ": " + message)
+
+    message += " "
 
     /* update the bot */
-    if (msg.message.startsWith("<update ") && msg.tags.userId === "38949074") {
+    if (message.startsWith("<update ") && userId === "38949074") {
       let { spawn } = require( 'child_process' ); let ls = spawn( 'git', [ 'pull' ] )
 
       ls.on( 'close', code => {
           if (code === 0) {
-            this.say(msg.channel, "Updated... Please restart bot to apply updates.")
+            this.bot.TwitchIRCConnection.say(channel, "Updated... Please restart bot to apply updates.")
           }
       } )
     }
 
     /* Shutting down the bot */
-    if (msg.message.startsWith("<s ") && msg.tags.userId === "38949074") {
-      this.say(msg.channel, "Shutting down FeelsBadMan")
+    if (message.startsWith("<s ") && userId === "38949074") {
+      this.bot.TwitchIRCConnection.say(channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.exit(0)
       }, 1200)
     }
 
 
-    if (msg.message.startsWith("<bot ")) {
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, "I'm the not so shitty V2 version of the IceCreamDataBase bot. Made by icdb in nodejs. FeelsDankMan ", msg.tags.userId)
+    if (message.startsWith("<bot ")) {
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, "I'm the not so shitty V2 version of the IceCreamDataBase bot. Made by icdb in nodejs. FeelsDankMan ", userId)
     }
 
-    if (msg.message.startsWith("<uptime ")) {
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, msg.username + ", Bot running for " + OnX.msToDDHHMMSS(process.uptime()), msg.tags.userId)
+    if (message.startsWith("<uptime ")) {
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, username + ", Bot running for " + OnX.msToDDHHMMSS(process.uptime()), userId)
     }
 
-    return
+    //return
 
-    if (msg.message.startsWith("<tags ")) {
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, JSON.stringify(msg.tags, null, 2), msg.tags.userId)
+    if (message.startsWith("<tags ")) {
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, JSON.stringify(obj), userId)
     }
 
-    if (msg.message.startsWith("<y ")) {
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, "word1{nl}word2 {nl}word3{nl} word4 {nl} word5 {nl} {nl}", msg.tags.userId)
+    if (message.startsWith("<y ")) {
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, "word1{nl}word2 {nl}word3{nl} word4 {nl} word5 {nl} {nl}", userId)
     }
 
-    if (msg.message.startsWith("< ")) {
-      //DiscordLog.error("Error message")
-      //DiscordLog.warn("Warn message")
-      //DiscordLog.info("Info message")
-      //DiscordLog.debug("Debug message")
-      //DiscordLog.trace("Trace message")
-      //DiscordLog.custom("usernotice-handled", "Title test", "message test")
-      //DiscordLog.custom("usernotice", "Title test", "message test", DiscordLog.getDecimalFromHexString("#FFFFFF"))
-      this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
-      //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">", msg.tags.userId)
-      //this.queue.sayWithBoth(msg.tags.roomId, msg.channel, ">------------", msg.tags.userId)
-      //"1{nl}2{nl}3{nl1000}4"
+    if (message.startsWith("< ")) {
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(roomId, channel, ">", userId)
     }
   }
 
@@ -87,7 +90,7 @@ module.exports = class OnX {
     if (seconds < 10) { seconds = "0" + seconds }
     */
 
-    var time = seconds + 's'
+    let time = seconds + 's'
     if (minutes > 0 || hours > 0) {
       time = minutes + 'm ' + time
     }

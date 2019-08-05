@@ -11,7 +11,7 @@ module.exports = class SqlBot {
    * @return {{userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}} botData Return object with all data
    */
   static async getBotData () {
-    let results = await sqlPool.query("SELECT * FROM bots order by ID asc;")
+    let results = await sqlPool.query("SELECT * FROM bots order by ID;")
 
     return results.map((row) => {
       let userId = row.ID || -1
