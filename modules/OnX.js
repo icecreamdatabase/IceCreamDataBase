@@ -1,9 +1,9 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const UserNotice = require('../modules/UserNotice.js')
+const UserNotice = require('./UserNotice.js')
 const ApiFunctions = require('../classes/ApiFunctions.js')
-const DiscordLog = require('../modules/DiscordLog')
+const DiscordLog = require('./DiscordLog')
 
 
 module.exports = class OnX {
