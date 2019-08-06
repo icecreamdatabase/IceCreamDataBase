@@ -34,7 +34,7 @@ module.exports = class UserNotice {
         if (announcementMessage) {
           announcementMessage = UserNotice.notificationParameter(announcementMessage, obj)
           DiscordLog.custom("usernotice-handled", obj.command, announcementMessage)
-          //this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
+          this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
         }
       }
     } else {
