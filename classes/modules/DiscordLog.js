@@ -1,8 +1,7 @@
 "use strict"
-const Logger = require('consola')
 const https = require('https')
 const EventEmitter = require('eventemitter3')
-const options = require('../config.json')
+const options = require('../../config.json')
 
 const WEBHOOK = {
   host: "discordapp.com",
@@ -97,13 +96,13 @@ async function sendToWebhook (messageQueueObj) {
         resolve(res)
       })
       req.on('error', (err) => {
-        Logger.error(err)
+        console.error(err)
         reject(err)
       })
       req.write(JSON.stringify(messageQueueObj.postContent))
       req.end()
     } else {
-      Logger.warn("no options.discord.logwebhook")
+      console.warn("no options.discord.logwebhook")
       reject()
     }
   })

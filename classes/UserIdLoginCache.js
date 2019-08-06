@@ -1,7 +1,6 @@
 "use strict"
-const Logger = require('consola')
 //CLASSES
-const Api = require('../classes/Api.js')
+const Api = require('./api/Api.js')
 
 let mapIdToName = {}
 let mapNameToId = {}

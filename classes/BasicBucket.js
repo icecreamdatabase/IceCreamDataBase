@@ -1,5 +1,4 @@
 "use strict"
-const Logger = require('consola')
 
 const TICKET_RETURN_TIMEOUT = 30000
 
@@ -40,6 +39,6 @@ function returnTicket () {
   if (this.usedTickets > 0) {
     this.usedTickets--
   } else {
-    Logger.error("Ticket returned when there where none given out!")
+    console.error("Ticket returned when there where none given out!")
   }
 }

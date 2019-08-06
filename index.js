@@ -1,7 +1,6 @@
 "use strict"
 const Mysql = require('./classes/sql/main/SqlBot.js')
 const Bot = require('./classes/Bot.js')
-const Logger = require('consola')
 
 let bots = {}
 
