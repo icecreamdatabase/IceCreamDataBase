@@ -56,34 +56,34 @@ module.exports = class UserNotice {
     let UserNoticeType = UserNoticeTypes[obj.tags["msg-id"]]
 
     //TODO: make this look nicer and be more compact
-    if (UserNoticeType === UserNoticeTypes.SUBSCRIPTION) {
+    if (UserNoticeType === UserNoticeTypes.SUB) {
       if (obj.tags.hasOwnProperty("msg-param-sub-plan")) {
         switch (obj.tags["msg-param-sub-plan"]) {
           case "Prime":
-            UserNoticeType = UserNoticeTypes.SUBSCRIPTION_PRIME
+            UserNoticeType = UserNoticeTypes.SUB_PRIME
             break
           case "2000":
-            UserNoticeType = UserNoticeTypes.SUBSCRIPTION_T2
+            UserNoticeType = UserNoticeTypes.SUB_T2
             break
           case "3000":
-            UserNoticeType = UserNoticeTypes.SUBSCRIPTION_T3
+            UserNoticeType = UserNoticeTypes.SUB_T3
             break
         }
       } else {
         DiscordLog.error(__filename + ": SUBSCRIPTION event without obj.tags[\"msg-param-sub-plan\"]")
       }
     }
-    if (UserNoticeType === UserNoticeTypes.RESUBSCRIPTION) {
+    if (UserNoticeType === UserNoticeTypes.RESUB) {
       if (obj.tags.hasOwnProperty("msg-param-sub-plan")) {
         switch (obj.tags["msg-param-sub-plan"]) {
           case "Prime":
-            UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_PRIME
+            UserNoticeType = UserNoticeTypes.RESUB_PRIME
             break
           case "2000":
-            UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_T2
+            UserNoticeType = UserNoticeTypes.RESUB_T2
             break
           case "3000":
-            UserNoticeType = UserNoticeTypes.RESUBSCRIPTION_T3
+            UserNoticeType = UserNoticeTypes.RESUB_T3
             break
         }
       } else {
