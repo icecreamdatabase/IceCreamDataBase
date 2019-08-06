@@ -3,7 +3,6 @@ const util = require('util')
 //CLASSES
 const DiscordLog = require('./DiscordLog')
 const Sql = require('../sql/modules/SqlUserNotice.js')
-const Api = require('../api/Api.js')
 
 //ENUMS
 const UserNoticeTypes = require('../../ENUMS/UserNoticeTypes.js')
@@ -27,12 +26,7 @@ module.exports = class UserNotice {
   }
 
   async onUsernotice (obj) {
-    let tags = obj.tags
-    //let msg-id =
-
     DiscordLog.custom("usernotice", obj.command, util.inspect(obj))
-
-    return
 
     if (obj.hasOwnProperty("command")) {
       if (this.notificationData.hasOwnProperty(obj.tags["room-id"])) {
@@ -40,7 +34,7 @@ module.exports = class UserNotice {
         if (announcementMessage) {
           announcementMessage = UserNotice.notificationParameter(announcementMessage, obj)
           DiscordLog.custom("usernotice-handled", obj.command, announcementMessage)
-          this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
+          //this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
         }
       }
     } else {
@@ -112,7 +106,7 @@ module.exports = class UserNotice {
     let senderCount = obj.tags["msg-param-sender-count"] || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
-    let viewerCount =obj.tags["msg-param-viewerCount"] || 0
+    let viewerCount = obj.tags["msg-param-viewerCount"] || 0
 
     message = message.replace(new RegExp("\\${channel}", 'g'), channel)
     message = message.replace(new RegExp("\\${user}", 'g'), username)
