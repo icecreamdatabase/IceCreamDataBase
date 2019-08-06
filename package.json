@@ -18,7 +18,6 @@
   "author": "cineafx <cineafx@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "consola": "^2.9.0",
     "eventemitter3": "^4.0.0",
     "irc-message": "^3.0.2",
     "mysql2": "^1.6.5",
