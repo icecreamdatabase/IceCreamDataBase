@@ -32,6 +32,8 @@ module.exports = class UserNotice {
 
     DiscordLog.custom("usernotice", obj.command, util.inspect(obj))
 
+    return
+
     if (obj.hasOwnProperty("command")) {
       if (this.notificationData.hasOwnProperty(obj.tags["room-id"])) {
         let announcementMessage = UserNotice.methodToMessage(this.notificationData[obj.tags["room-id"]], obj)
@@ -107,10 +109,10 @@ module.exports = class UserNotice {
     //msgParamMonths is months in a row
     let months = obj.tags["msg-param-cumulative-months"] || 0
     let massGiftCount = obj.tags["msg-param-mass-gift-count"] || 1
-    let senderCount = obj.tags[msgParamSenderCount] || 0
+    let senderCount = obj.tags["msg-param-sender-count"] || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
-    let viewerCount = data.msgParamViewerCount || 0
+    let viewerCount =obj.tags["msg-param-viewerCount"] || 0
 
     message = message.replace(new RegExp("\\${channel}", 'g'), channel)
     message = message.replace(new RegExp("\\${user}", 'g'), username)
