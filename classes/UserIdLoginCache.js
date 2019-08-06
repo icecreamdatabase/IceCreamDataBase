@@ -1,5 +1,4 @@
 "use strict"
-const Logger = require('consola')
 //CLASSES
 const Api = require('./api/Api.js')
 

@@ -1,5 +1,4 @@
 "use strict"
-const Logger = require('consola')
 const https = require('https')
 
 const TWITCH_API_KRAKEN = {

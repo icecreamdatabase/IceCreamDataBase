@@ -1,5 +1,4 @@
 "use strict"
-const Logger = require('consola')
 const https = require('https')
 const Api = require('./Api.js')
 //ENUMS
