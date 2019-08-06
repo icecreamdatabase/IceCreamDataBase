@@ -47,7 +47,7 @@ module.exports = class UserNotice {
     //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
     //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
     //{"plan":"1000","planName":"Channel Subscription (forsenlol)"}
-    let UserNoticeType = UserNoticeTypes[obj.tags["msg-id"]]
+    let UserNoticeType = UserNoticeTypes[obj.tags["msg-id"]].toUpperCase()
 
     //TODO: make this look nicer and be more compact
     if (UserNoticeType === UserNoticeTypes.SUB) {
