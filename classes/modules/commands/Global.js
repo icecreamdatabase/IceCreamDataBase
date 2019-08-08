@@ -27,25 +27,22 @@ module.exports = class PrivMsg {
   handle (messageObj) {
 
     //normal
-    if (this.commandDataNormal.length > 0) {
-      let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
-      if (commandMatchIndex) {
-        let commandMatch = this.commandDataNormal[commandMatchIndex]
-        this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel,
-          commandMatch.response, messageObj.userId)
-        return true
-      }
+    let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
+    if (commandMatchIndex) {
+      let commandMatch = this.commandDataNormal[commandMatchIndex]
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel,
+        commandMatch.response, messageObj.userId)
+      return true
     }
 
     //regex
-    if (this.commandDataRegex.length > 0) {
-      let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => messageObj.message.match(this.commandDataRegex[key].regExp))
-      if (commandRegexMatchIndex) {
-        let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
-        this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel,
-          commandRegexMatch.response, messageObj.userId)
-        return true
-      }
+    //TODO: use regExp.exec(string) instead?
+    let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => messageObj.message.match(this.commandDataRegex[key].regExp))
+    if (commandRegexMatchIndex) {
+      let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
+      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel,
+        commandRegexMatch.response, messageObj.userId)
+      return true
     }
 
     return false

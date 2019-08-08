@@ -22,17 +22,25 @@ module.exports = class PrivMsg {
     let messageObj = PrivMsg.createRawMessageObj(obj)
     PrivMsg.handleACTION(messageObj)
     messageObj.message += " "
+    //TODO: add userlevel to messageObj
+
+    let channelObj = this.bot.channels[messageObj.roomId]
 
     console.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
 
-    //TODO: add userlevel to messageObj
-
     //hardcoded always first
-    if (this.hardcoded.handle(messageObj)) { return }
+    if (channelObj.useHardcodedCommands) {
+      if (this.hardcoded.handle(messageObj)) { return }
+    }
     //from specific to unspecific
-    if (this.global.handle(messageObj)) { return }
-
-    //if (this.XXXXXX.handle(messageObj)) { return }
+    if (channelObj.useGlobalCommands) {
+      if (this.global.handle(messageObj)) { return }
+    }
+    /*
+    if (channelObj.XXXXXXXXXXXXXX) {
+      if (this.XXXXXXXXXXX.handle(messageObj)) { return }
+    }
+    */
 
     return false
   }
