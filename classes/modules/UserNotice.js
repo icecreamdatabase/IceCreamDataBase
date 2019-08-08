@@ -22,7 +22,7 @@ module.exports = class UserNotice {
 
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
-    this.updateNotificationData.bind(this)
+    this.updateNotificationData.bind(this)()
   }
 
   async onUsernotice (obj) {

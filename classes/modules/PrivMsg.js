@@ -4,6 +4,7 @@ const util = require('util')
 const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
+const Global = require('./commands/Global')
 
 
 module.exports = class PrivMsg {
@@ -11,6 +12,7 @@ module.exports = class PrivMsg {
     this.bot = bot
 
     this.hardcoded = new HardCoded(this.bot)
+    this.global = new Global(this.bot)
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -23,7 +25,13 @@ module.exports = class PrivMsg {
 
     console.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
 
+    //TODO: add userlevel to messageObj
+
+    //hardcoded always first
     if (this.hardcoded.handle(messageObj)) { return }
+    //from specific to unspecific
+    if (this.global.handle(messageObj)) { return }
+
     //if (this.XXXXXX.handle(messageObj)) { return }
 
     return false

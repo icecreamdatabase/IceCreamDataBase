@@ -47,6 +47,10 @@ module.exports = class Queue {
     //if userId paramter is missing just set it to "-1"
     userId = userId || "-1"
 
+    if (!message) {
+      return
+    }
+
     //remove newline characters
     if (message.indexOf("\n") >= 0) {
       console.info('Removed new line character')
