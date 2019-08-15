@@ -13,14 +13,18 @@ module.exports = class SqlLocalCommands {
       FROM localCommands
       WHERE enabled = b'1'
       AND isRegex = b'0'
-      AND botID = ?;`, botID)
+      AND (botID = ?
+        OR botID is NULL
+          );`, botID)
 
     let resultsRegex = await sqlPool.query(`
       SELECT ID, channelID, command, response, userLevel, cooldown, timesUsed
       FROM localCommands
       WHERE enabled = b'1'
       AND isRegex = b'1'
-      AND botID = ?;`, botID)
+      AND (botID = ?
+        OR botID is NULL
+          );`, botID)
 
     return SqlCommands.resultDataFromResults(results, resultsRegex)
   }
