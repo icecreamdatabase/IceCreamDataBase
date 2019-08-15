@@ -53,14 +53,15 @@ module.exports = class PrivMsg {
   }
 
   sendGlobalMatch (messageObj, commandMatch) {
-    let response = Helper.fillParams(messageObj, commandMatch)
-    this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-    if (commandMatch.hasOwnProperty("ID")) {
-      SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
-    }
-    if (commandMatch.hasOwnProperty("timesUsed")) {
-      commandMatch.timesUsed++
-    }
+    Helper.fillParams(messageObj, commandMatch).then((response) => {
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+      if (commandMatch.hasOwnProperty("ID")) {
+        SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
+      }
+      if (commandMatch.hasOwnProperty("timesUsed")) {
+        commandMatch.timesUsed++
+      }
+    })
   }
 
   updateCommandData () {

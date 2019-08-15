@@ -1,9 +1,11 @@
 "use strict"
+const https = require('https')
 const util = require('util')
 //CLASSES
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 
+const apiRegExp = new RegExp("\\${api=(.*?)}", 'i')
 
 module.exports = class Helper {
   constructor () {
@@ -14,7 +16,7 @@ module.exports = class Helper {
 
   }
 
-  static fillParams (msgObj, commandObj) {
+  static async fillParams (msgObj, commandObj) {
     let message = commandObj.response
     //message = Helper.firstParameterOrUser(msgObj, message)
     message = Helper.user(msgObj, message)
@@ -23,6 +25,7 @@ module.exports = class Helper {
     if (commandObj.hasOwnProperty("timesUsed")) {
       message = Helper.timesUsed(msgObj, message, commandObj.timesUsed)
     }
+    message = await Helper.api(msgObj, message)
 
     return message
   }
@@ -71,6 +74,35 @@ module.exports = class Helper {
     }
     return message
   }
+
+  static async api (msgObj, message) {
+    if (message.includes("${api") && apiRegExp.test(message)) {
+      let apiUrl = message.match(apiRegExp)[1]
+
+      return new Promise((resolve, reject) => {
+        //Duplicate default request object
+        let request = new URL(apiUrl)
+
+        let req = https.request(request, (res) => {
+          res.setEncoding('utf8')
+          res.on('data', (response) => {
+            message = message.replace(new RegExp(apiRegExp, 'g'), response)
+            resolve(message)
+          })
+        })
+        req.on('error', (err) => {
+          message = message.replace(new RegExp(apiRegExp, 'g'), err)
+          reject(message)
+        })
+        req.write('')
+        req.end()
+      })
+    } else {
+      return Promise.resolve(message)
+    }
+  }
+
+
 
   static msToDDHHMMSS (ms) {
     let secNum = parseInt(ms + "", 10) // don't forget the second param
