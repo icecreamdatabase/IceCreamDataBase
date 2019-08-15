@@ -29,7 +29,7 @@ module.exports = class Hardcoded {
     }
 
     if (messageObj.message.startsWith("<uptime ")) {
-      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel, messageObj.username + ", Bot running for " + Helper.msToDDHHMMSS(process.uptime()), messageObj.userId)
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, messageObj.username + ", Bot running for " + Helper.msToDDHHMMSS(process.uptime()))
       return true
     }
 

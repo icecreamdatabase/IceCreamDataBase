@@ -40,4 +40,10 @@ module.exports = class SqlSubNotifications {
 
     return returnData
   }
+
+  static increaseTimesUsed (commandID) {
+    sqlPool.query(`UPDATE globalCommands 
+      set timesUsed = timesUsed + 1 
+      WHERE ID = ?;`, commandID)
+  }
 }

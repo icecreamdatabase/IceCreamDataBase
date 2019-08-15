@@ -36,6 +36,11 @@ module.exports = class Queue {
     this.sayWithBoth(await UserIdLoginCache.nameToId(channelName), channelName, message, userId)
   }
 
+  sayWithMsgObj (msgObj, message) {
+    this.bot.TwitchIRCConnection.queue.sayWithBoth(msgObj.roomId, msgObj.channel,
+      message, msgObj.userId)
+  }
+
   /**
    * channelId and channelName have to match else there might be unpredictable problems
    * @param  {int} channelId   [description]

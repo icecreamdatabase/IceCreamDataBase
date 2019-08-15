@@ -26,26 +26,40 @@ module.exports = class PrivMsg {
    */
   handle (messageObj) {
 
-    //normal
+    // noinspection JSIgnoredPromiseFromCall
+    this.handleNormal(messageObj)
+    // noinspection JSIgnoredPromiseFromCall
+    this.handleRegex(messageObj)
+
+    return false
+  }
+
+  async handleNormal (messageObj) {
     let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
     if (commandMatchIndex) {
       let commandMatch = this.commandDataNormal[commandMatchIndex]
-      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel,
-        commandMatch.response, messageObj.userId)
+      this.sendGlobalMatch(messageObj, commandMatch)
       return true
     }
+  }
 
-    //regex
-    //TODO: use regExp.exec(string) instead?
-    let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => messageObj.message.match(this.commandDataRegex[key].regExp))
+  async handleRegex (messageObj) {
+    let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => this.commandDataRegex[key].regExp.test(messageObj.message))
     if (commandRegexMatchIndex) {
       let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
-      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel,
-        commandRegexMatch.response, messageObj.userId)
+      this.sendGlobalMatch(messageObj, commandRegexMatch)
       return true
     }
+  }
 
-    return false
+  sendGlobalMatch (messageObj, commandMatch) {
+    this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, commandMatch.response)
+    if (commandMatch.hasOwnProperty("ID")) {
+      SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
+    }
+    if (commandMatch.hasOwnProperty("timesUsed")) {
+      commandMatch.timesUsed++
+    }
   }
 
   updateCommandData () {
