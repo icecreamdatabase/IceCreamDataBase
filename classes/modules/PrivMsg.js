@@ -5,6 +5,7 @@ const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Global = require('./commands/Global')
+const Local = require('./commands/Local')
 
 
 module.exports = class PrivMsg {
@@ -13,6 +14,7 @@ module.exports = class PrivMsg {
 
     this.hardcoded = new HardCoded(this.bot)
     this.global = new Global(this.bot)
+    this.local = new Local(this.bot)
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -33,6 +35,9 @@ module.exports = class PrivMsg {
       if (this.hardcoded.handle(messageObj)) { return }
     }
     //from specific to unspecific
+    if (channelObj.useLocalCommands) {
+      if (this.local.handle(messageObj)) { return }
+    }
     if (channelObj.useGlobalCommands) {
       if (this.global.handle(messageObj)) { return }
     }

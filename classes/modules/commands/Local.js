@@ -1,14 +1,14 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const SqlGlobalCommands = require('../../sql/modules/SqlGlobalCommands')
+const SqlLocalCommands = require('../../sql/modules/SqlLocalCommands')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 
-module.exports = class Global {
+module.exports = class Local {
   constructor (bot) {
     this.bot = bot
     this.commandDataNormal = {}
@@ -55,7 +55,7 @@ module.exports = class Global {
     Helper.fillParams(messageObj, commandMatch).then((response) => {
       this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
       if (commandMatch.hasOwnProperty("ID")) {
-        SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
+        SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
       }
       if (commandMatch.hasOwnProperty("timesUsed")) {
         commandMatch.timesUsed++
@@ -64,7 +64,7 @@ module.exports = class Global {
   }
 
   updateCommandData () {
-    SqlGlobalCommands.getGlobalCommandData().then((data) => {
+    SqlLocalCommands.getLocalCommands(this.bot.TwitchIRCConnection.botData.userId).then((data) => {
       this.commandDataNormal = data.normal
       this.commandDataRegex = data.regex
     })
