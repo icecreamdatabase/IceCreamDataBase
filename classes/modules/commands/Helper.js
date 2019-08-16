@@ -102,6 +102,21 @@ module.exports = class Helper {
     }
   }
 
+  static checkLastCommandUsage (commandMatch, lastCommandUsageObject) {
+    if (commandMatch.hasOwnProperty("cooldown") && commandMatch.hasOwnProperty("ID")) {
+      let lastUsage = 0
+      if (lastCommandUsageObject.hasOwnProperty(commandMatch.ID)) {
+        lastUsage = lastCommandUsageObject[commandMatch.ID]
+      }
+      let cooldownPassed = commandMatch.cooldown * 1000 + lastUsage < Date.now()
+      if (cooldownPassed) {
+        lastCommandUsageObject[commandMatch.ID] = Date.now()
+      }
+      return cooldownPassed
+    }
+    return false
+  }
+
   static msToDDHHMMSS (ms) {
     let secNum = parseInt(ms + "", 10) // don't forget the second param
     let days = Math.floor(secNum / 86400)

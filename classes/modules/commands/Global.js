@@ -9,10 +9,12 @@ const Helper = require('./Helper')
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 
 module.exports = class Global {
+  // noinspection DuplicatedCode TODO: somehow remove the code duplication
   constructor (bot) {
     this.bot = bot
     this.commandDataNormal = {}
     this.commandDataRegex = {}
+    this.lastCommandUsageObject = {}
 
     setInterval(this.updateCommandData.bind(this), UPDATE_COMMAND_INTERVAL)
     this.updateCommandData.bind(this)()
@@ -51,18 +53,20 @@ module.exports = class Global {
 
   sendGlobalMatch (messageObj, commandMatch) {
     if (commandMatch.userLevel <= messageObj.userLevel) {
+      if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject)) {
 
-      Helper.fillParams(messageObj, commandMatch).then((response) => {
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-        if (commandMatch.hasOwnProperty("ID")) {
-          SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
-        }
-        if (commandMatch.hasOwnProperty("timesUsed")) {
-          commandMatch.timesUsed++
-        }
-      })
+        Helper.fillParams(messageObj, commandMatch).then((response) => {
+          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+          if (commandMatch.hasOwnProperty("ID")) {
+            SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
+          }
+          if (commandMatch.hasOwnProperty("timesUsed")) {
+            commandMatch.timesUsed++
+          }
+        })
 
-      return true
+        return true
+      }
     }
     return false
   }
