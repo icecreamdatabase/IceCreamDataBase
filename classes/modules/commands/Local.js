@@ -37,8 +37,10 @@ module.exports = class Local {
     let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
     if (commandMatchIndex) {
       let commandMatch = this.commandDataNormal[commandMatchIndex]
-      this.sendGlobalMatch(messageObj, commandMatch)
-      return true
+      if (commandMatch.channelID.toString() === messageObj.roomId.toString()) {
+        this.sendGlobalMatch(messageObj, commandMatch)
+        return true
+      }
     }
   }
 
