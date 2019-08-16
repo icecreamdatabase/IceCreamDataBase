@@ -37,10 +37,7 @@ module.exports = class Local {
     let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
     if (commandMatchIndex) {
       let commandMatch = this.commandDataNormal[commandMatchIndex]
-      if (commandMatch.channelID.toString() === messageObj.roomId.toString()) {
-        this.sendGlobalMatch(messageObj, commandMatch)
-        return true
-      }
+      return this.sendGlobalMatch(messageObj, commandMatch)
     }
   }
 
@@ -48,21 +45,28 @@ module.exports = class Local {
     let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => this.commandDataRegex[key].regExp.test(messageObj.message))
     if (commandRegexMatchIndex) {
       let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
-      this.sendGlobalMatch(messageObj, commandRegexMatch)
-      return true
+      return this.sendGlobalMatch(messageObj, commandRegexMatch)
     }
   }
 
   sendGlobalMatch (messageObj, commandMatch) {
-    Helper.fillParams(messageObj, commandMatch).then((response) => {
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-      if (commandMatch.hasOwnProperty("ID")) {
-        SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
+    if (commandMatch.channelID.toString() === messageObj.roomId.toString()) {
+      if (commandMatch.userLevel <= messageObj.userLevel) {
+
+        Helper.fillParams(messageObj, commandMatch).then((response) => {
+          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+          if (commandMatch.hasOwnProperty("ID")) {
+            SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
+          }
+          if (commandMatch.hasOwnProperty("timesUsed")) {
+            commandMatch.timesUsed++
+          }
+        })
+
+        return true
       }
-      if (commandMatch.hasOwnProperty("timesUsed")) {
-        commandMatch.timesUsed++
-      }
-    })
+    }
+    return false
   }
 
   updateCommandData () {

@@ -37,8 +37,7 @@ module.exports = class Global {
     let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
     if (commandMatchIndex) {
       let commandMatch = this.commandDataNormal[commandMatchIndex]
-      this.sendGlobalMatch(messageObj, commandMatch)
-      return true
+      return this.sendGlobalMatch(messageObj, commandMatch)
     }
   }
 
@@ -46,21 +45,26 @@ module.exports = class Global {
     let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => this.commandDataRegex[key].regExp.test(messageObj.message))
     if (commandRegexMatchIndex) {
       let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
-      this.sendGlobalMatch(messageObj, commandRegexMatch)
-      return true
+      return this.sendGlobalMatch(messageObj, commandRegexMatch)
     }
   }
 
   sendGlobalMatch (messageObj, commandMatch) {
-    Helper.fillParams(messageObj, commandMatch).then((response) => {
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-      if (commandMatch.hasOwnProperty("ID")) {
-        SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
-      }
-      if (commandMatch.hasOwnProperty("timesUsed")) {
-        commandMatch.timesUsed++
-      }
-    })
+    if (commandMatch.userLevel <= messageObj.userLevel) {
+
+      Helper.fillParams(messageObj, commandMatch).then((response) => {
+        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+        if (commandMatch.hasOwnProperty("ID")) {
+          SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
+        }
+        if (commandMatch.hasOwnProperty("timesUsed")) {
+          commandMatch.timesUsed++
+        }
+      })
+
+      return true
+    }
+    return false
   }
 
   updateCommandData () {
