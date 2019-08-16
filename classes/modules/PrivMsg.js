@@ -6,7 +6,8 @@ const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Global = require('./commands/Global')
 const Local = require('./commands/Local')
-
+//ENUMS
+const UserLevels = require('../../ENUMS/UserLevels.js')
 
 module.exports = class PrivMsg {
   constructor (bot) {
@@ -24,7 +25,7 @@ module.exports = class PrivMsg {
     let messageObj = PrivMsg.createRawMessageObj(obj)
     PrivMsg.handleACTION(messageObj)
     messageObj.message += " "
-    //TODO: add userlevel to messageObj
+    PrivMsg.findAndSetUserLevel(messageObj)
 
     let channelObj = this.bot.channels[messageObj.roomId]
 
@@ -50,6 +51,17 @@ module.exports = class PrivMsg {
     return false
   }
 
+  static findAndSetUserLevel (messageObj) {
+    if (messageObj.raw.tags.hasOwnProperty("badges")) {
+      let badges = messageObj.raw.tags.badges
+      if (badges !== true) {
+        let badgeSplit = badges.split(",")
+        badgeSplit = badgeSplit.map((x) => UserLevels[x.split("/")[0].toUpperCase()])
+        messageObj.userLevel = Math.max(...badgeSplit)
+      }
+    }
+  }
+
   /**
    * Creates the raw none handled messageObj from the raw irc object
    * @param obj irc input
@@ -63,7 +75,8 @@ module.exports = class PrivMsg {
       userId: obj.tags['user-id'],
       username: obj.tags['display-name'],
       message: obj.trailing,
-      isACTION: false
+      isACTION: false,
+      userLevel: UserLevels.DEFAULT
     }
   }
 
