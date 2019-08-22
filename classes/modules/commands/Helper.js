@@ -31,7 +31,8 @@ module.exports = class Helper {
   }
 
   static splitMessageToParts (message) {
-
+    let messageSplit = message.split(" ")
+    return {command: messageSplit[0] || "", first: messageSplit[1] || "", params: messageSplit.splice(1), split: messageSplit}
   }
 
   static async fillParams (msgObj, commandObj) {
@@ -51,13 +52,13 @@ module.exports = class Helper {
 
   static firstParameterOrUser (msgObj, message) {
     if (message.includes("${p1||user}")) { //TODO
-      let replacement = data.userstate.username
-      let firstParameter = data.input.firstParameter
+      let replacement = msgObj.username
+      let firstParameter = message.split(" ")[1]
       if (firstParameter !== null) {
-        if (data.input.firstParameter.startsWith("@")) {
+        if (firstParameter.startsWith("@")) {
           firstParameter = firstParameter.substring(1)
         }
-        if (isUserInChannel(firstParameter, data.channel)) {
+        if (isUserInChannel(firstParameter, msgObj.channel)) {
           replacement = firstParameter
         }
       }

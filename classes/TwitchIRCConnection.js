@@ -111,7 +111,7 @@ class TwitchIRCConnection extends EventEmitter {
         this.reconnectionAttempts = 0
         this.connected = true
         console.info(`Successfully connected to ${host}:${port}`)
-        this.send('CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership')
+        this.send('CAP REQ :twitch.tv/tags twitch.tv/commands')// twitch.tv/membership')
         this.send(`PASS ${this.botData.token}`)
         this.send(`NICK ${this.botData.username}`)
         this.send(`USER ${this.botData.username} 8 * :${this.botData.username}`)

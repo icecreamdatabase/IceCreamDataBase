@@ -57,6 +57,7 @@ module.exports = class PrivMsg {
       if (badges !== true) {
         let badgeSplit = badges.split(",")
         badgeSplit = badgeSplit.map((x) => UserLevels[x.split("/")[0].toUpperCase()])
+        badgeSplit = badgeSplit.filter(Boolean)
         messageObj.userLevel = Math.max(...badgeSplit)
       }
     }
