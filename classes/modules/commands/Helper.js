@@ -138,7 +138,7 @@ module.exports = class Helper {
         message = message.replace(new RegExp(apiRegExp, 'g'), err)
       })
     }
-    return Promise.resolve(message)
+    return message
   }
 
   static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId) {
