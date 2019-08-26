@@ -29,7 +29,7 @@ module.exports = class ApiFunctions {
    * @param request https requestObj or new URL(url)
    * @returns {Promise<string|*>}
    */
-  static async request (request) {
+  static request (request) {
     return new Promise((resolve, reject) => {
       let req = https.request(request, (res) => {
         res.setEncoding('utf8')
