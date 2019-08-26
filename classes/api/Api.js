@@ -1,5 +1,6 @@
 "use strict"
-const https = require('https')
+// noinspection JSUnresolvedVariable
+const https = require('follow-redirects').https
 
 const TWITCH_API_KRAKEN = {
   host: "api.twitch.tv",
@@ -21,6 +22,27 @@ const TWITCH_API_HELIX = {
 module.exports = class ApiFunctions {
   constructor () {
 
+  }
+
+  /**
+   * Creates a basic https request which follows redirects
+   * @param request https requestObj or new URL(url)
+   * @returns {Promise<string|*>}
+   */
+  static async request (request) {
+    return new Promise((resolve, reject) => {
+      let req = https.request(request, (res) => {
+        res.setEncoding('utf8')
+        res.on('data', (response) => {
+          resolve(response)
+        })
+      })
+      req.on('error', (err) => {
+        reject(err)
+      })
+      req.write('')
+      req.end()
+    })
   }
 
   /**
@@ -64,24 +86,11 @@ module.exports = class ApiFunctions {
    * @returns {Promise<*>} return body as string
    */
   static async apiRequestString (clientID, requestBase, pathAppend) {
-    return new Promise((resolve, reject) => {
-      //Duplicate default request object
-      let request = Object.assign({}, requestBase)
-      request.headers["Client-ID"] = clientID
-      request.path += pathAppend
-
-      let req = https.request(request, (res) => {
-        res.setEncoding('utf8')
-        res.on('data', (response) => {
-          resolve(response)
-        })
-      })
-      req.on('error', (err) => {
-        reject(err)
-      })
-      req.write('')
-      req.end()
-    })
+    //Duplicate default request object
+    let request = Object.assign({}, requestBase)
+    request.headers["Client-ID"] = clientID
+    request.path += pathAppend
+    return await this.request(request)
   }
 
   /**

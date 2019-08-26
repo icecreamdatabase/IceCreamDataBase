@@ -3,6 +3,7 @@
 const https = require('follow-redirects').https
 const util = require('util')
 //CLASSES
+const Api = require('../../api/Api.js')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 
@@ -38,7 +39,7 @@ module.exports = class Helper {
 
   static async fillParams (msgObj, commandObj) {
     let message = commandObj.response
-    //message = Helper.firstParameterOrUser(msgObj, message)
+    message = await Helper.firstParameterOrUser(msgObj, message)
     message = Helper.user(msgObj, message)
     message = Helper.channel(msgObj, message)
     message = Helper.uptime(msgObj, message)
@@ -51,49 +52,68 @@ module.exports = class Helper {
     return message
   }
 
-  static firstParameterOrUser (msgObj, message) {
+  static async firstParameterOrUser (msgObj, message) {
     if (message.includes("${p1||user}")) { //TODO
       let replacement = msgObj.username
-      let firstParameter = message.split(" ")[1]
+      let firstParameter = msgObj.message.split(" ")[1]
       if (firstParameter !== null) {
         if (firstParameter.startsWith("@")) {
           firstParameter = firstParameter.substring(1)
         }
-        if (isUserInChannel(firstParameter, msgObj.channel)) {
+        if (await Helper.isUserInChannel(firstParameter, msgObj.channel)) {
           replacement = firstParameter
         }
       }
-      return message.replace(new RegExp("\\${p1\\|\\|user}", 'g'), replacement)
+      message = message.replace(new RegExp("\\${p1\\|\\|user}", 'g'), replacement)
     }
-    return message
+    return Promise.resolve(message)
   }
 
   static user (msgObj, message) {
     if (message.includes("${user}")) {
-      return message.replace(new RegExp("\\${user}", 'g'), msgObj.username)
+      message = message.replace(new RegExp("\\${user}", 'g'), msgObj.username)
     }
     return message
   }
 
   static channel (msgObj, message) {
     if (message.includes("${channel}")) {
-      return message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel)
+      message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel)
     }
     return message
   }
 
   static uptime (msgObj, message) {
     if (message.includes("${uptime}")) {
-      return message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
+      message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
     }
     return message
   }
 
   static timesUsed (msgObj, message, timesUsed) {
     if (message.includes("${timesUsed}")) {
-      return message.replace(new RegExp("\\${timesUsed}", 'g'), timesUsed)
+      message = message.replace(new RegExp("\\${timesUsed}", 'g'), timesUsed)
     }
     return message
+  }
+
+  static async isUserInChannel (loginToCheck, channelName) {
+    let chattersString = await Api.request(new URL("https://tmi.twitch.tv/group/user/" + channelName.substring(1) + "/chatters"))
+    console.log(chattersString)
+    console.log(chattersString.length)
+    let chattersObj = JSON.parse(chattersString)
+
+    if (chattersObj.hasOwnProperty("chatters")) {
+      let allChatters = Object.values(chattersObj.chatters)
+      allChatters = [].concat.apply([], allChatters)
+
+      for (let chatter of allChatters) {
+        if (chatter.toLowerCase() === loginToCheck.toLowerCase()) {
+          return true
+        }
+      }
+    }
+    return false
   }
 
   static icecream (msgObj, message) {
@@ -110,27 +130,13 @@ module.exports = class Helper {
     if (message.includes("${api") && apiRegExp.test(message)) {
       let apiUrl = message.match(apiRegExp)[1]
 
-      return new Promise((resolve, reject) => {
-        //Duplicate default request object
-        let request = new URL(apiUrl)
-
-        let req = https.request(request, (res) => {
-          res.setEncoding('utf8')
-          res.on('data', (response) => {
-            message = message.replace(new RegExp(apiRegExp, 'g'), response)
-            resolve(message)
-          })
-        })
-        req.on('error', (err) => {
-          message = message.replace(new RegExp(apiRegExp, 'g'), err)
-          reject(message)
-        })
-        req.write('')
-        req.end()
+      await Api.request(new URL(apiUrl)).then(response => {
+        message = message.replace(new RegExp(apiRegExp, 'g'), response)
+      }).catch(err => {
+        message = message.replace(new RegExp(apiRegExp, 'g'), err)
       })
-    } else {
-      return Promise.resolve(message)
     }
+    return Promise.resolve(message)
   }
 
   static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId) {
