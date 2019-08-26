@@ -1,5 +1,4 @@
 "use strict"
-const https = require('https')
 const Api = require('./Api.js')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
@@ -83,8 +82,8 @@ module.exports = class ApiFunctions {
       }
     }
     let isAny = isBroadcaster || isMod || isVip
-    let isKnownBot = userData.isKnownBot || false
-    let isVerifiedBot = userData.isVerifiedBot || false
+    let isKnownBot = userData["is_known_bot"] || false
+    let isVerifiedBot = userData["is_verified_bot"] || false
 
     return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
