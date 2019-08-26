@@ -1,5 +1,6 @@
 "use strict"
 const util = require('util')
+const si = require('systeminformation')
 //CLASSES
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
@@ -30,27 +31,7 @@ module.exports = class Hardcoded {
       return true
     }
 
-    /*
-    if (messageObj.message.startsWith("<uptime ")) {
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, messageObj.username + ", Bot running for " + Helper.msToDDHHMMSS(process.uptime()))
-      return true
-    }
-    */
-
-    /*
-    if (messageObj.message.startsWith("<bot ") && messageObj.userId === "38949074") {
-      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel, "I'm the not so shitty V2 version of the IceCreamDataBase bot. Made by icdb in nodejs. FeelsDankMan ", messageObj.userId)
-      return true
-    }
-
-    if (messageObj.message.startsWith("< ") && messageObj.userId === "38949074") {
-      this.bot.TwitchIRCConnection.queue.sayWithBoth(messageObj.roomId, messageObj.channel, ">", messageObj.userId)
-      return true
-    }
-    */
-
     /* eval */
-
     if (messageObj.userLevel === UserLevels.BOTADMIN
         && messageObj.message.startsWith("<eval ")) {
 
@@ -59,6 +40,12 @@ module.exports = class Hardcoded {
       console.log(evalString)
       if (evalString) {
         try {
+          let ss = (x) => {
+            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, x.toString())
+          }
+          let so = (x) => {
+            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))
+          }
           msg = eval(evalString).toString()
         } catch (err) {
           msg = err.message
@@ -67,6 +54,7 @@ module.exports = class Hardcoded {
         ["mysql", "identity", "oauth", "host", "password", "appid", "waAppid"].forEach(function (element) {
           if (msg.toLowerCase().includes(element)
             || evalString.toLowerCase().includes(element)) {
+            console.warn(msg)
             msg = "***"
           }
         })
