@@ -9,6 +9,8 @@ const Local = require('./commands/Local')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
 
+const options = require('../../config.json')
+
 module.exports = class PrivMsg {
   constructor (bot) {
     this.bot = bot
@@ -52,7 +54,10 @@ module.exports = class PrivMsg {
   }
 
   static findAndSetUserLevel (messageObj) {
-    if (messageObj.raw.tags.hasOwnProperty("badges")) {
+    if (options.hasOwnProperty("botadmins")
+        && options.botadmins.includes(messageObj.userId)) {
+      messageObj.userLevel = UserLevels.BOTADMIN
+    } else if (messageObj.raw.tags.hasOwnProperty("badges")) {
       let badges = messageObj.raw.tags.badges
       if (badges !== true) {
         let badgeSplit = badges.split(",")

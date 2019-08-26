@@ -20,7 +20,9 @@ module.exports = class Hardcoded {
    */
   handle (messageObj) {
     /* Shutting down the bot */
-    if (messageObj.message.startsWith("<s ") && messageObj.userId === "38949074") {
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+        && messageObj.message.startsWith("<s ")) {
+
       this.bot.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.exit(0)
@@ -48,22 +50,32 @@ module.exports = class Hardcoded {
     */
 
     /* eval */
-    /*
-    if (messageObj.userLevel === UserLevels.BOTADMIN && messageObj.startsWith("<eval ")) {
-      try {
-        returnMessage = eval(input.allParameter).toString()
-      } catch (err) {
-        returnMessage = err.message
-      }
 
-      ["mysql", "identity", "oauth", "host", "password", "appid", "waAppid"].forEach( function (element) {
-        if (returnMessage.toLowerCase().includes(element)
-          || input.allParameter.toLowerCase().includes(element)) {
-          returnMessage = "***"
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+        && messageObj.message.startsWith("<eval ")) {
+
+      let msg
+      let evalString = messageObj.message.split(" ").slice(1).join(" ")
+      console.log(evalString)
+      if (evalString) {
+        try {
+          msg = eval(evalString).toString()
+        } catch (err) {
+          msg = err.message
         }
-      })
+
+        ["mysql", "identity", "oauth", "host", "password", "appid", "waAppid"].forEach(function (element) {
+          if (msg.toLowerCase().includes(element)
+            || evalString.toLowerCase().includes(element)) {
+            msg = "***"
+          }
+        })
+      } else {
+        msg = messageObj.username + ", Nothing to eval given..."
+      }
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, msg)
     }
-    */
+
     return false
   }
 }
