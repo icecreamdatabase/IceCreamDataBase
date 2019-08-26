@@ -99,14 +99,10 @@ module.exports = class Helper {
 
   static async isUserInChannel (loginToCheck, channelName) {
     let chattersString = await Api.request(new URL("https://tmi.twitch.tv/group/user/" + channelName.substring(1) + "/chatters"))
-    console.log(chattersString)
-    console.log(chattersString.length)
     let chattersObj = JSON.parse(chattersString)
-
     if (chattersObj.hasOwnProperty("chatters")) {
       let allChatters = Object.values(chattersObj.chatters)
       allChatters = [].concat.apply([], allChatters)
-
       for (let chatter of allChatters) {
         if (chatter.toLowerCase() === loginToCheck.toLowerCase()) {
           return true
