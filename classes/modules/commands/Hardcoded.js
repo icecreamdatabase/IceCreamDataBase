@@ -51,13 +51,13 @@ module.exports = class Hardcoded {
           msg = err.message
         }
 
-        ["mysql", "identity", "oauth", "host", "password", "appid", "waAppid"].forEach(function (element) {
-          if (msg.toLowerCase().includes(element)
-            || evalString.toLowerCase().includes(element)) {
-            console.warn(msg)
-            msg = "***"
-          }
-        })
+        if (["mysql", "identity", "oauth", "host", "password", "appid", "waAppid"].find(
+          x => msg.toLowerCase().includes(x) || evalString.toLowerCase().includes(x)
+        )) {
+          console.warn("Eval match: " + msg)
+          msg = "***"
+        }
+
       } else {
         msg = messageObj.username + ", Nothing to eval given..."
       }
