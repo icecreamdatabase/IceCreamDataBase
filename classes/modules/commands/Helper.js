@@ -6,6 +6,7 @@ const util = require('util')
 const Api = require('../../api/Api.js')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
+const Gdq = require('./../Gdq')
 
 const apiRegExp = new RegExp("\\${api=(.*?)}", 'i')
 
@@ -47,6 +48,7 @@ module.exports = class Helper {
       message = Helper.timesUsed(msgObj, message, commandObj.timesUsed)
     }
     message = Helper.icecream(msgObj, message)
+    message = Helper.gdq(msgObj, message)
     message = await Helper.api(msgObj, message)
 
     return message
@@ -124,6 +126,13 @@ module.exports = class Helper {
       let icecreamFactKey = keys[Math.floor(Math.random() * keys.length)]
       let icecreamFactContent = icecreamFacts[icecreamFactKey]
       return message.replace(new RegExp("\\${icecream}", 'g'), icecreamFactKey + " 🍨: " + icecreamFactContent)
+    }
+    return message
+  }
+
+  static gdq (msgObj, message) {
+    if (message.includes("${gdq}")) {
+      return message.replace(new RegExp("\\${gdq}", 'g'), Gdq.generateText)
     }
     return message
   }
