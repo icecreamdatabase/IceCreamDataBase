@@ -13,6 +13,7 @@ module.exports = class SqlCommands {
 
     for (let index in results) {
       if (results.hasOwnProperty(index) && results[index].hasOwnProperty("command")) {
+        results[index].command = results[index].command.toLowerCase()
         returnData.normal[results[index].command] = results[index]
       }
     }

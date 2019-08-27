@@ -36,7 +36,7 @@ module.exports = class Global {
   }
 
   async handleNormal (messageObj) {
-    let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.startsWith(this.commandDataNormal[key].command))
+    let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command))
     if (commandMatchIndex) {
       let commandMatch = this.commandDataNormal[commandMatchIndex]
       return this.sendGlobalMatch(messageObj, commandMatch)
