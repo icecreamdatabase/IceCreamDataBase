@@ -1,8 +1,10 @@
 "use strict"
 const Mysql = require('./classes/sql/main/SqlBot.js')
 const Bot = require('./classes/Bot.js')
+const Firehose = require('./classes/modules/Firehose')
 
 let bots = {}
+let firehose
 
 /*
 global.VERSION.REVISION = require('child_process')
@@ -18,5 +20,5 @@ Mysql.getBotData().then(async (allBotData) => {
       bots[newBot.userId] = newBot
     }
   }
-  return Promise.resolve(1)
+  firehose = new Firehose(bots)
 })
