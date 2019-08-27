@@ -41,7 +41,7 @@ module.exports = class Firehose {
             let obj = JSON.parse(response.split("\n")[1].substring(6))
             //obj.event = split[0].substring(7)
             //TODO: move the parameters somewhere else
-            if (obj.body.toLowerCase().includes("icdb") && !obj.body.toLowerCase().includes("classicdb")) {
+            if (obj.body.toLowerCase().includes("icdb") && !obj.body.toLowerCase().includes("classicdb") && obj.body.room !== "#monitorplz") {
               /*
               let tags = obj.tags.split(";")
               let parsedtags = {}
