@@ -5,7 +5,7 @@ const DiscordLog = require('./DiscordLog')
 
 const ChatLimit = require('./../../ENUMS/ChatLimit.js')
 
-const nameRegex = /^.* \W*icdb\W* .*$/i
+const nameRegex = /\bicdb\b/i
 
 module.exports = class Firehose {
   constructor (bots) {
