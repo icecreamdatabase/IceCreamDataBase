@@ -5,6 +5,8 @@ const DiscordLog = require('./DiscordLog')
 
 const ChatLimit = require('./../../ENUMS/ChatLimit.js')
 
+const nameRegex = /^.* \W*icdb\W* .*$/i
+
 module.exports = class Firehose {
   constructor (bots) {
     this.lastLine = 0
@@ -41,7 +43,7 @@ module.exports = class Firehose {
             let obj = JSON.parse(response.split("\n")[1].substring(6))
             //obj.event = split[0].substring(7)
             //TODO: move the parameters somewhere else
-            if (obj.body.toLowerCase().includes("icdb") && !obj.body.toLowerCase().includes("classicdb") && obj.body.room !== "#monitorplz") {
+            if (nameRegex.test(obj.body)) {
               /*
               let tags = obj.tags.split(";")
               let parsedtags = {}
@@ -50,9 +52,15 @@ module.exports = class Firehose {
                 parsedtags[split[0]] = split[1]
               }
               */
-              DiscordLog.custom("firehose-notify",
-                obj.room + " " + obj.nick + ":",
-                obj.body)
+              if (obj.room) {
+                DiscordLog.custom("firehose-notify",
+                  obj.room + " " + obj.nick + ":",
+                  obj.body)
+              } else {
+                DiscordLog.custom("firehose-notify",
+                  response.split("\n")[0].substring(7),
+                  util.inspect(obj))
+              }
             }
 
             //req.abort()
