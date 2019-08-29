@@ -12,7 +12,7 @@ module.exports = class SqlChannels {
    * @return {botID, channelID, channelName, enabled, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}          All data about the channel
    */
   static async getChannelData (botID) {
-    let results = await sqlPool.query(`SELECT botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands
+    let results = await sqlPool.query(`SELECT botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands, maxMessageLength, minCooldown
     FROM bots, channels, connections
     WHERE bots.ID = botID
     AND channels.ID = channelID
@@ -28,8 +28,10 @@ module.exports = class SqlChannels {
       let useLocalCommands = row.useLocalCommands || false
       let useGlobalCommands = row.useGlobalCommands || false
       let useHardcodedCommands = row.useHardcodedCommands || false
+      let maxMessageLength = row.maxMessageLength || 500
+      let minCooldown = row.minCooldown || 0
 
-      return {botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands}
+      return {botID, channelID, channelName, shouldModerate, useLocalCommands, useGlobalCommands, useHardcodedCommands, maxMessageLength, minCooldown}
     })
 
     //make sure the index is the channelID

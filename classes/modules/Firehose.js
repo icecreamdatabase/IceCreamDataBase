@@ -1,8 +1,9 @@
 "use strict"
+// noinspection JSUnresolvedVariable
 const https = require('follow-redirects').https
-
+//CLASSES
 const DiscordLog = require('./DiscordLog')
-
+//ENUMS
 const ChatLimit = require('./../../ENUMS/ChatLimit.js')
 
 const nameRegex = /\bicdb\b/i

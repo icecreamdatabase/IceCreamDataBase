@@ -13,8 +13,8 @@ const ChatLimit = require("../ENUMS/ChatLimit")
 // noinspection JSUndefinedPropertyAssignment
 global.clientIdFallback = null
 
-//update channels every 150 seconds (2.5 minutes)
-const UPDATE_ALL_CHANNELS_INTERVAL = 150000 //ms
+//update channels every 90 seconds (1.5 minutes)
+const UPDATE_ALL_CHANNELS_INTERVAL = 90000 //ms
 
 module.exports = class Bot {
   constructor (botData) {

@@ -150,7 +150,7 @@ module.exports = class Helper {
     return message
   }
 
-  static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId) {
+  static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId, minCooldown) {
     if (commandMatch.hasOwnProperty("cooldown") && commandMatch.hasOwnProperty("ID")) {
       let lastUsage = 0
       if (!lastCommandUsageObject.hasOwnProperty(roomId)) {
@@ -159,7 +159,7 @@ module.exports = class Helper {
       if (lastCommandUsageObject[roomId].hasOwnProperty(commandMatch.ID)) {
         lastUsage = lastCommandUsageObject[roomId][commandMatch.ID]
       }
-      let cooldownPassed = commandMatch.cooldown * 1000 + lastUsage < Date.now()
+      let cooldownPassed = Math.max(commandMatch.cooldown, minCooldown) * 1000 + lastUsage < Date.now()
       if (cooldownPassed) {
         lastCommandUsageObject[roomId][commandMatch.ID] = Date.now()
       }

@@ -54,7 +54,7 @@ module.exports = class Local {
   sendGlobalMatch (messageObj, commandMatch) {
     if (commandMatch.channelID.toString() === messageObj.roomId.toString()) {
       if (commandMatch.userLevel <= messageObj.userLevel) {
-        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId)) {
+        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
 
           Helper.fillParams(messageObj, commandMatch).then((response) => {
             this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)

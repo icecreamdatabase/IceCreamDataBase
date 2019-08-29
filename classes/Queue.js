@@ -9,8 +9,7 @@ const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 const UserLevels = require('../ENUMS/UserLevels.js')
 //other consts
 const TIMEOUT_OFFSET = 100 //ms
-const MAX_MESSAGE_LENGTH = 500 * 0.9
-const MIN_MESSAGE_CUT_LENGTH = MAX_MESSAGE_LENGTH * 0.75
+const MIN_MESSAGE_CUT_LENGTH_FACTOR = 0.75
 const NEWLINE_SEPERATOR = "{nl}"
 
 
@@ -63,7 +62,7 @@ module.exports = class Queue {
     }
 
     //split message if too long
-    message = this.splitRecursively(message)
+    message = this.splitRecursively(message, channelId)
 
     //handle newline
     let messageArray = message.split(NEWLINE_SEPERATOR)
@@ -91,17 +90,19 @@ module.exports = class Queue {
    * Recursively splits a message based on MAX_MESSAGE_LENGTH and MIN_MESSAGE_CUT_LENGTH.
    * Inserts NEWLINE_SEPERATOR into the gap
    * @param message inputmessage
+   * @param channelId channelId needed for maxMessageLength
    * @returns {string} split message
    */
-  splitRecursively (message) {
-    if (message.length > MAX_MESSAGE_LENGTH) {
-      let indexOfLastSpace = message.substring(0, MAX_MESSAGE_LENGTH).lastIndexOf(' ')
-      if (indexOfLastSpace < MIN_MESSAGE_CUT_LENGTH) {
-        indexOfLastSpace = MAX_MESSAGE_LENGTH
+  splitRecursively (message, channelId) {
+    let maxMessageLength = this.bot.channels[channelId].maxMessageLength
+    if (message.length > maxMessageLength) {
+      let indexOfLastSpace = message.substring(0, maxMessageLength).lastIndexOf(' ')
+      if (indexOfLastSpace < maxMessageLength * MIN_MESSAGE_CUT_LENGTH_FACTOR) {
+        indexOfLastSpace = maxMessageLength
       }
       return message.substring(0, indexOfLastSpace).trim()
               + NEWLINE_SEPERATOR
-              + this.splitRecursively(message.substring(indexOfLastSpace).trim())
+              + this.splitRecursively(message.substring(indexOfLastSpace).trim(), channelId)
     }
     return message
   }
