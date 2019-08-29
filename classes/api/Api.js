@@ -31,9 +31,13 @@ module.exports = class ApiFunctions {
    */
   static request (request) {
     return new Promise((resolve, reject) => {
+      let response = ""
       let req = https.request(request, (res) => {
         res.setEncoding('utf8')
-        res.on('data', (response) => {
+        res.on('data', (chunk) => {
+          response += chunk
+        })
+        res.on('end', () => {
           resolve(response)
         })
       })
