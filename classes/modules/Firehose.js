@@ -1,6 +1,7 @@
 "use strict"
-// noinspection JSUnresolvedVariable
-const https = require('follow-redirects').https
+
+const axios = require('axios')
+const CancelToken = axios.CancelToken
 //CLASSES
 const DiscordLog = require('./DiscordLog')
 //ENUMS
@@ -13,6 +14,7 @@ module.exports = class Firehose {
     this.lastLine = 0
     this.req = null
     this.bots = bots
+    this.source = CancelToken.source()
     //TODO: don't use timeouts ...
     setTimeout(this.checkFirehose.bind(this), 5000)
   }
@@ -20,7 +22,7 @@ module.exports = class Firehose {
   checkFirehose () {
     if (this.lastLine + 5000 < new Date()) {
       if (this.req) {
-        this.req.abort()
+        this.source.cancel()
         this.req = null
       }
       this.startFirehose()
@@ -31,17 +33,19 @@ module.exports = class Firehose {
   startFirehose () {
     let verifiedBot = (Object.values(this.bots)).find(x => x.rateLimitUser === ChatLimit.VERIFIED)
     if (verifiedBot) {
-      let request = new URL("https://tmi.twitch.tv/firehose?oauth_token="
-        + verifiedBot.TwitchIRCConnection.botData.token.substring(6))
+      let request = {
+        url: "https://tmi.twitch.tv/firehose?oauth_token="
+          + verifiedBot.TwitchIRCConnection.botData.token.substring(6),
+        responseType: 'stream'
+        }
 
       console.log("Starting firehose")
-      this.req = https.request(request, (res) => {
-        res.setEncoding('utf8')
-        res.on('data', (response) => {
+      this.req = axios(request, {cancelToken: this.source.token}).then((res) => {
+        res.data.on('data', (response) => {
           try {
             this.lastLine = Date.now()
 
-            let obj = JSON.parse(response.split("\n")[1].substring(6))
+            let obj = JSON.parse(response.toString().split("\n")[1].substring(6))
             //obj.event = split[0].substring(7)
             //TODO: move the parameters somewhere else
             if (nameRegex.test(obj.body)) {
@@ -59,22 +63,22 @@ module.exports = class Firehose {
                   obj.body)
               } else {
                 DiscordLog.custom("firehose-notify",
-                  response.split("\n")[0].substring(7),
+                  response.toString().split("\n")[0].substring(7),
                   util.inspect(obj))
               }
             }
-
-            //req.abort()
             // eslint-disable-next-line no-empty
           } catch (e) {
+            DiscordLog.error(e)
           }
         })
+      }).catch((err) => {
+        if (axios.isCancel(err)) {
+          console.log("Firehose canceled ...")
+        } else {
+          this.source.cancel()
+        }
       })
-      this.req.on('error', (err) => {
-        console.error(err)
-      })
-      this.req.write('')
-      this.req.end()
     }
   }
 }

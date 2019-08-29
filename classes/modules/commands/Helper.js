@@ -1,6 +1,4 @@
 "use strict"
-// noinspection JSUnresolvedVariable
-const https = require('follow-redirects').https
 const util = require('util')
 //CLASSES
 const Api = require('../../api/Api.js')

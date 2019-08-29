@@ -1,10 +1,9 @@
 "use strict"
-// noinspection JSUnresolvedVariable
-const https = require('follow-redirects').https
+const axios = require('axios')
+const util = require('util')
 
 const TWITCH_API_KRAKEN = {
-  host: "api.twitch.tv",
-  path: "/kraken/",
+  url: "https://api.twitch.tv/kraken/",
   method: 'GET',
   headers: {
     'Accept': 'application/vnd.twitchtv.v5+json',
@@ -18,6 +17,7 @@ const TWITCH_API_HELIX = {
   headers: {}
 }
 
+//TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 module.exports = class ApiFunctions {
   constructor () {
@@ -31,21 +31,11 @@ module.exports = class ApiFunctions {
    */
   static request (request) {
     return new Promise((resolve, reject) => {
-      let response = ""
-      let req = https.request(request, (res) => {
-        res.setEncoding('utf8')
-        res.on('data', (chunk) => {
-          response += chunk
-        })
-        res.on('end', () => {
-          resolve(response)
-        })
-      })
-      req.on('error', (err) => {
+      axios(request).then((res) => {
+        resolve(res.data)
+      }).catch((err) => {
         reject(err)
       })
-      req.write('')
-      req.end()
     })
   }
 
@@ -57,7 +47,7 @@ module.exports = class ApiFunctions {
    * @returns {Promise<object>} return from the API parsed from string to json
    */
   static async apiRequestKraken (clientID, pathAppend) {
-    return await this.apiRequestJson(clientID, TWITCH_API_KRAKEN, pathAppend)
+    return await this.apiRequest(clientID, TWITCH_API_KRAKEN, pathAppend)
   }
 
   /**
@@ -68,7 +58,7 @@ module.exports = class ApiFunctions {
    * @returns {Promise<object>} return from the API parsed from string to json
    */
   static async apiRequestHelix (clientID, pathAppend) {
-    return await this.apiRequestJson(clientID, TWITCH_API_HELIX, pathAppend)
+    return await this.apiRequest(clientID, TWITCH_API_HELIX, pathAppend)
   }
 
   /**
@@ -79,7 +69,7 @@ module.exports = class ApiFunctions {
    * @returns {Promise<*>} return body parsed to json
    */
   static async apiRequestJson (clientID, requestBase, pathAppend) {
-    return JSON.parse(await this.apiRequestString(clientID, requestBase, pathAppend))
+    return await this.apiRequest(clientID, requestBase, pathAppend)
   }
 
   /**
@@ -89,12 +79,13 @@ module.exports = class ApiFunctions {
    * @param pathAppend path appended to requestBase.path
    * @returns {Promise<*>} return body as string
    */
-  static async apiRequestString (clientID, requestBase, pathAppend) {
+  static async apiRequest (clientID, requestBase, pathAppend) {
     //Duplicate default request object
     let request = Object.assign({}, requestBase)
     request.headers["Client-ID"] = clientID
-    request.path += pathAppend
-    return await this.request(request)
+    request.url += pathAppend
+    let ret = await axios(request)
+    return ret.data
   }
 
   /**
