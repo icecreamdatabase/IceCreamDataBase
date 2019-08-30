@@ -98,7 +98,7 @@ module.exports = class Helper {
   }
 
   static async isUserInChannel (loginToCheck, channelName) {
-    let chattersString = await Api.request(new URL("https://tmi.twitch.tv/group/user/" + channelName.substring(1) + "/chatters"))
+    let chattersString = await Api.request("https://tmi.twitch.tv/group/user/" + channelName.substring(1) + "/chatters")
     let chattersObj
     try {
       chattersObj = JSON.parse(chattersString)
