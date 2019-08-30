@@ -10,6 +10,7 @@ module.exports = Object.freeze({
                   "REWARDGIFT": 7,
                   "RAID": 8,
                   "RITUAL": 9,
+                  "PRIMEPAIDUPGRADE": 10,
                   "SUB_T2": 100,
                   "SUB_T3": 101,
                   "SUB_PRIME": 102,
