@@ -46,7 +46,7 @@ module.exports = class Hardcoded {
           let so = (x) => {
             this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))
           }
-          msg = eval(evalString).toString()
+          msg = (eval(evalString) || "").toString()
         } catch (err) {
           msg = err.message
         }
