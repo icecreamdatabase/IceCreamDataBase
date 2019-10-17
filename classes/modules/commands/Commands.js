@@ -1,15 +1,14 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const SqlGlobalCommands = require('../../sql/modules/SqlGlobalCommands')
+const SqlLocalCommands = require('../../sql/modules/SqlCommands')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 
-module.exports = class Global {
-  // noinspection DuplicatedCode TODO: somehow remove the code duplication
+module.exports = class Commands {
   constructor (bot) {
     this.bot = bot
     this.commandDataNormal = {}
@@ -52,27 +51,29 @@ module.exports = class Global {
   }
 
   sendGlobalMatch (messageObj, commandMatch) {
-    if (commandMatch.userLevel <= messageObj.userLevel) {
-      if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
+    if (commandMatch.channelID.toString() === messageObj.roomId.toString()) {
+      if (commandMatch.userLevel <= messageObj.userLevel) {
+        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
 
-        Helper.fillParams(messageObj, commandMatch).then((response) => {
-          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-          if (commandMatch.hasOwnProperty("ID")) {
-            SqlGlobalCommands.increaseTimesUsed(commandMatch.ID)
-          }
-          if (commandMatch.hasOwnProperty("timesUsed")) {
-            commandMatch.timesUsed++
-          }
-        })
+          Helper.fillParams(messageObj, commandMatch).then((response) => {
+            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+            if (commandMatch.hasOwnProperty("ID")) {
+              SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
+            }
+            if (commandMatch.hasOwnProperty("timesUsed")) {
+              commandMatch.timesUsed++
+            }
+          })
 
-        return true
+          return true
+        }
       }
     }
     return false
   }
 
   updateCommandData () {
-    SqlGlobalCommands.getGlobalCommandData().then((data) => {
+    SqlLocalCommands.getCommandData(this.bot.TwitchIRCConnection.botData.userId).then((data) => {
       this.commandDataNormal = data.normal
       this.commandDataRegex = data.regex
     })
