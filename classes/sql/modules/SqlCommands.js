@@ -6,16 +6,14 @@ module.exports = class SqlCommands {
   constructor () {
   }
 
-  static resultDataFromResults (results, resultsRegex) {
+  static resultDataFromResults (resultsNormal, resultsRegex) {
 
     let returnData = {"normal": {}, "regex": {}}
 
-    //TODO: is this even needed? ... only the regExp part is really .... I never access directly
-
-    for (let index in results) {
-      if (results.hasOwnProperty(index) && results[index].hasOwnProperty("command")) {
-        results[index].command = results[index].command.toLowerCase()
-        returnData.normal[results[index].command] = results[index]
+    for (let index in resultsNormal) {
+      if (resultsNormal.hasOwnProperty(index) && resultsNormal[index].hasOwnProperty("command")) {
+        resultsNormal[index].command = resultsNormal[index].command.toLowerCase()
+        returnData.normal[resultsNormal[index].command] = resultsNormal[index]
       }
     }
 
@@ -29,33 +27,38 @@ module.exports = class SqlCommands {
     return returnData
   }
 
-  static async getCommandData () {
+  static async getCommandData (botID) {
     let results = await sqlPool.query(`
-        SELECT c.ID as 'commandID', 
+        SELECT distinct 
+               c.ID as 'commandID', 
                cG.ID as 'commandGroupID', 
                cG.name as 'commandGroupName', 
                cGL.channelID as 'channelID', 
-               cGL.botID as 'botID',
+               isRegex,
                command, 
                response, 
                userLevel, 
                cooldown, 
                timesUsed
-        FROM commands c, commandGroup cG, commandGroupLink cGL 
-        WHERE c.isRegex = b'0'
-          AND c.enabled = b'1'
+        FROM commands c, commandGroup cG, commandGroupLink cGL, connections con
+        WHERE c.enabled = b'1'
           AND cG.enabled = b'1'
           AND cGL.enabled = b'1' 
           AND c.commandGroupID = cG.ID
-        ;`)
+          AND c.commandGroupID = cGL.commandGroupID
+          AND cGL.channelID = con.channelID
+          AND ( con.botID = ?
+                AND (
+                      cGL.botID = con.botID
+                      OR cGL.botID IS NULL
+                    )
+              )
+        ;`, botID)
 
-    let resultsRegex = await sqlPool.query(`
-        SELECT ID, command, response, userLevel, cooldown, timesUsed
-        FROM globalCommands
-        WHERE enabled = b'1'
-          AND isRegex = b'1';`)
+    let resultsNormal = results.filter((line) => { return line.isRegex })
+    let resultsRegex = results.filter((line) => { return !line.isRegex })
 
-    return SqlCommands.resultDataFromResults(results, resultsRegex)
+    return SqlCommands.resultDataFromResults(resultsNormal, resultsRegex)
   }
 
   static increaseTimesUsed (commandID) {
