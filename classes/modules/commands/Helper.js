@@ -97,11 +97,17 @@ module.exports = class Helper {
     return message
   }
 
-  static async isUserInChannel (loginToCheck, channelName) {
+  static async getAllUsersInChannel (channelName) {
     let chattersObj = await Api.request("https://tmi.twitch.tv/group/user/" + channelName.substring(1) + "/chatters")
     if (chattersObj.hasOwnProperty("chatters")) {
-      let allChatters = Object.values(chattersObj.chatters)
-      allChatters = [].concat.apply([], allChatters)
+      return [].concat.apply([], Object.values(chattersObj.chatters))
+    }
+    return []
+  }
+
+  static async isUserInChannel (loginToCheck, channelName) {
+    let allChatters = await Helper.getAllUsersInChannel(channelName)
+    if (allChatters.length > 0) {
       for (let chatter of allChatters) {
         if (chatter.toLowerCase() === loginToCheck.toLowerCase()) {
           return true

@@ -6,24 +6,22 @@ module.exports = class SqlPoints {
   constructor () {
   }
 
-  static async setPoints (userID, channelID, points) {
-    let results = await sqlPool.query(`
-        INSERT INTO pointsWallet (userID, channelID, balance)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            balance = balance + ?;
-        ;`, userID, channelID, points, points)
-
+  static setPoints (userID, channelID, points) {
+    sqlPool.query(`
+      INSERT INTO pointsWallet (userID, channelID, balance)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+          balance = balance + ?;
+      ;`, userID, channelID, points, points)
   }
 
-  static async addPoints (userID, channelID, points) {
-    let results = await sqlPool.query(`
-        INSERT INTO pointsWallet (userID, channelID, balance)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            balance = ?;
-        ;`, userID, channelID, points, points)
-
+  static addPoints (userID, channelID, points) {
+    sqlPool.query(`
+      INSERT INTO pointsWallet (userID, channelID, balance)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+          balance = ?;
+      ;`, userID, channelID, points, points)
   }
 
   static async getPoints (userID, channelID) {
