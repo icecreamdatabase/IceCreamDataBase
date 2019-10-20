@@ -30,11 +30,19 @@ module.exports = class UserNotice {
 
     if (obj.hasOwnProperty("command")) {
       if (this.notificationData.hasOwnProperty(obj.tags["room-id"])) {
-        let announcementMessage = UserNotice.methodToMessage(this.notificationData[obj.tags["room-id"]], obj)
-        if (announcementMessage) {
-          announcementMessage = UserNotice.notificationParameter(announcementMessage, obj)
-          DiscordLog.custom("usernotice-handled", obj.command, announcementMessage)
-          this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
+        let UserNoticeType = UserNotice.methodToEnum(obj)
+        let notificationObj = this.notificationData[obj.tags["room-id"]]
+
+        if (notificationObj.hasOwnProperty(UserNoticeType)) {
+          let announcementMessage = notificationObj[UserNoticeType]
+
+          if (announcementMessage) {
+            announcementMessage = UserNotice.notificationParameter(announcementMessage, obj)
+            DiscordLog.custom("usernotice-handled", obj.command, announcementMessage)
+            this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
+          }
+        } else {
+          DiscordLog.error(__filename + ": Get first key by value failed: " + UserNoticeType)
         }
       }
     } else {
@@ -42,7 +50,7 @@ module.exports = class UserNotice {
     }
   }
 
-  static methodToMessage (notificationData, obj) {
+  static methodToEnum (obj) {
     //eventMsg.parameters is build like this:
     //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
     //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
@@ -85,13 +93,7 @@ module.exports = class UserNotice {
       }
     }
     //Get first key by value ... convert the enum int to it's name
-    UserNoticeType = Object.keys(UserNoticeTypes).find(key => UserNoticeTypes[key] === UserNoticeType)
-    if (notificationData.hasOwnProperty(UserNoticeType)) {
-      return notificationData[UserNoticeType] || null
-    } else {
-      DiscordLog.error(__filename + ": Get first key by value failed")
-      return null
-    }
+    return Object.keys(UserNoticeTypes).find(key => UserNoticeTypes[key] === UserNoticeType)
   }
 
   static notificationParameter (message, obj) {
