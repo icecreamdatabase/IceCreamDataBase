@@ -32,7 +32,7 @@ module.exports = class Points {
     let roomId = userNoticeObj.tags['room-id']
     if (username && userId && roomId && this.pointsSettings.hasOwnProperty(roomId)) {
       DiscordLog.debug(roomId + ": " + this.pointsSettings[roomId].usernoticeSubPoints)
-      SqlPoints.addPoints(userId, roomId, this.pointsSettings[roomId].usernoticeSubPoints)
+      //SqlPoints.addPoints(userId, roomId, this.pointsSettings[roomId].usernoticeSubPoints)
     } else {
       DiscordLog.error("Points handleUserNotice failed: " + username + " " + userId + " " + roomId + " " + this.pointsSettings[roomId])
     }
