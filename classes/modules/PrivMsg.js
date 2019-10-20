@@ -35,15 +35,9 @@ module.exports = class PrivMsg {
     if (channelObj.useHardcodedCommands) {
       if (this.hardcoded.handle(messageObj)) { return }
     }
-    //from specific to unspecific
-    if (channelObj.useLocalCommands) { //TODO
+    if (channelObj.useCommands) {
       if (this.commands.handle(messageObj)) { return }
     }
-    /*
-    if (channelObj.XXXXXXXXXXXXXX) {
-      if (this.XXXXXXXXXXX.handle(messageObj)) { return }
-    }
-    */
 
     return false
   }
