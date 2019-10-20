@@ -39,12 +39,7 @@ module.exports = class Commands {
       return messageObj.roomId === this.commandDataNormal[key].channelID.toString()
           && messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command)
     })
-    let handledAnyCommand = false
-    for (let commandMatchIndex of commandMatchIndices) {
-      let commandMatch = this.commandDataNormal[commandMatchIndex]
-      handledAnyCommand = this.sendGlobalMatch(messageObj, commandMatch) || handledAnyCommand
-    }
-    return handledAnyCommand
+    return this.handleMatch(messageObj, commandMatchIndices.map(x => this.commandDataNormal[x]))
   }
 
   async handleRegex (messageObj) {
@@ -52,31 +47,30 @@ module.exports = class Commands {
       return messageObj.roomId === this.commandDataRegex[key].channelID.toString()
           && this.commandDataRegex[key].regExp.test(messageObj.message)
     })
-    let handledAnyCommand = false
-    for (let commandRegexMatchIndex of commandRegexMatchIndices) {
-      let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
-      handledAnyCommand = this.sendGlobalMatch(messageObj, commandRegexMatch) || handledAnyCommand
-    }
-    return handledAnyCommand
+    return this.handleMatch(messageObj, commandRegexMatchIndices.map(x => this.commandDataRegex[x]))
   }
 
-  sendGlobalMatch (messageObj, commandMatch) {
-    console.log("---- " + (commandMatch.commandID || -1))
-    if (commandMatch.userLevel <= messageObj.userLevel) {
-      console.log("^")
-      if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
+  handleMatch (messageObj, commandArray) {
+    if (commandArray.length > 0) {
+      commandArray = commandArray.filter(x => x.userLevel <= messageObj.userLevel)
+      if (commandArray.length > 0) {
+        let commandMatch = commandArray[0]
+        console.log(commandMatch)
 
-        Helper.fillParams(messageObj, commandMatch).then((response) => {
-          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-          if (commandMatch.hasOwnProperty("ID")) {
-            SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
-          }
-          if (commandMatch.hasOwnProperty("timesUsed")) {
-            commandMatch.timesUsed++
-          }
-        })
-
-        return true
+        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
+          console.log("--------------")
+          Helper.fillParams(messageObj, commandMatch).then((response) => {
+            console.log("++++++++++++++")
+            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+            if (commandMatch.hasOwnProperty("ID")) {
+              SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
+            }
+            if (commandMatch.hasOwnProperty("timesUsed")) {
+              commandMatch.timesUsed++
+            }
+          })
+          return true
+        }
       }
     }
     return false

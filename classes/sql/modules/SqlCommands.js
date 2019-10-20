@@ -23,7 +23,7 @@ module.exports = class SqlCommands {
   static async getCommandData (botID) {
     let results = await sqlPool.query(`
         SELECT distinct 
-               c.ID as 'commandID', 
+               c.ID as 'ID', 
                cG.ID as 'commandGroupID', 
                cG.name as 'commandGroupName', 
                cGL.channelID as 'channelID', 
@@ -56,7 +56,7 @@ module.exports = class SqlCommands {
   }
 
   static increaseTimesUsed (commandID) {
-    sqlPool.query(`UPDATE globalCommands 
+    sqlPool.query(`UPDATE commands 
       set timesUsed = timesUsed + 1 
       WHERE ID = ?;`, commandID)
   }

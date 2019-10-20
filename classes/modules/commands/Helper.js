@@ -142,7 +142,9 @@ module.exports = class Helper {
   }
 
   static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId, minCooldown) {
+    console.log(".................")
     if (commandMatch.hasOwnProperty("cooldown") && commandMatch.hasOwnProperty("ID")) {
+      console.log(",,,,,,,,,,,,,,")
       let lastUsage = 0
       if (!lastCommandUsageObject.hasOwnProperty(roomId)) {
         lastCommandUsageObject[roomId] = {}
