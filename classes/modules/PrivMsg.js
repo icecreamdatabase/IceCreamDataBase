@@ -4,8 +4,7 @@ const util = require('util')
 const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
-const Global = require('./commands/Global')
-const Local = require('./commands/Local')
+const Commands = require('./commands/Commands')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
 
@@ -16,8 +15,7 @@ module.exports = class PrivMsg {
     this.bot = bot
 
     this.hardcoded = new HardCoded(this.bot)
-    this.global = new Global(this.bot)
-    this.local = new Local(this.bot)
+    this.commands = new Commands(this.bot)
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -38,11 +36,8 @@ module.exports = class PrivMsg {
       if (this.hardcoded.handle(messageObj)) { return }
     }
     //from specific to unspecific
-    if (channelObj.useLocalCommands) {
-      if (this.local.handle(messageObj)) { return }
-    }
-    if (channelObj.useGlobalCommands) {
-      if (this.global.handle(messageObj)) { return }
+    if (channelObj.useLocalCommands) { //TODO
+      if (this.commands.handle(messageObj)) { return }
     }
     /*
     if (channelObj.XXXXXXXXXXXXXX) {
