@@ -4,6 +4,7 @@ const util = require('util')
 const SqlPoints = require('../sql/modules/SqlPoints')
 const ApiFunctions = require('../api/ApiFunctions.js')
 const DiscordLog = require('./DiscordLog')
+const Helper = require('./commands/Helper')
 
 const UPDATE_INTERVAL = 10000//ms
 
@@ -32,7 +33,7 @@ module.exports = class Points {
     let roomId = userNoticeObj.tags['room-id']
     if (username && userId && roomId && this.pointsSettings.hasOwnProperty(roomId)) {
       DiscordLog.debug(roomId + ": " + this.pointsSettings[roomId].usernoticeSubPoints)
-      //SqlPoints.addPoints(userId, roomId, this.pointsSettings[roomId].usernoticeSubPoints)
+      SqlPoints.addPoints(userId, roomId, this.pointsSettings[roomId].usernoticeSubPoints)
     } else {
       DiscordLog.error("Points handleUserNotice failed: " + username + " " + userId + " " + roomId + " " + this.pointsSettings[roomId])
     }
@@ -41,10 +42,14 @@ module.exports = class Points {
 
   handleTimed (channelID) {
     if (this.pointsSettings.hasOwnProperty(channelID)) {
+      setTimeout(this.handleTimed.bind(this, channelID), this.pointsSettings[channelID].intervalTime * 1000)
 
       //TODO: do stuff for interval
 
-      setTimeout(this.handleTimed.bind(this, channelID), this.pointsSettings[channelID].intervalTime * 1000)
+      Helper.getAllUsersInChannel().then(x => {
+      })
+
+
     } else {
       this.runningIntervals.splice(this.runningIntervals.indexOf(channelID), 1)
       console.log("Points interval stopped for channelID: " + channelID)

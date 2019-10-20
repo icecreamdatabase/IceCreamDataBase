@@ -1,6 +1,7 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 const util = require('util')
+const DiscordLog = require('../../../classes/modules/DiscordLog')
 
 module.exports = class SqlPoints {
   constructor () {
@@ -11,7 +12,7 @@ module.exports = class SqlPoints {
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
-          balance = balance + ?;
+          balance = balance + VALUES(balance);
       ;`, userID, channelID, points, points)
   }
 
@@ -20,8 +21,8 @@ module.exports = class SqlPoints {
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
-          balance = ?;
-      ;`, userID, channelID, points, points)
+          balance = VALUES(balance);
+      ;`, parseInt(userID), parseInt(channelID), parseInt(points)).then().catch(x => DiscordLog.error(x))
   }
 
   static async getPoints (userID, channelID) {
