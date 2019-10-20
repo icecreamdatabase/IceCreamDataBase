@@ -61,11 +61,14 @@ module.exports = class Queue {
       message = message.replace(/[\r\n]/g, '')
     }
 
-    //split message if too long
-    message = this.splitRecursively(message, channelId)
 
+    //TODO make this nicer
     //handle newline
     let messageArray = message.split(NEWLINE_SEPERATOR)
+    //split message if too long
+    messageArray = messageArray.map(x => this.splitRecursively(x, channelId))
+    message = messageArray.join(NEWLINE_SEPERATOR)
+    messageArray = message.split(NEWLINE_SEPERATOR)
 
     for (let messageElement of messageArray) {
       messageElement = messageElement.trim()
