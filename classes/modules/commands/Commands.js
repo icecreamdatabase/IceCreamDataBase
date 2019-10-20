@@ -55,12 +55,9 @@ module.exports = class Commands {
       commandArray = commandArray.filter(x => x.userLevel <= messageObj.userLevel)
       if (commandArray.length > 0) {
         let commandMatch = commandArray[0]
-        console.log(commandMatch)
 
         if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
-          console.log("--------------")
           Helper.fillParams(messageObj, commandMatch).then((response) => {
-            console.log("++++++++++++++")
             this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
             if (commandMatch.hasOwnProperty("ID")) {
               SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
