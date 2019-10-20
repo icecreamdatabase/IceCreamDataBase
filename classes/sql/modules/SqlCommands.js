@@ -7,24 +7,17 @@ module.exports = class SqlCommands {
   }
 
   static resultDataFromResults (resultsNormal, resultsRegex) {
-
-    let returnData = {"normal": {}, "regex": {}}
-
     for (let index in resultsNormal) {
       if (resultsNormal.hasOwnProperty(index) && resultsNormal[index].hasOwnProperty("command")) {
         resultsNormal[index].command = resultsNormal[index].command.toLowerCase()
-        returnData.normal[resultsNormal[index].command] = resultsNormal[index]
       }
     }
-
     for (let index in resultsRegex) {
       if (resultsRegex.hasOwnProperty(index) && resultsRegex[index].hasOwnProperty("command")) {
         resultsRegex[index].regExp = new RegExp(resultsRegex[index].command, "i")
-        returnData.regex[resultsRegex[index].command] = resultsRegex[index]
       }
     }
-
-    return returnData
+    return {"normal": resultsNormal, "regex": resultsRegex}
   }
 
   static async getCommandData (botID) {

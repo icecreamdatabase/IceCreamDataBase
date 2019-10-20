@@ -35,38 +35,48 @@ module.exports = class Commands {
   }
 
   async handleNormal (messageObj) {
-    let commandMatchIndex = Object.keys(this.commandDataNormal).find(key => messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command))
-    if (commandMatchIndex) {
+    let commandMatchIndices = Object.keys(this.commandDataNormal).filter(key => {
+      return messageObj.roomId === this.commandDataNormal[key].channelID.toString()
+          && messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command)
+    })
+    let handledAnyCommand = false
+    for (let commandMatchIndex of commandMatchIndices) {
       let commandMatch = this.commandDataNormal[commandMatchIndex]
-      return this.sendGlobalMatch(messageObj, commandMatch)
+      handledAnyCommand = this.sendGlobalMatch(messageObj, commandMatch) || handledAnyCommand
     }
+    return handledAnyCommand
   }
 
   async handleRegex (messageObj) {
-    let commandRegexMatchIndex = Object.keys(this.commandDataRegex).find(key => this.commandDataRegex[key].regExp.test(messageObj.message))
-    if (commandRegexMatchIndex) {
+    let commandRegexMatchIndices = Object.keys(this.commandDataRegex).filter(key => {
+      return messageObj.roomId === this.commandDataRegex[key].channelID.toString()
+          && this.commandDataRegex[key].regExp.test(messageObj.message)
+    })
+    let handledAnyCommand = false
+    for (let commandRegexMatchIndex of commandRegexMatchIndices) {
       let commandRegexMatch = this.commandDataRegex[commandRegexMatchIndex]
-      return this.sendGlobalMatch(messageObj, commandRegexMatch)
+      handledAnyCommand = this.sendGlobalMatch(messageObj, commandRegexMatch) || handledAnyCommand
     }
+    return handledAnyCommand
   }
 
   sendGlobalMatch (messageObj, commandMatch) {
-    if (commandMatch.channelID.toString() === messageObj.roomId.toString()) {
-      if (commandMatch.userLevel <= messageObj.userLevel) {
-        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
+    console.log("---- " + (commandMatch.commandID || -1))
+    if (commandMatch.userLevel <= messageObj.userLevel) {
+      console.log("^")
+      if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
 
-          Helper.fillParams(messageObj, commandMatch).then((response) => {
-            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
-            if (commandMatch.hasOwnProperty("ID")) {
-              SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
-            }
-            if (commandMatch.hasOwnProperty("timesUsed")) {
-              commandMatch.timesUsed++
-            }
-          })
+        Helper.fillParams(messageObj, commandMatch).then((response) => {
+          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+          if (commandMatch.hasOwnProperty("ID")) {
+            SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
+          }
+          if (commandMatch.hasOwnProperty("timesUsed")) {
+            commandMatch.timesUsed++
+          }
+        })
 
-          return true
-        }
+        return true
       }
     }
     return false
