@@ -3,7 +3,7 @@ const util = require('util')
 //CLASSES
 const DiscordLog = require('./DiscordLog')
 const Sql = require('../sql/modules/SqlUserNotice.js')
-const Points = require('./Points')
+const Points = new (require('./Points')) //singleton
 
 //ENUMS
 const UserNoticeTypes = require('../../ENUMS/UserNoticeTypes.js')
@@ -15,7 +15,6 @@ module.exports = class UserNotice {
   constructor (bot) {
     this.bot = bot
     this.notificationData = {}
-    this.points = new Points() //singleton
 
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `notificationData` array.
@@ -37,7 +36,7 @@ module.exports = class UserNotice {
 
         if (notificationObj.hasOwnProperty(userNoticeType)) {
 
-          this.points.handleUserNotice(userNoticeType, usernoticeObj)
+          Points.handleUserNotice(userNoticeType, usernoticeObj)
 
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
