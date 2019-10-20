@@ -53,10 +53,11 @@ module.exports = class SqlCommands {
                       OR cGL.botID IS NULL
                     )
               )
+        ORDER BY cGL.botID desc, userLevel desc
         ;`, botID)
 
-    let resultsNormal = results.filter((line) => { return line.isRegex })
-    let resultsRegex = results.filter((line) => { return !line.isRegex })
+    let resultsNormal = results.filter((line) => { return !line.isRegex })
+    let resultsRegex = results.filter((line) => { return line.isRegex })
 
     return SqlCommands.resultDataFromResults(resultsNormal, resultsRegex)
   }
