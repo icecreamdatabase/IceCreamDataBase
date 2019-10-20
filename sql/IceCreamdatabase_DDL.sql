@@ -74,34 +74,6 @@ create table commandGroupLink
         foreign key (botID, channelID) references connections (botID, channelID)
 );
 
-create table globalCommands
-(
-    ID int(11) unsigned auto_increment
-        primary key,
-    enabled bit default b'1' not null,
-    isRegex bit default b'0' not null,
-    command varchar(255) not null,
-    response mediumtext not null,
-    userLevel int(11) unsigned default 0 not null,
-    cooldown int(11) unsigned default 5 not null,
-    timesUsed int(11) unsigned default 0 not null
-);
-
-create table localCommands
-(
-    ID int(11) unsigned auto_increment
-        primary key,
-    channelID int unsigned not null,
-    botID int unsigned null,
-    enabled bit default b'1' not null,
-    isRegex bit default b'0' not null,
-    command varchar(255) not null,
-    response mediumtext not null,
-    userLevel int(11) unsigned default 0 not null,
-    cooldown int(11) unsigned default 10 not null,
-    timesUsed int(11) unsigned default 0 not null
-);
-
 create table notifications
 (
     botID int unsigned not null,
