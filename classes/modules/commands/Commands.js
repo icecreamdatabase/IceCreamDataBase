@@ -37,7 +37,7 @@ module.exports = class Commands {
   async handleNormal (messageObj) {
     let commandMatchIndices = Object.keys(this.commandDataNormal).filter(key => {
       return messageObj.roomId === this.commandDataNormal[key].channelID.toString()
-          && messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command)
+          && messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command + " ")
     })
     return this.handleMatch(messageObj, commandMatchIndices.map(x => this.commandDataNormal[x]))
   }

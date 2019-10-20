@@ -33,6 +33,10 @@ module.exports = class Sql {
     this.pool = pool
   }
 
+  /**
+   *
+   * @returns {Sql}
+   */
   static getInstance () {
     // noinspection JSUnresolvedVariable
     if (global.SqlSingletonInstance === undefined) {

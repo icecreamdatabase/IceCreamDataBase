@@ -3,6 +3,7 @@ const util = require('util')
 //CLASSES
 const DiscordLog = require('./DiscordLog')
 const Sql = require('../sql/modules/SqlUserNotice.js')
+const Points = require('./Points')
 
 //ENUMS
 const UserNoticeTypes = require('../../ENUMS/UserNoticeTypes.js')
@@ -14,6 +15,7 @@ module.exports = class UserNotice {
   constructor (bot) {
     this.bot = bot
     this.notificationData = {}
+    this.points = new Points() //singleton
 
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `notificationData` array.
@@ -25,24 +27,26 @@ module.exports = class UserNotice {
     this.updateNotificationData.bind(this)()
   }
 
-  async onUsernotice (obj) {
-    DiscordLog.custom("usernotice", obj.command, util.inspect(obj))
+  async onUsernotice (usernoticeObj) {
+    DiscordLog.custom("usernotice", usernoticeObj.command, util.inspect(usernoticeObj))
 
-    if (obj.hasOwnProperty("command")) {
-      if (this.notificationData.hasOwnProperty(obj.tags["room-id"])) {
-        let UserNoticeType = UserNotice.methodToEnum(obj)
-        let notificationObj = this.notificationData[obj.tags["room-id"]]
+    if (usernoticeObj.hasOwnProperty("command")) {
+      if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
+        let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
+        let notificationObj = this.notificationData[usernoticeObj.tags["room-id"]]
 
-        if (notificationObj.hasOwnProperty(UserNoticeType)) {
-          let announcementMessage = notificationObj[UserNoticeType]
+        if (notificationObj.hasOwnProperty(userNoticeType)) {
 
+          this.points.handleUserNotice(userNoticeType, usernoticeObj)
+
+          let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
-            announcementMessage = UserNotice.notificationParameter(announcementMessage, obj)
-            DiscordLog.custom("usernotice-handled", obj.command, announcementMessage)
-            this.bot.TwitchIRCConnection.queue.sayWithBoth(obj.tags["room-id"], obj.param, announcementMessage, obj.tags["user-id"])
+            announcementMessage = UserNotice.notificationParameter(announcementMessage, usernoticeObj)
+            DiscordLog.custom("usernotice-handled", usernoticeObj.command, announcementMessage)
+            this.bot.TwitchIRCConnection.queue.sayWithBoth(usernoticeObj.tags["room-id"], usernoticeObj.param, announcementMessage, usernoticeObj.tags["user-id"])
           }
         } else {
-          DiscordLog.error(__filename + ": Get first key by value failed: " + UserNoticeType)
+          DiscordLog.error(__filename + ": Get first key by value failed: " + userNoticeType)
         }
       }
     } else {

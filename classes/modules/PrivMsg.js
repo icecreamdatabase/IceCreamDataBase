@@ -5,6 +5,7 @@ const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Commands = require('./commands/Commands')
+const Points = require('./Points')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
 
@@ -16,6 +17,7 @@ module.exports = class PrivMsg {
 
     this.hardcoded = new HardCoded(this.bot)
     this.commands = new Commands(this.bot)
+    this.points = new Points() //singleton
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -35,6 +37,9 @@ module.exports = class PrivMsg {
     if (channelObj.useHardcodedCommands) {
       if (this.hardcoded.handle(messageObj)) { return }
     }
+
+    this.points.handlePrivMsg(obj)
+
     if (channelObj.useCommands) {
       if (this.commands.handle(messageObj)) { return }
     }

@@ -36,4 +36,23 @@ module.exports = class SqlPoints {
 
     return results.balance || 0
   }
+
+  static async getPointsSettings () {
+    let results = await sqlPool.query(`
+        SELECT channelID,
+               intervalTime,
+               intervalPoints,
+               activityReqMsgPerInterval,
+               activityMaxPoints,
+               usernoticeSubPoints,
+               usernoticeGiftPoints
+        FROM pointsSettings
+        WHERE enabled = b'1'
+        ;`)
+    let returnObj = {}
+    results.forEach(x => {
+      returnObj[x.channelID] = x
+    })
+    return returnObj
+  }
 }
