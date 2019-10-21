@@ -17,15 +17,26 @@ module.exports = class Points {
 
     this.pointsSettings = {}
     this.runningIntervals = []
+    this.userActivity = {}
+
     setTimeout(this.updatePointSettings.bind(this), 2000)
-    //this.updatePointSettings()
     setInterval(this.updatePointSettings.bind(this), UPDATE_INTERVAL)
 
     return this
   }
 
   handlePrivMsg (privMsgObj) {
+    if (this.pointsSettings.hasOwnProperty(privMsgObj.roomId)) {
+      if (!this.userActivity[privMsgObj.roomId]) {
+        this.userActivity[privMsgObj.roomId] = {}
+      }
+      if (!this.userActivity[privMsgObj.roomId][privMsgObj.userId]) {
+        this.userActivity[privMsgObj.roomId][privMsgObj.userId] = 0
+      }
+      this.userActivity[privMsgObj.roomId][privMsgObj.userId]++
 
+    }
+    return false
   }
 
   handleUserNotice (userNoticeType, userNoticeObj) {
@@ -55,11 +66,18 @@ module.exports = class Points {
           if (info.stream) {
             Api.loginFromUserId(clientId, channelID).then(channelName => {
               Helper.getAllUsersInChannel(channelName).then(users => {
-                  Api.userDataFromLogins(clientId, users).then(data => {
-
+                Api.userDataFromLogins(clientId, users).then(data => {
+                  if (!this.userActivity[channelID]) {
+                    this.userActivity[channelID] = {}
+                  }
                   let queryParams = data.map(data => {
-                    return [parseInt(data["_id"]), parseInt(channelID), this.pointsSettings[channelID].intervalPoints]
+                    let points = this.userActivity[channelID][data["_id"]] || 0
+                    points /= this.pointsSettings[channelID].activityReqMsgPerInterval
+                    points *= this.pointsSettings[channelID].activityMaxPoints
+                    points += this.pointsSettings[channelID].intervalPoints
+                    return [parseInt(data["_id"]), parseInt(channelID), points]
                   })
+                  this.userActivity[channelID] = {}
                   SqlPoints.addPointsBulk(queryParams)
                 })
               })

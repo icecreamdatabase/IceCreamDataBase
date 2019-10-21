@@ -37,7 +37,7 @@ module.exports = class PrivMsg {
       if (this.hardcoded.handle(messageObj)) { return }
     }
 
-    Points.handlePrivMsg(obj)
+    if (Points.handlePrivMsg(messageObj)) { return }
 
     if (channelObj.useCommands) {
       if (this.commands.handle(messageObj)) { return }
