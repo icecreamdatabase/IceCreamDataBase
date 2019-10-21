@@ -5,6 +5,7 @@ const Api = require('../../api/Api.js')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
+const Points = new (require('./../Points')) //singleton
 
 const apiRegExp = new RegExp("\\${api=(.*?)}", 'i')
 
@@ -45,6 +46,9 @@ module.exports = class Helper {
     if (commandObj.hasOwnProperty("timesUsed")) {
       message = Helper.timesUsed(msgObj, message, commandObj.timesUsed)
     }
+
+    message = await Points.fillParams(msgObj, message)
+
     message = Helper.icecream(msgObj, message)
     message = Helper.gdq(msgObj, message)
     message = await Helper.api(msgObj, message)
@@ -60,7 +64,7 @@ module.exports = class Helper {
         if (firstParameter.startsWith("@")) {
           firstParameter = firstParameter.substring(1)
         }
-        if (await Helper.isUserInChannel(firstParameter, msgObj.channel)) {
+        if (await Api.isUserInChannel(firstParameter, msgObj.channel)) {
           replacement = firstParameter
         }
       }
@@ -95,29 +99,6 @@ module.exports = class Helper {
       message = message.replace(new RegExp("\\${timesUsed}", 'g'), timesUsed)
     }
     return message
-  }
-
-  static async getAllUsersInChannel (channelName) {
-    if (channelName.charAt(0) === '#') {
-      channelName = channelName.substring(1)
-    }
-    let chattersObj = await Api.request("https://tmi.twitch.tv/group/user/" + channelName + "/chatters")
-    if (chattersObj.hasOwnProperty("chatters")) {
-      return [].concat.apply([], Object.values(chattersObj.chatters))
-    }
-    return []
-  }
-
-  static async isUserInChannel (loginToCheck, channelName) {
-    let allChatters = await Helper.getAllUsersInChannel(channelName)
-    if (allChatters.length > 0) {
-      for (let chatter of allChatters) {
-        if (chatter.toLowerCase() === loginToCheck.toLowerCase()) {
-          return true
-        }
-      }
-    }
-    return false
   }
 
   static icecream (msgObj, message) {

@@ -4,7 +4,6 @@ const util = require('util')
 const SqlPoints = require('../sql/modules/SqlPoints')
 const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
-const Helper = require('./commands/Helper')
 
 const UPDATE_INTERVAL = 30000//ms
 
@@ -23,6 +22,15 @@ module.exports = class Points {
     setInterval(this.updatePointSettings.bind(this), UPDATE_INTERVAL)
 
     return this
+  }
+
+  async fillParams (msgObj, message) {
+    if (message.includes("${balance}")) {
+      let balance = await SqlPoints.getPoints(msgObj.userId, msgObj.roomId)
+      message = message.replace(new RegExp("\\${balance}", 'g'), balance)
+    }
+
+    return message
   }
 
   handlePrivMsg (privMsgObj) {
@@ -65,7 +73,7 @@ module.exports = class Points {
           //is live
           if (info.stream) {
             Api.loginFromUserId(clientId, channelID).then(channelName => {
-              Helper.getAllUsersInChannel(channelName).then(users => {
+              Api.getAllUsersInChannel(channelName).then(users => {
                 Api.userDataFromLogins(clientId, users).then(data => {
                   if (!this.userActivity[channelID]) {
                     this.userActivity[channelID] = {}

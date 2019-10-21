@@ -23,7 +23,7 @@ module.exports = class SqlPoints {
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES ?
       ON DUPLICATE KEY UPDATE
-          balance = VALUES(balance)
+          balance = balance + VALUES(balance)
       ;`, [queryParams])
   }
 
@@ -44,7 +44,7 @@ module.exports = class SqlPoints {
         AND channelID = ?
         ;`, [userID, channelID])
 
-    return results.balance || 0
+    return results[0].balance|| 0
   }
 
   static async getPointsSettings () {

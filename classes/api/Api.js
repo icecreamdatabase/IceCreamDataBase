@@ -223,4 +223,28 @@ module.exports = class ApiFunctions {
   static async userInChannelInfo (clientID, userId, roomId) {
     return await this.apiRequestKraken(clientID, 'users/' + userId + '/chat/channels/' + roomId)
   }
+
+  static async getAllUsersInChannel (channelName) {
+    if (channelName.charAt(0) === '#') {
+      channelName = channelName.substring(1)
+    }
+    let chattersObj = await this.request("https://tmi.twitch.tv/group/user/" + channelName + "/chatters")
+    if (chattersObj.hasOwnProperty("chatters")) {
+      return [].concat.apply([], Object.values(chattersObj.chatters))
+    }
+    return []
+  }
+
+  static async isUserInChannel (loginToCheck, channelName) {
+    let allChatters = await this.getAllUsersInChannel(channelName)
+    if (allChatters.length > 0) {
+      for (let chatter of allChatters) {
+        if (chatter.toLowerCase() === loginToCheck.toLowerCase()) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
 }
