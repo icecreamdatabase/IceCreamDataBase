@@ -98,7 +98,10 @@ module.exports = class Helper {
   }
 
   static async getAllUsersInChannel (channelName) {
-    let chattersObj = await Api.request("https://tmi.twitch.tv/group/user/" + channelName.substring(1) + "/chatters")
+    if (channelName.charAt(0) === '#') {
+      channelName = channelName.substring(1)
+    }
+    let chattersObj = await Api.request("https://tmi.twitch.tv/group/user/" + channelName + "/chatters")
     if (chattersObj.hasOwnProperty("chatters")) {
       return [].concat.apply([], Object.values(chattersObj.chatters))
     }

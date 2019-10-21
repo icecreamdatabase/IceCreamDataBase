@@ -88,6 +88,10 @@ module.exports = class ApiFunctions {
     return ret.data
   }
 
+  static async streamInfo (clientID, channelID) {
+    return await this.apiRequestKraken(clientID, 'streams/' + channelID)
+  }
+
   /**
    * receive login name from a single userid
    * @param clientID
@@ -110,7 +114,7 @@ module.exports = class ApiFunctions {
    * @returns {Promise<string>} userId as string
    */
   static async userIdFromLogin (clientID, username) {
-    let response = this.userInfosFromLogins(clientID, [username])
+    let response = await this.userInfosFromLogins(clientID, [username])
 
     if (response.total === 0) {
       return '-1'
@@ -120,7 +124,31 @@ module.exports = class ApiFunctions {
   }
 
   /**
+   * Returns the userInfo from an array of usernames
+   * directly returns the ["users"]
+   * automatically handles if more than 100 usernames are requested
+   *
+   * @param clientID
+   * @param {Array<String>} usernames The names to check for
+   * @returns {Object} return from users api
+   */
+  static async userDataFromLogins (clientID, usernames) {
+    let chunkSize = 100
+    let users = []
+    let requestChunks = [].concat.apply([], usernames.map((elem, i) => i % chunkSize ? [] : [usernames.slice(i, i + chunkSize)]))
+
+    for (let chunk of requestChunks) {
+      let responseChunk = await this.userInfosFromLogins(clientID, chunk)
+      if (responseChunk["_total"] > 0) {
+        users = users.concat(responseChunk["users"])
+      }
+    }
+    return users
+  }
+
+  /**
    * Return the userInfo from an array of usernames
+   * max 100 entries are allowed
    *
    * @param clientID
    * @param  {Array<String>} usernames The names to check for

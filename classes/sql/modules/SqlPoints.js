@@ -16,13 +16,24 @@ module.exports = class SqlPoints {
       ;`, userID, channelID, points, points)
   }
 
+  //TODO check this
+  //https://stackoverflow.com/questions/8899802/how-do-i-do-a-bulk-insert-in-mysql-using-node-js
+  static addPointsBulk (queryParams) {
+    sqlPool.query(`
+      INSERT INTO pointsWallet (userID, channelID, balance)
+      VALUES ?
+      ON DUPLICATE KEY UPDATE
+          balance = VALUES(balance)
+      ;`, [queryParams])
+  }
+
   static addPoints (userID, channelID, points) {
     sqlPool.query(`
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
           balance = VALUES(balance);
-      ;`, parseInt(userID), parseInt(channelID), parseInt(points)).then().catch(x => DiscordLog.error(x))
+      ;`, [userID, channelID, points])
   }
 
   static async getPoints (userID, channelID) {
@@ -31,7 +42,7 @@ module.exports = class SqlPoints {
         FROM pointsWallet
         WHERE userID = ?
         AND channelID = ?
-        ;`, userID, channelID)
+        ;`, [userID, channelID])
 
     return results.balance || 0
   }
