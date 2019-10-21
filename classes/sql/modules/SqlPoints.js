@@ -12,11 +12,10 @@ module.exports = class SqlPoints {
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
-          balance = balance + VALUES(balance);
+          balance = VALUES(balance);
       ;`, userID, channelID, points, points)
   }
 
-  //TODO check this
   //https://stackoverflow.com/questions/8899802/how-do-i-do-a-bulk-insert-in-mysql-using-node-js
   static addPointsBulk (queryParams) {
     sqlPool.query(`
