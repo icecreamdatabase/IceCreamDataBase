@@ -57,12 +57,10 @@ module.exports = class Points {
               Helper.getAllUsersInChannel(channelName).then(users => {
                   Api.userDataFromLogins(clientId, users).then(data => {
 
-                  console.log("---------------------------------------------")
                   let queryParams = data.map(data => {
-                    return [data["_id"], channelID, this.pointsSettings[channelID].intervalPoints]
+                    return [parseInt(data["_id"]), parseInt(channelID), this.pointsSettings[channelID].intervalPoints]
                   })
-                  //SqlPoints.addPointsBulk(queryParams)
-                  console.log("---------------------------------------------")
+                  SqlPoints.addPointsBulk(queryParams)
                 })
               })
             })
