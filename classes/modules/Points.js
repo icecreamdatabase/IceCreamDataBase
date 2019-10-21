@@ -6,7 +6,7 @@ const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
 const Helper = require('./commands/Helper')
 
-const UPDATE_INTERVAL = 10000//ms
+const UPDATE_INTERVAL = 30000//ms
 
 module.exports = class Points {
   constructor () {
