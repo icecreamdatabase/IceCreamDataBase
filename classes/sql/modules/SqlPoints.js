@@ -32,7 +32,7 @@ module.exports = class SqlPoints {
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
-          balance = VALUES(balance);
+          balance = balance + VALUES(balance);
       ;`, [userID, channelID, points])
   }
 
