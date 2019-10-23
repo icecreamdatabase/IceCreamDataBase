@@ -30,16 +30,14 @@ module.exports = class UserNotice {
     DiscordLog.custom("usernotice", usernoticeObj.command, util.inspect(usernoticeObj))
 
     if (usernoticeObj.hasOwnProperty("command")) {
+      let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
+      if (this.bot.channels[usernoticeObj.tags['room-id']].usePoints) {
+        Points.handleUserNotice(userNoticeType, usernoticeObj)
+      }
       if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
-        let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
         let notificationObj = this.notificationData[usernoticeObj.tags["room-id"]]
 
         if (notificationObj.hasOwnProperty(userNoticeType)) {
-
-          if (this.bot.channels[usernoticeObj.tags['room-id']].usePoints) {
-            Points.handleUserNotice(userNoticeType, usernoticeObj)
-          }
-
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
             announcementMessage = UserNotice.notificationParameter(announcementMessage, usernoticeObj)
