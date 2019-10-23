@@ -132,6 +132,29 @@ module.exports = class ApiFunctions {
    * @param {Array<String>} usernames The names to check for
    * @returns {Object} return from users api
    */
+  static async userDataFromIds (clientID, ids) {
+    let chunkSize = 100
+    let users = []
+    let requestChunks = [].concat.apply([], ids.map((elem, i) => i % chunkSize ? [] : [ids.slice(i, i + chunkSize)]))
+
+    for (let chunk of requestChunks) {
+      let responseChunk = await this.userInfosFromIds(clientID, chunk)
+      if (responseChunk["_total"] > 0) {
+        users = users.concat(responseChunk["users"])
+      }
+    }
+    return users
+  }
+
+  /**
+   * Returns the userInfo from an array of usernames
+   * directly returns the ["users"]
+   * automatically handles if more than 100 usernames are requested
+   *
+   * @param clientID
+   * @param {Array<String>} usernames The names to check for
+   * @returns {Object} return from users api
+   */
   static async userDataFromLogins (clientID, usernames) {
     let chunkSize = 100
     let users = []
@@ -144,6 +167,18 @@ module.exports = class ApiFunctions {
       }
     }
     return users
+  }
+
+  /**
+   * Return the userInfo from an array of usernames
+   * max 100 entries are allowed
+   *
+   * @param clientID
+   * @param  {Array<String>} usernames The names to check for
+   * @return {Object} return from users api
+   */
+  static async userInfosFromIds (clientID, ids) {
+    return await this.apiRequestKraken(clientID, 'users?id=' + ids.join(','))
   }
 
   /**

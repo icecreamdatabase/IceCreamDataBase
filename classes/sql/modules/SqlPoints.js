@@ -7,13 +7,25 @@ module.exports = class SqlPoints {
   constructor () {
   }
 
+  static async getTopPoints (channelID, amount) {
+    let results = await sqlPool.query(`
+        SELECT userID, balance
+        FROM pointsWallet
+        WHERE channelID = ?
+        ORDER BY balance desc
+        LIMIT ?;
+      ;`, [channelID, amount])
+
+    return results
+  }
+
   static setPoints (userID, channelID, points) {
     sqlPool.query(`
       INSERT INTO pointsWallet (userID, channelID, balance)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
           balance = VALUES(balance);
-      ;`, userID, channelID, points, points)
+      ;`, [userID, channelID, points, points])
   }
 
   //https://stackoverflow.com/questions/8899802/how-do-i-do-a-bulk-insert-in-mysql-using-node-js
@@ -43,9 +55,10 @@ module.exports = class SqlPoints {
         AND channelID = ?
         ;`, [userID, channelID])
 
-    return results[0].balance|| 0
+    return results[0].balance || 0
   }
 
+  //https://dba.stackexchange.com/questions/13703/get-the-rank-of-a-user-in-a-score-table
   static async getUserInfo (userID, channelID) {
     let results = await sqlPool.query(`
 

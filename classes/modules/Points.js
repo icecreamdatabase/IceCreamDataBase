@@ -25,10 +25,6 @@ module.exports = class Points {
   }
 
   async fillParams (msgObj, message) {
-    if (message.includes("${balance}")) {
-      let balance = await SqlPoints.getPoints(msgObj.userId, msgObj.roomId)
-      message = message.replace(new RegExp("\\${balance}", 'g'), balance)
-    }
     if ( message.includes("${pointsBalance}")
       || message.includes("${pointsRank}")
       || message.includes("${pointsTotalWallets}")) {
@@ -36,6 +32,22 @@ module.exports = class Points {
       message = message.replace(new RegExp("\\${pointsBalance}", 'g'), pointsObj.balance)
       message = message.replace(new RegExp("\\${pointsRank}", 'g'), pointsObj.rank)
       message = message.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
+    }
+    if ( message.includes("${pointsTop}")) {
+      let topArr = await SqlPoints.getTopPoints(msgObj.roomId, 3)
+      let userIDs = topArr.map(x => x.userID)
+      let balance = topArr.map(x => x.balance)
+      let userInfo = await Api.userDataFromIds(global.clientIdFallback, userIDs)
+      let usernames = userInfo.map(x => x['display_name'])
+      usernames = usernames.map(x => x.split("").join("\u{E0000}"))
+
+      let topMessage = ""
+      for (let i = 0; i < usernames.length; ++i) {
+        topMessage += i > 0 ? ", " : ""
+        topMessage += "#" + (i + 1) + " " + usernames[i] + " (" + balance[i] + ")"
+      }
+
+      message = message.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
     }
 
     return message
