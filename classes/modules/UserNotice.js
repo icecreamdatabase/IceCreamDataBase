@@ -36,7 +36,9 @@ module.exports = class UserNotice {
 
         if (notificationObj.hasOwnProperty(userNoticeType)) {
 
-          Points.handleUserNotice(userNoticeType, usernoticeObj)
+          if (this.bot.channels[usernoticeObj.tags['room-id']].usePoints) {
+            Points.handleUserNotice(userNoticeType, usernoticeObj)
+          }
 
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
