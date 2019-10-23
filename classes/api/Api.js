@@ -92,6 +92,7 @@ module.exports = class ApiFunctions {
     return await this.apiRequestKraken(clientID, 'streams/' + channelID)
   }
 
+//TODO: cleanup of duplicated stuff
   /**
    * receive login name from a single userid
    * @param clientID
@@ -107,6 +108,7 @@ module.exports = class ApiFunctions {
     }
   }
 
+//TODO: cleanup of duplicated stuff
   /**
    * Returns the userId from a single login
    * @param clientID
@@ -123,13 +125,14 @@ module.exports = class ApiFunctions {
     }
   }
 
+//TODO: cleanup of duplicated stuff
   /**
    * Returns the userInfo from an array of usernames
    * directly returns the ["users"]
    * automatically handles if more than 100 usernames are requested
    *
    * @param clientID
-   * @param {Array<String>} usernames The names to check for
+   * @param {Array<String>} ids The ids to check for
    * @returns {Object} return from users api
    */
   static async userDataFromIds (clientID, ids) {
@@ -146,8 +149,9 @@ module.exports = class ApiFunctions {
     return users
   }
 
+//TODO: cleanup of duplicated stuff
   /**
-   * Returns the userInfo from an array of usernames
+   * Returns the userInfo from an array of ids
    * directly returns the ["users"]
    * automatically handles if more than 100 usernames are requested
    *
@@ -170,11 +174,11 @@ module.exports = class ApiFunctions {
   }
 
   /**
-   * Return the userInfo from an array of usernames
+   * Return the userInfo from an array of ids
    * max 100 entries are allowed
    *
    * @param clientID
-   * @param  {Array<String>} usernames The names to check for
+   * @param  {Array<String>} ids The ids to check for
    * @return {Object} return from users api
    */
   static async userInfosFromIds (clientID, ids) {

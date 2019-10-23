@@ -46,7 +46,6 @@ module.exports = class Points {
         topMessage += i > 0 ? ", " : ""
         topMessage += "#" + (i + 1) + " " + usernames[i] + " (" + balance[i] + ")"
       }
-
       message = message.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
     }
 
