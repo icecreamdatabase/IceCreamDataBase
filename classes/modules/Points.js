@@ -29,6 +29,14 @@ module.exports = class Points {
       let balance = await SqlPoints.getPoints(msgObj.userId, msgObj.roomId)
       message = message.replace(new RegExp("\\${balance}", 'g'), balance)
     }
+    if ( message.includes("${pointsBalance}")
+      || message.includes("${pointsRank}")
+      || message.includes("${pointsTotalWallets}")) {
+      let pointsObj = await SqlPoints.getUserInfo(msgObj.userId, msgObj.roomId)
+      message = message.replace(new RegExp("\\${pointsBalance}", 'g'), pointsObj.balance)
+      message = message.replace(new RegExp("\\${pointsRank}", 'g'), pointsObj.rank)
+      message = message.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
+    }
 
     return message
   }

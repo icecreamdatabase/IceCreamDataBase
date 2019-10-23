@@ -46,6 +46,31 @@ module.exports = class SqlPoints {
     return results[0].balance|| 0
   }
 
+  static async getUserInfo (userID, channelID) {
+    let results = await sqlPool.query(`
+
+        SELECT
+            balance,
+            1+(SELECT count(*) from pointsWallet a WHERE a.balance > b.balance) as 'rank',
+            (SELECT count(*) FROM pointsWallet b where b.channelID = ?) AS 'total'
+        FROM pointsWallet b
+        WHERE b.channelID = ?
+          AND b.userID = ?
+        UNION ALL
+        SELECT DISTINCT 0 AS balance,
+                        (SELECT count(*) FROM pointsWallet) AS 'rank',
+                        (SELECT count(*) FROM pointsWallet) AS 'total'
+        FROM pointsWallet
+        WHERE NOT EXISTS ( SELECT 1
+                           FROM pointsWallet e
+                           WHERE e.userID = ?
+            )
+        ORDER BY rank;
+        ;`, [channelID, channelID, userID, userID])
+
+    return {balance: results[0].balance || 0, rank: results[0].rank || -1, total: results[0].total || -1}
+  }
+
   static async getPointsSettings () {
     let results = await sqlPool.query(`
         SELECT channelID,
