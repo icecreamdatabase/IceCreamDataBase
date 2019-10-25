@@ -7,6 +7,7 @@ const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
 const Points = new (require('./../Points')) //singleton
 
+const parameterRegExp = new RegExp("\\${((?:(?!}).)*)}", 'i')
 const apiRegExp = new RegExp("\\${api=(.*?)}", 'i')
 
 const icecreamFacts = {
@@ -39,6 +40,7 @@ module.exports = class Helper {
 
   static async fillParams (msgObj, commandObj) {
     let message = commandObj.response
+    let parameterObj = await Helper.getParameterObj(message)
     message = await Helper.firstParameterOrUser(msgObj, message)
     message = Helper.user(msgObj, message)
     message = Helper.channel(msgObj, message)
@@ -54,6 +56,30 @@ module.exports = class Helper {
     message = await Helper.api(msgObj, message)
 
     return message
+  }
+
+  static async getParameterObj (message) {
+    if (!message.includes("${")) {
+      return {}
+    }
+    let returnObj = {}
+    let matchIterator = message.matchAll(parameterRegExp)
+    for (let matchArr of matchIterator) {
+      if (matchArr[1].includes("||")) {
+        let orArr = matchArr[1].split("||")
+
+
+      }
+
+    }
+
+
+
+    return returnObj
+  }
+
+  static async handleOr (msgObj, message, ) {
+
   }
 
   static async firstParameterOrUser (msgObj, message) {
