@@ -121,7 +121,7 @@ module.exports = class ApiFunctions {
     if (response.total === 0) {
       return '-1'
     } else {
-      return response.users[0].id
+      return response.users[0]["_id"]
     }
   }
 

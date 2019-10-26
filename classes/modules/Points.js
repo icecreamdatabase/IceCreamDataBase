@@ -33,6 +33,15 @@ module.exports = class Points {
       message = message.replace(new RegExp("\\${pointsRank}", 'g'), pointsObj.rank)
       message = message.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
     }
+    if ( message.includes("${pointsBalanceP1}")
+      || message.includes("${pointsRankP1}")
+      || message.includes("${pointsTotalWalletsP1}")) {
+      let userId = await Api.userIdFromLogin(global.clientIdFallback, msgObj.message.split(" ")[1] || "")
+      let pointsObj = await SqlPoints.getUserInfo(userId, msgObj.roomId)
+      message = message.replace(new RegExp("\\${pointsBalanceP1}", 'g'), pointsObj.balance)
+      message = message.replace(new RegExp("\\${pointsRankP1}", 'g'), pointsObj.rank)
+      message = message.replace(new RegExp("\\${pointsTotalWalletsP1}", 'g'), pointsObj.total)
+    }
     if ( message.includes("${pointsTop}")) {
       let topArr = await SqlPoints.getTopPoints(msgObj.roomId, 3)
       let userIDs = topArr.map(x => x.userID)
