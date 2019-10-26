@@ -7,8 +7,8 @@ const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
 const Points = new (require('./../Points')) //singleton
 
-const parameterRegExp = new RegExp("\\${((?:(?!}).)*)}", 'i')
-const apiRegExp = new RegExp("\\${api=(.*?)}", 'i')
+const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
+const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
 
 const icecreamFacts = {
   "Magnum Mini Almond Ice Cream Bar": "Most tasters could agree that, while the ice cream was \"creamy,\" they enjoyed the chocolate coating more. \"The crunchy milk chocolate\" has a \"hint of nuts\" which gave it good texture, according to our volunteers. Overall, the 160-calorie bar tastes as delicious as it looks.",
@@ -40,111 +40,74 @@ module.exports = class Helper {
 
   static async fillParams (msgObj, commandObj) {
     let message = commandObj.response
-    let parameterObj = await Helper.getParameterObj(message)
-    message = await Helper.firstParameterOrUser(msgObj, message)
-    message = Helper.user(msgObj, message)
-    message = Helper.channel(msgObj, message)
-    message = Helper.uptime(msgObj, message)
-    if (commandObj.hasOwnProperty("timesUsed")) {
-      message = Helper.timesUsed(msgObj, message, commandObj.timesUsed)
-    }
 
+    message = await this.handleParameter(msgObj, commandObj, message)
     message = await Points.fillParams(msgObj, message)
-
-    message = Helper.icecream(msgObj, message)
-    message = Helper.gdq(msgObj, message)
-    message = await Helper.api(msgObj, message)
 
     return message
   }
 
-  static async getParameterObj (message) {
-    if (!message.includes("${")) {
-      return {}
-    }
-    let returnObj = {}
-    let matchIterator = message.matchAll(parameterRegExp)
-    for (let matchArr of matchIterator) {
-      if (matchArr[1].includes("||")) {
-        let orArr = matchArr[1].split("||")
-
-
+  static async handleParameter (msgObj, commandObj, input) {
+    if (input.includes("${")) {
+      let message = input
+      let depth = 0
+      let lastDepth = 0
+      let openIndex = 0
+      for (let i = message.indexOf("${") + 1; i < message.length; ++i) {
+        if (message.charAt(i) === "{") {
+          if (depth === 0) { openIndex = i }
+          depth++
+        }
+        if (message.charAt(i) === "}") { depth-- }
+        if (lastDepth !== depth && depth === 0) {
+          let match = message.substring(openIndex + 1, i)
+          if (match.includes("||")) {
+            let rt = await this.handleOr(msgObj, match)
+            input = input.replace("${" + match + "}", rt)
+          }
+        }
+        lastDepth = depth
       }
-
+      input = await this.replaceParameter(msgObj, commandObj, input)
     }
-
-
-
-    return returnObj
+    return input
   }
 
-  static async handleOr (msgObj, message, ) {
-
-  }
-
-  static async firstParameterOrUser (msgObj, message) {
-    if (message.includes("${p1||user}")) { //TODO
-      let replacement = msgObj.username
+  static async handleOr (msgObj, msgPart) {
+    if (msgPart.includes("||")) {
       let firstParameter = msgObj.message.split(" ")[1]
       if (firstParameter !== null) {
         if (firstParameter.startsWith("@")) {
           firstParameter = firstParameter.substring(1)
         }
-        if (await Api.isUserInChannel(firstParameter, msgObj.channel)) {
-          replacement = firstParameter
-        }
+        return msgPart.split("||")[ await Api.isUserInChannel(firstParameter, msgObj.channel) ? 0 : 1]
       }
-      message = message.replace(new RegExp("\\${p1\\|\\|user}", 'g'), replacement)
+    } else {
+      return msgPart
     }
-    return Promise.resolve(message)
   }
 
-  static user (msgObj, message) {
-    if (message.includes("${user}")) {
-      message = message.replace(new RegExp("\\${user}", 'g'), msgObj.username)
-    }
-    return message
-  }
+  static async replaceParameter (msgObj, commandObj, message) {
+    message = message.replace(new RegExp("\\${user}", 'g'), msgObj.username)
+    message = message.replace(new RegExp("\\${p1}", 'g'), msgObj.message.split(" ")[1] || "")
+    message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel.substring(1))
+    message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
 
-  static channel (msgObj, message) {
-    if (message.includes("${channel}")) {
-      message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel)
+    if (commandObj.hasOwnProperty("timesUsed")) {
+      message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed)
     }
-    return message
-  }
 
-  static uptime (msgObj, message) {
-    if (message.includes("${uptime}")) {
-      message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
-    }
-    return message
-  }
-
-  static timesUsed (msgObj, message, timesUsed) {
-    if (message.includes("${timesUsed}")) {
-      message = message.replace(new RegExp("\\${timesUsed}", 'g'), timesUsed)
-    }
-    return message
-  }
-
-  static icecream (msgObj, message) {
     if (message.includes("${icecream}")) {
       let keys = Object.keys(icecreamFacts)
       let icecreamFactKey = keys[Math.floor(Math.random() * keys.length)]
       let icecreamFactContent = icecreamFacts[icecreamFactKey]
-      return message.replace(new RegExp("\\${icecream}", 'g'), icecreamFactKey + " 🍨: " + icecreamFactContent)
+      message = message.replace(new RegExp("\\${icecream}", 'g'), icecreamFactKey + " 🍨: " + icecreamFactContent)
     }
-    return message
-  }
 
-  static gdq (msgObj, message) {
     if (message.includes("${gdq}")) {
-      return message.replace(new RegExp("\\${gdq}", 'g'), Gdq.generateText)
+      message = message.replace(new RegExp("\\${gdq}", 'g'), Gdq.generateText)
     }
-    return message
-  }
 
-  static async api (msgObj, message) {
     if (message.includes("${api") && apiRegExp.test(message)) {
       let apiUrl = message.match(apiRegExp)[1]
 
@@ -154,6 +117,7 @@ module.exports = class Helper {
         message = message.replace(new RegExp(apiRegExp, 'g'), err)
       })
     }
+
     return message
   }
 
