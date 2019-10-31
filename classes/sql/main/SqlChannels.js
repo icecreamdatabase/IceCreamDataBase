@@ -9,10 +9,10 @@ module.exports = class SqlChannels {
   /**
    * Get channel data about a singular bot
    * @param  {int} botID Database id of the bot in question
-   * @return {botID, channelID, channelName, enabled, shouldModerate, useCommands, useHardcodedCommands, usePoints, maxMessageLength, minCooldown}          All data about the channel
+   * @return {botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, usePoints, maxMessageLength, minCooldown}          All data about the channel
    */
   static async getChannelData (botID) {
-    let results = await sqlPool.query(`SELECT botID, channelID, channelName, shouldModerate, useCommands, useHardcodedCommands, usePoints, maxMessageLength, minCooldown
+    let results = await sqlPool.query(`SELECT botID, channelID, channelName, logMessages ,shouldModerate, useCommands, useHardcodedCommands, usePoints, maxMessageLength, minCooldown
     FROM bots, channels, connections
     WHERE bots.ID = botID
     AND channels.ID = channelID
@@ -24,6 +24,7 @@ module.exports = class SqlChannels {
       let channelID = row.channelID || -1
       //get channelname through userIdLoginCache instead of storing in db
       let channelName = row.channelName || -1
+      let logMessages = row.logMessages || false
       let shouldModerate = row.shouldModerate || false
       let useCommands = row.useCommands || false
       let useHardcodedCommands = row.useHardcodedCommands || false
@@ -31,7 +32,7 @@ module.exports = class SqlChannels {
       let maxMessageLength = row.maxMessageLength || 500
       let minCooldown = row.minCooldown || 0
 
-      return {botID, channelID, channelName, shouldModerate, useCommands, useHardcodedCommands, usePoints, maxMessageLength, minCooldown}
+      return {botID, channelID, channelName, logMessages, shouldModerate, useCommands, useHardcodedCommands, usePoints, maxMessageLength, minCooldown}
     })
 
     //make sure the index is the channelID

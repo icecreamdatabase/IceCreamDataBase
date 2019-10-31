@@ -30,7 +30,9 @@ module.exports = class PrivMsg {
 
     let channelObj = this.bot.channels[messageObj.roomId]
 
-    console.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
+    if (channelObj.logMessages) {
+      console.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
+    }
 
     //hardcoded always first
     if (channelObj.useHardcodedCommands) {

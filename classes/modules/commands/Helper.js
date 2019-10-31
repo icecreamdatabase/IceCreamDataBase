@@ -131,7 +131,7 @@ module.exports = class Helper {
           "wait": true,
           "embeds": [{
             "title": msgObj.username,
-            "description": msgObj.message.split(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
+            "description": msgObj.message.slice(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
             "timestamp": new Date().toISOString(),
             "color": DiscordLog.getDecimalFromHexString(msgObj.raw.tags["color"])
           }]
