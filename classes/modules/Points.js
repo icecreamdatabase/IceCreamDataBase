@@ -43,7 +43,12 @@ module.exports = class Points {
       message = message.replace(new RegExp("\\${pointsTotalWalletsP1}", 'g'), pointsObj.total)
     }
     if ( message.includes("${pointsTop}")) {
-      let topArr = await SqlPoints.getTopPoints(msgObj.roomId, 5)
+      let amount = 5
+      let firstParameter = msgObj.message.split(" ")[1]
+      if (firstParameter && !isNaN(firstParameter)) {
+        amount = Math.min(Math.max(parseInt(firstParameter), 1), 10)
+      }
+      let topArr = await SqlPoints.getTopPoints(msgObj.roomId, amount)
       let userIDs = topArr.map(x => x.userID)
       let balance = topArr.map(x => x.balance)
       let userInfo = await Api.userDataFromIds(global.clientIdFallback, userIDs)
