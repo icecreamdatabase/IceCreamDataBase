@@ -123,17 +123,24 @@ module.exports = class Helper {
 
     if (message.includes("${createNote=")) {
       let match = message.match(discordWebhookRegExp)
+      let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [msgObj.username])
       DiscordLog.manual({
         "webhookName": "custom",
         "id": match[1],
         "token": match[2],
         "postContent": {
           "wait": true,
+          //"username": msgObj.username,
+          //"avatar_url": userInfo[0].logo,
           "embeds": [{
-            "title": msgObj.username,
+            //"title": "",
             "description": msgObj.message.slice(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
             "timestamp": new Date().toISOString(),
-            "color": DiscordLog.getDecimalFromHexString(msgObj.raw.tags["color"])
+            "color": DiscordLog.getDecimalFromHexString(msgObj.raw.tags["color"]),
+            "footer": {
+              "text": msgObj.username,
+              "icon_url": userInfo[0].logo
+            },
           }]
         }
       })
