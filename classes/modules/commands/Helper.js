@@ -11,6 +11,7 @@ const UserLevels = require("../../../ENUMS/UserLevels")
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
 const discordWebhookRegExp = new RegExp(/\${createNote=(?:.*\/)?([^/]*)\/([^/;]*)(?:;([^}]*))*}/, 'i')
+const rndRegExp = new RegExp(/\${rnd=\(([^)]*)\)}/, 'i')
 
 const userWasInChannelObj = {}
 
@@ -92,7 +93,15 @@ module.exports = class Helper {
   }
 
   static async replaceParameter (msgObj, commandObj, message) {
+    if (message.includes("${rnd=(")) {
+      let rndArray = message.match(rndRegExp)[1].split("|")
+      let rndSelected = rndArray[Math.floor(Math.random() * rndArray.length)]
+
+      message = message.replace(new RegExp(rndRegExp, 'g'), rndSelected)
+    }
+
     message = message.replace(new RegExp("\\${user}", 'g'), msgObj.username)
+    message = message.replace(new RegExp("\\${userNoPing}", 'g'), msgObj.username.split("").join("\u{E0000}"))
     message = message.replace(new RegExp("\\${p1}", 'g'), msgObj.message.split(" ")[1] || "")
     message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel.substring(1))
     message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
