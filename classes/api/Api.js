@@ -276,9 +276,13 @@ module.exports = class ApiFunctions {
 
   static async isUserInChannel (loginToCheck, channelName) {
     let allChatters = await this.getAllUsersInChannel(channelName)
-    if (allChatters.length > 0) {
-      for (let chatter of allChatters) {
-        if (chatter.toLowerCase() === loginToCheck.toLowerCase()) {
+    return this.stringEntryInArray(allChatters, loginToCheck)
+  }
+
+  static stringEntryInArray (array, entryToCheck) {
+    if (array.length > 0) {
+      for (let entry of array) {
+        if (entry.toLowerCase() === entryToCheck.toLowerCase()) {
           return true
         }
       }

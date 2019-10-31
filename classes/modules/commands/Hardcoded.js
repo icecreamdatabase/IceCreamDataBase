@@ -22,7 +22,7 @@ module.exports = class Hardcoded {
   handle (messageObj) {
     /* Shutting down the bot */
     if (messageObj.userLevel === UserLevels.BOTADMIN
-        && messageObj.message.startsWith("<s ")) {
+      && messageObj.message.startsWith("<s ")) {
 
       this.bot.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {

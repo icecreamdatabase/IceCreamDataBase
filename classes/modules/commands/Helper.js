@@ -10,6 +10,8 @@ const Points = new (require('./../Points')) //singleton
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
 
+const userWasInChannelObj = {}
+
 const icecreamFacts = {
   "Magnum Mini Almond Ice Cream Bar": "Most tasters could agree that, while the ice cream was \"creamy,\" they enjoyed the chocolate coating more. \"The crunchy milk chocolate\" has a \"hint of nuts\" which gave it good texture, according to our volunteers. Overall, the 160-calorie bar tastes as delicious as it looks.",
   "Good Humor Mounds Ice Cream Bar": "This coconut ice cream bar covered in chocolate tasted \"unique\" and had a \"fluffy yet creamy texture.\" Many tasters also enjoyed the chocolate coating and its \"wonderful taste.\" It's no surprise this dessert was a hit: It has 190 calories, the most of all the treats in our taste test.",
@@ -80,7 +82,7 @@ module.exports = class Helper {
         if (firstParameter.startsWith("@")) {
           firstParameter = firstParameter.substring(1)
         }
-        return msgPart.split("||")[ await Api.isUserInChannel(firstParameter, msgObj.channel) ? 0 : 1]
+        return msgPart.split("||")[ await this.checkUserWasInChannel(msgObj.channel, firstParameter) ? 0 : 1]
       }
     } else {
       return msgPart
@@ -163,5 +165,34 @@ module.exports = class Helper {
       time = days + 'd ' + time
     }
     return time
+  }
+
+  static async checkUserWasInChannel (channelName, userName) {
+    if (channelName.charAt(0) === '#') {
+      channelName = channelName.substring(1)
+    }
+    if (!userWasInChannelObj.hasOwnProperty(channelName)) {
+      userWasInChannelObj[channelName] = new Set()
+    }
+    if (userWasInChannelObj[channelName].has(userName)) {
+      Api.getAllUsersInChannel(channelName).then((chatters) => this.addUsersToUserWasInChannelObj(channelName, chatters))
+      return true
+    }
+    let chatters = await Api.getAllUsersInChannel(channelName)
+    this.addUsersToUserWasInChannelObj(channelName, chatters)
+    return userWasInChannelObj[channelName].has(userName)
+  }
+
+  static addUsersToUserWasInChannelObj (channelName, userNames) {
+    if (channelName.charAt(0) === '#') {
+      channelName = channelName.substring(1)
+    }
+    if (!userWasInChannelObj.hasOwnProperty(channelName)) {
+      userWasInChannelObj[channelName] = new Set(userNames)
+    } else {
+      for (let userName of userNames) {
+        userWasInChannelObj[channelName].add(userName)
+      }
+    }
   }
 }
