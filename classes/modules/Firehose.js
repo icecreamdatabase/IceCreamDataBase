@@ -69,7 +69,7 @@ module.exports = class Firehose {
             }
             // eslint-disable-next-line no-empty
           } catch (e) {
-            DiscordLog.error(e)
+            //DiscordLog.error(e)
           }
         })
       }).catch((err) => {

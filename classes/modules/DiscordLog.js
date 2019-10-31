@@ -43,6 +43,11 @@ module.exports = class DiscordLog {
     LOG_QUEUE_EMITTER.emit("event")
   }
 
+  static manual (messageQueueObj) {
+    MESSAGE_QUEUE.push(messageQueueObj)
+    LOG_QUEUE_EMITTER.emit(("event"))
+  }
+
   static custom (webhookName, title, message, decimalColour) {
     MESSAGE_QUEUE.push(getMessageQueueObj(webhookName, title, message, decimalColour))
     LOG_QUEUE_EMITTER.emit("event")
@@ -88,10 +93,14 @@ function queueRunner () {
 async function sendToWebhook (messageQueueObj) {
   return new Promise((resolve, reject) => {
     //Logger.info(JSON.stringify(messageQueueObj, null, 2))
-    if (options.hasOwnProperty("discord") && options.discord.hasOwnProperty(messageQueueObj.webhookName)) {
+    if (messageQueueObj.webhookName === "custom"
+      || options.hasOwnProperty("discord") && options.discord.hasOwnProperty(messageQueueObj.webhookName)) {
       let request = Object.assign({}, WEBHOOK)
-      request.path += options.discord[messageQueueObj.webhookName].id + "/" + options.discord[messageQueueObj.webhookName].token
-
+      if (messageQueueObj.webhookName === "custom") {
+        request.path += messageQueueObj.id + "/" + messageQueueObj.token
+      } else {
+        request.path += options.discord[messageQueueObj.webhookName].id + "/" + options.discord[messageQueueObj.webhookName].token
+      }
       let req = https.request(request, (res) => {
         resolve(res)
       })

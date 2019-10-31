@@ -9,6 +9,7 @@ const Points = new (require('./../Points')) //singleton
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
+const discordWebhookRegExp = new RegExp(/\${createNote=(?:.*\/)?([^/]*)\/([^/;]*)(?:;([^}]*))*}/, 'i')
 
 const userWasInChannelObj = {}
 
@@ -118,6 +119,25 @@ module.exports = class Helper {
       }).catch(err => {
         message = message.replace(new RegExp(apiRegExp, 'g'), err)
       })
+    }
+
+    if (message.includes("${createNote=")) {
+      let match = message.match(discordWebhookRegExp)
+      DiscordLog.manual({
+        "webhookName": "custom",
+        "id": match[1],
+        "token": match[2],
+        "postContent": {
+          "wait": true,
+          "embeds": [{
+            "title": msgObj.username,
+            "description": msgObj.message.split(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
+            "timestamp": new Date().toISOString(),
+            "color": DiscordLog.getDecimalFromHexString(msgObj.raw.tags["color"])
+          }]
+        }
+      })
+      message = message.replace(discordWebhookRegExp, match[3])
     }
 
     return message
