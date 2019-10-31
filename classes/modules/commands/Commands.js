@@ -56,7 +56,7 @@ module.exports = class Commands {
       if (commandArray.length > 0) {
         let commandMatch = commandArray[0]
 
-        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown)) {
+        if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
           Helper.fillParams(messageObj, commandMatch).then((response) => {
             this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
             if (commandMatch.hasOwnProperty("ID")) {

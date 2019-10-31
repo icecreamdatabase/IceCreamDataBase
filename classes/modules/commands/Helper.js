@@ -6,6 +6,7 @@ const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
 const Points = new (require('./../Points')) //singleton
+const UserLevels = require("../../../ENUMS/UserLevels")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
@@ -150,7 +151,7 @@ module.exports = class Helper {
     return message
   }
 
-  static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId, minCooldown) {
+  static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId, minCooldown, userLevel) {
     if (commandMatch.hasOwnProperty("cooldown") && commandMatch.hasOwnProperty("ID")) {
       let lastUsage = 0
       if (!lastCommandUsageObject.hasOwnProperty(roomId)) {
@@ -160,6 +161,7 @@ module.exports = class Helper {
         lastUsage = lastCommandUsageObject[roomId][commandMatch.ID]
       }
       let cooldownPassed = Math.max(commandMatch.cooldown, minCooldown) * 1000 + lastUsage < Date.now()
+        cooldownPassed = cooldownPassed || userLevel === UserLevels.BOTADMIN
       if (cooldownPassed) {
         lastCommandUsageObject[roomId][commandMatch.ID] = Date.now()
       }
