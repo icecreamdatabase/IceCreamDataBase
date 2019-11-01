@@ -5,6 +5,7 @@ const SqlLocalCommands = require('../../sql/modules/SqlCommands')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
+const UserLevels = require('./../../../ENUMS/UserLevels')
 
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 
@@ -25,6 +26,13 @@ module.exports = class Commands {
    * @returns {boolean} don't allow further commands
    */
   handle (messageObj) {
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<r ")) {
+
+      this.updateCommandData.bind(this)()
+      this.bot.TwitchIRCConnection.say(messageObj.channel, "Reloaded Commands FeelsGoodMan")
+      return true
+    }
 
     // noinspection JSIgnoredPromiseFromCall
     this.handleNormal(messageObj)
