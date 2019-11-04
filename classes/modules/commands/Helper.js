@@ -107,7 +107,7 @@ module.exports = class Helper {
     message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
 
     if (commandObj.hasOwnProperty("timesUsed")) {
-      message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed)
+      message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed + 1)
     }
 
     if (message.includes("${icecream}")) {
