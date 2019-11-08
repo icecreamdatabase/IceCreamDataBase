@@ -4,6 +4,7 @@ const util = require('util')
 const SqlPoints = require('../sql/modules/SqlPoints')
 const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
+const UserLevels = require("../../ENUMS/UserLevels")
 
 const UPDATE_INTERVAL = 30000//ms
 
@@ -44,9 +45,10 @@ module.exports = class Points {
     }
     if ( message.includes("${pointsTop}")) {
       let amount = 5
+      let max = msgObj.userLevel === UserLevels.BOTADMIN ? 30 : 10
       let firstParameter = msgObj.message.split(" ")[1]
       if (firstParameter && !isNaN(firstParameter)) {
-        amount = Math.min(Math.max(parseInt(firstParameter), 1), 10)
+        amount = Math.min(Math.max(parseInt(firstParameter), 1), max)
       }
       let topArr = await SqlPoints.getTopPoints(msgObj.roomId, amount)
       let userIDs = topArr.map(x => x.userID)
