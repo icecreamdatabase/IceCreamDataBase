@@ -1,4 +1,6 @@
 "use strict"
+const util = require('util')
+
 const https = require('https')
 const EventEmitter = require('eventemitter3')
 const options = require('../../config.json')
@@ -41,6 +43,38 @@ module.exports = class DiscordLog {
   static trace (message) {
     MESSAGE_QUEUE.push(getMessageQueueObj("bot-log", "Trace", message, "8379242"))
     LOG_QUEUE_EMITTER.emit("event")
+  }
+  static twitchMessageCustom (webhookName, title, description, timestamp, colorHex, footerText, footerIconUrl) {
+    if (options.hasOwnProperty("discord") && options.discord.hasOwnProperty(webhookName)) {
+      this.twitchMessageManual(options.discord[webhookName].id, options.discord[webhookName].token, title, description, timestamp, colorHex, footerText, footerIconUrl)
+    }
+  }
+  static twitchMessageManual (id, token, title, description, timestamp, colorHex, footerText, footerIconUrl) {
+    let messageQueueObj = {
+      "webhookName": "custom",
+      "id": id,
+      "token": token,
+      "postContent": {
+        "wait": true,
+        "embeds": [{
+          //"title": title,
+          "description": description,
+          "timestamp": timestamp,
+          "color": DiscordLog.getDecimalFromHexString(colorHex),
+          //"footer": {
+          //  "text": footerText,
+          //  "icon_url": footerIconUrl
+          //},
+        }]
+    }
+  }
+  if (title) { messageQueueObj.postContent.embeds[0].title = title }
+  if (footerText || footerIconUrl) { messageQueueObj.postContent.embeds[0].footer = {} }
+  if (footerText) { messageQueueObj.postContent.embeds[0].footer.text = footerText }
+  if (footerIconUrl) { messageQueueObj.postContent.embeds[0].footer["icon_url"] = footerIconUrl }
+
+  MESSAGE_QUEUE.push(messageQueueObj)
+    LOG_QUEUE_EMITTER.emit(("event"))
   }
 
   static manual (messageQueueObj) {

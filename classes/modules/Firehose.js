@@ -49,18 +49,20 @@ module.exports = class Firehose {
             //obj.event = split[0].substring(7)
             //TODO: move the parameters somewhere else
             if (nameRegex.test(obj.body)) {
-              /*
+
               let tags = obj.tags.split(";")
               let parsedtags = {}
               for (let tag of tags) {
                 let split = tag.split("=")
                 parsedtags[split[0]] = split[1]
               }
-              */
+
+              console.log(obj)
               if (obj.room) {
-                DiscordLog.custom("firehose-notify",
-                  obj.room + " " + obj.nick + ":",
-                  obj.body)
+                DiscordLog.twitchMessageCustom("firehose-notify", obj.room, obj.body, new Date().toISOString(), parsedtags.color, obj.nick, "")
+                //DiscordLog.custom("firehose-notify",
+                //  obj.room + " " + obj.nick + ":",
+                //  obj.body)
               } else {
                 DiscordLog.custom("firehose-notify",
                   response.toString().split("\n")[0].substring(7),
