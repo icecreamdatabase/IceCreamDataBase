@@ -57,12 +57,8 @@ module.exports = class Firehose {
                 parsedtags[split[0]] = split[1]
               }
 
-              console.log(obj)
               if (obj.room) {
                 DiscordLog.twitchMessageCustom("firehose-notify", obj.room, obj.body, new Date().toISOString(), parsedtags.color, obj.nick, "")
-                //DiscordLog.custom("firehose-notify",
-                //  obj.room + " " + obj.nick + ":",
-                //  obj.body)
               } else {
                 DiscordLog.custom("firehose-notify",
                   response.toString().split("\n")[0].substring(7),
