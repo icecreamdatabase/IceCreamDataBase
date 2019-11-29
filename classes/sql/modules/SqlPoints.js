@@ -64,35 +64,52 @@ module.exports = class SqlPoints {
 
         SELECT
             balance,
-            1+(SELECT count(*) from pointsWallet a WHERE a.balance > b.balance) as 'rank',
+            1+(SELECT count(*) from pointsWallet a WHERE a.balance > b.balance AND a.channelID = ?) as 'rank',
             (SELECT count(*) FROM pointsWallet b where b.channelID = ?) AS 'total'
         FROM pointsWallet b
         WHERE b.channelID = ?
           AND b.userID = ?
         UNION ALL
         SELECT DISTINCT 0 AS balance,
-                        (SELECT count(*) FROM pointsWallet) AS 'rank',
-                        (SELECT count(*) FROM pointsWallet) AS 'total'
+                        (SELECT count(*) FROM pointsWallet WHERE channelID = ?) AS 'rank',
+                        (SELECT count(*) FROM pointsWallet WHERE channelID = ?) AS 'total'
         FROM pointsWallet
         WHERE NOT EXISTS ( SELECT 1
                            FROM pointsWallet e
                            WHERE e.userID = ?
+                           AND e.channelID = ?
             )
         ORDER BY rank;
-        ;`, [channelID, channelID, userID, userID])
+        ;`, [channelID, channelID, channelID, userID, channelID, channelID, userID, channelID])
 
-    return {balance: results[0].balance || 0, rank: results[0].rank || -1, total: results[0].total || -1}
+    if (results.length === 0) {
+      return {balance: 0, rank: -1, total: -1}
+    } else {
+      return {balance: results[0].balance || 0, rank: results[0].rank || -1, total: results[0].total || -1}
+    }
   }
 
   static async getPointsSettings () {
     let results = await sqlPool.query(`
         SELECT channelID,
+               requireLive,
                intervalTime,
                intervalPoints,
                activityReqMsgPerInterval,
                activityMaxPoints,
                usernoticeSubPoints,
-               usernoticeGiftPoints
+               usernoticeGiftPoints,
+               usernoticeElsePoints,
+               rouletteWinPercent,
+               pointChangeReqUserLevel,
+               commandTimeout,
+               commandPointsEnabled,
+               commandPointsCommand,
+               commandPointsResponseUser,
+               commandPointsResponseP1,
+               commandTopEnabled,
+               commandTopCommand,
+               commandTopResponse
         FROM pointsSettings
         WHERE enabled = b'1'
         ;`)

@@ -5,7 +5,6 @@ const Api = require('../../api/Api.js')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
-const Points = new (require('./../Points')) //singleton
 const UserLevels = require("../../../ENUMS/UserLevels")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
@@ -47,7 +46,6 @@ module.exports = class Helper {
     let message = commandObj.response
 
     message = await this.handleParameter(msgObj, commandObj, message)
-    message = await Points.fillParams(msgObj, message)
 
     return message
   }
@@ -73,7 +71,8 @@ module.exports = class Helper {
         }
         lastDepth = depth
       }
-      input = await this.replaceParameter(msgObj, commandObj, input)
+      input = await this.replaceParameterCommand(commandObj, input)
+      input = await this.replaceParameterMessage(msgObj, input)
     }
     return input
   }
@@ -92,7 +91,14 @@ module.exports = class Helper {
     }
   }
 
-  static async replaceParameter (msgObj, commandObj, message) {
+  static async replaceParameterCommand (commandObj, message) {
+    if (commandObj.hasOwnProperty("timesUsed")) {
+      message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed + 1)
+    }
+    return message
+  }
+
+  static async replaceParameterMessage (msgObj, message) {
     if (message.includes("${rnd=(")) {
       let rndArray = message.match(rndRegExp)[1].split("|")
       let rndSelected = rndArray[Math.floor(Math.random() * rndArray.length)]
@@ -105,10 +111,6 @@ module.exports = class Helper {
     message = message.replace(new RegExp("\\${p1}", 'g'), msgObj.message.split(" ")[1] || "")
     message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel.substring(1))
     message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
-
-    if (commandObj.hasOwnProperty("timesUsed")) {
-      message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed + 1)
-    }
 
     if (message.includes("${icecream}")) {
       let keys = Object.keys(icecreamFacts)

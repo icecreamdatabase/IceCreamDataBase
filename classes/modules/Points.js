@@ -4,6 +4,7 @@ const util = require('util')
 const SqlPoints = require('../sql/modules/SqlPoints')
 const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
+const Helper = require('./commands/Helper')
 const UserLevels = require("../../ENUMS/UserLevels")
 
 const UPDATE_INTERVAL = 30000//ms
@@ -25,50 +26,7 @@ module.exports = class Points {
     return this
   }
 
-  async fillParams (msgObj, message) {
-    if ( message.includes("${pointsBalance}")
-      || message.includes("${pointsRank}")
-      || message.includes("${pointsTotalWallets}")) {
-      let pointsObj = await SqlPoints.getUserInfo(msgObj.userId, msgObj.roomId)
-      message = message.replace(new RegExp("\\${pointsBalance}", 'g'), pointsObj.balance)
-      message = message.replace(new RegExp("\\${pointsRank}", 'g'), pointsObj.rank)
-      message = message.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
-    }
-    if ( message.includes("${pointsBalanceP1}")
-      || message.includes("${pointsRankP1}")
-      || message.includes("${pointsTotalWalletsP1}")) {
-      let userId = await Api.userIdFromLogin(global.clientIdFallback, msgObj.message.split(" ")[1] || "")
-      let pointsObj = await SqlPoints.getUserInfo(userId, msgObj.roomId)
-      message = message.replace(new RegExp("\\${pointsBalanceP1}", 'g'), pointsObj.balance)
-      message = message.replace(new RegExp("\\${pointsRankP1}", 'g'), pointsObj.rank)
-      message = message.replace(new RegExp("\\${pointsTotalWalletsP1}", 'g'), pointsObj.total)
-    }
-    if ( message.includes("${pointsTop}")) {
-      let amount = 5
-      let max = msgObj.userLevel === UserLevels.BOTADMIN ? 30 : 10
-      let firstParameter = msgObj.message.split(" ")[1]
-      if (firstParameter && !isNaN(firstParameter)) {
-        amount = Math.min(Math.max(parseInt(firstParameter), 1), max)
-      }
-      let topArr = await SqlPoints.getTopPoints(msgObj.roomId, amount)
-      let userIDs = topArr.map(x => x.userID)
-      let balance = topArr.map(x => x.balance)
-      let userInfo = await Api.userDataFromIds(global.clientIdFallback, userIDs)
-      let usernames = userInfo.map(x => x['display_name'])
-      usernames = usernames.map(x => x.split("").join("\u{E0000}"))
-
-      let topMessage = ""
-      for (let i = 0; i < usernames.length; ++i) {
-        topMessage += i > 0 ? ", " : ""
-        topMessage += "#" + (i + 1) + " " + usernames[i] + " (" + balance[i] + ")"
-      }
-      message = message.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
-    }
-
-    return message
-  }
-
-  handlePrivMsg (privMsgObj) {
+  async handlePrivMsg (privMsgObj, bot) {
     if (this.pointsSettings.hasOwnProperty(privMsgObj.roomId)) {
       if (!this.userActivity[privMsgObj.roomId]) {
         this.userActivity[privMsgObj.roomId] = {}
@@ -78,6 +36,59 @@ module.exports = class Points {
       }
       this.userActivity[privMsgObj.roomId][privMsgObj.userId]++
 
+
+      let ps = this.pointsSettings[privMsgObj.roomId]
+
+      if (ps.commandTimeout * 1000 + (ps["_lastUsage"] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+        ps["_lastUsage"] = Date.now()
+
+        if (ps.commandPointsEnabled && privMsgObj.message.startsWith(ps.commandPointsCommand + " ")) {
+          let queryName = privMsgObj.message.split(" ")[1] || ""
+          let returnMessage
+          let pointsObj
+          if (queryName && await Helper.checkUserWasInChannel(privMsgObj.channel, queryName)) { //second half might not be needed
+            let userId = await Api.userIdFromLogin(global.clientIdFallback, queryName)
+            pointsObj = await SqlPoints.getUserInfo(userId, privMsgObj.roomId)
+            returnMessage = ps.commandPointsResponseP1
+          } else {
+            pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
+            returnMessage = ps.commandPointsResponseUser
+          }
+          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+          returnMessage = returnMessage.replace(new RegExp("\\${pointsBalance}", 'g'), pointsObj.balance)
+          returnMessage = returnMessage.replace(new RegExp("\\${pointsRank}", 'g'), pointsObj.rank)
+          returnMessage = returnMessage.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
+
+          bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+
+
+        } else if (ps.commandTopEnabled && privMsgObj.message.startsWith(ps.commandTopCommand + " ")) {
+          let returnMessage = ps.commandTopResponse
+
+          let amount = 5
+          let max = privMsgObj.userLevel === UserLevels.BOTADMIN ? 30 : 10
+          let firstParameter = privMsgObj.message.split(" ")[1]
+          if (firstParameter && !isNaN(firstParameter)) {
+            amount = Math.min(Math.max(parseInt(firstParameter), 1), max)
+          }
+          let topArr = await SqlPoints.getTopPoints(privMsgObj.roomId, amount)
+          let userIDs = topArr.map(x => x.userID)
+          let balance = topArr.map(x => x.balance)
+          let userInfo = await Api.userDataFromIds(global.clientIdFallback, userIDs)
+          let usernames = userInfo.map(x => x['display_name'])
+          usernames = usernames.map(x => x.split("").join("\u{E0000}"))
+
+          let topMessage = ""
+          for (let i = 0; i < usernames.length; ++i) {
+            topMessage += i > 0 ? ", " : ""
+            topMessage += "#" + (i + 1) + " " + usernames[i] + " (" + balance[i] + ")"
+          }
+
+          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+          returnMessage = returnMessage.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
+          bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+        }
+      }
     }
     return false
   }
@@ -106,7 +117,7 @@ module.exports = class Points {
         let clientId = global.clientIdFallback
         Api.streamInfo(clientId, channelID).then(info => {
           //is live
-          if (info.stream) {
+          if (info.stream || !this.pointsSettings[channelID].requireLive) {
             Api.loginFromUserId(clientId, channelID).then(channelName => {
               Api.getAllUsersInChannel(channelName).then(users => {
                 Api.userDataFromLogins(clientId, users).then(data => {

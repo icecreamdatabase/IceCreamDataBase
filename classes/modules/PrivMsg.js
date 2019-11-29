@@ -40,7 +40,8 @@ module.exports = class PrivMsg {
     }
 
     if (channelObj.usePoints) {
-      if (Points.handlePrivMsg(messageObj)) { return }
+      // noinspection ES6MissingAwait
+      Points.handlePrivMsg(messageObj, this.bot)
     }
 
     if (channelObj.useCommands) {
