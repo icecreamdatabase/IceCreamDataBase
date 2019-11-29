@@ -106,15 +106,26 @@ module.exports = class SqlPoints {
                commandPointsEnabled,
                commandPointsCommand,
                commandPointsResponseUser,
-               commandPointsResponseP1,
+               commandPointsResponseTarget,
+               commandPointsTargetNr,
                commandTopEnabled,
                commandTopCommand,
-               commandTopResponse
+               commandTopResponse,
+               commandShootEnabled,
+               commandShootCommandRegex,
+               commandShootTargetNr,
+               commandShootLength,
+               commandShootExplanation,
+               commandShootRejectPoints,
+               commandShootRejectCooldown,
+               commandShootCost,
+               commandShootCooldown
         FROM pointsSettings
         WHERE enabled = b'1'
         ;`)
     let returnObj = {}
     results.forEach(x => {
+      x.commandShootCommandRegexObj = new RegExp(x.commandShootCommandRegex ? x.commandShootCommandRegex : "^\\b$")
       returnObj[x.channelID] = x
     })
     return returnObj

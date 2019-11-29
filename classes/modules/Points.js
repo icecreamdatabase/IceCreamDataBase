@@ -43,13 +43,13 @@ module.exports = class Points {
         ps["_lastUsage"] = Date.now()
 
         if (ps.commandPointsEnabled && privMsgObj.message.startsWith(ps.commandPointsCommand + " ")) {
-          let queryName = privMsgObj.message.split(" ")[1] || ""
+          let queryName = privMsgObj.message.split(" ")[ps.commandPointsTargetNr] || ""
           let returnMessage
           let pointsObj
           if (queryName && await Helper.checkUserWasInChannel(privMsgObj.channel, queryName)) { //second half might not be needed
             let userId = await Api.userIdFromLogin(global.clientIdFallback, queryName)
             pointsObj = await SqlPoints.getUserInfo(userId, privMsgObj.roomId)
-            returnMessage = ps.commandPointsResponseP1
+            returnMessage = ps.commandPointsResponseTarget
           } else {
             pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
             returnMessage = ps.commandPointsResponseUser
@@ -86,6 +86,24 @@ module.exports = class Points {
 
           returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
           returnMessage = returnMessage.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
+          bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+
+        } else if (ps.commandShootEnabled && ps.commandShootCommandRegexObj.test(privMsgObj.message)) {
+          let returnMessage = ps.commandShootRejectCooldown
+          if (ps.commandShootCooldown* 1000 + (ps["_lastShot"] || 0) < Date.now() /*|| privMsgObj.userLevel === UserLevels.BOTADMIN*/) {
+            ps["_lastShot"] = Date.now()
+            let target = privMsgObj.message.split(" ")[ps.commandShootTargetNr]
+            let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
+
+            if (ps.commandShootCost <= pointsObj.balance) {
+              //reduce points
+              SqlPoints.addPoints(privMsgObj.userId, privMsgObj.roomId, -ps.commandShootCost)
+              returnMessage = ".timeout " + target + " " + ps.commandShootLength + " " + ps.commandShootExplanation
+            } else {
+              returnMessage = ps.commandShootRejectPoints
+            }
+          }
+          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
         }
       }
