@@ -90,7 +90,7 @@ module.exports = class Points {
 
         } else if (ps.commandShootEnabled && ps.commandShootCommandRegexObj.test(privMsgObj.message)) {
           let returnMessage = ps.commandShootRejectCooldown
-          if (ps.commandShootCooldown* 1000 + (ps["_lastShot"] || 0) < Date.now() /*|| privMsgObj.userLevel === UserLevels.BOTADMIN*/) {
+          if (ps.commandShootCooldown * 1000 + (ps["_lastShot"] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
             ps["_lastShot"] = Date.now()
             let target = privMsgObj.message.split(" ")[ps.commandShootTargetNr]
             let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
