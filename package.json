@@ -22,8 +22,9 @@
     "eventemitter3": "^4.0.0",
     "irc-message": "^3.0.2",
     "mysql2": "^1.7.0",
-    "systeminformation": "^4.14.8",
-    "util": "^0.11.1"
+    "systeminformation": "^4.16.0",
+    "util": "^0.11.1",
+    "ws": "^7.2.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

@@ -7,6 +7,15 @@ const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
 
+const WebSocket = require('ws')
+const wss = new WebSocket.Server({ port: 4700 })
+
+wss.on('connection', function connection (ws) {
+  console.log("-----------------")
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message)
+  })
+})
 
 module.exports = class Hardcoded {
   constructor (bot) {
@@ -20,6 +29,18 @@ module.exports = class Hardcoded {
    * @returns {boolean} don't allow further commands
    */
   handle (messageObj) {
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<tts ")) {
+
+      wss.clients.forEach(function each (client) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({message: messageObj.message.substr(messageObj.message.indexOf(" ") + 1)}))
+        }
+      })
+
+      return true
+    }
+
     /* Shutting down the bot */
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<s ")) {
