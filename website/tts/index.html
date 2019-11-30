@@ -26,10 +26,10 @@
                 .substr(1)
                 .split("&")
                 .forEach(function (item) {
-                  tmp = item.split("=");
-                  if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-                });
-        return result;
+                  tmp = item.split("=")
+                  if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1])
+                })
+        return result
       }
 
       async function speak(text, voice = "Brian") {
@@ -37,29 +37,29 @@
         let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
           voice +
           "&text=" +
-          encodeURIComponent(text.trim()));
+          encodeURIComponent(text.trim()))
 
         if (speak.status !== 200) {
-          let text = await speak.text();
+          let text = await speak.text()
 
           ga('send', {
             hitType: 'event',
             eventCategory: 'streamlabs',
             eventAction: 'api-error',
             eventLabel: text
-          });
+          })
 
-          return;
+          return
         }
 
-        let mp3 = await speak.blob();
+        let mp3 = await speak.blob()
 
-        let blobUrl = URL.createObjectURL(mp3);
-        document.getElementById("source").setAttribute("src", blobUrl);
-        let player = document.getElementById("player");
-        player.pause();
-        player.load();
-        player.play();
+        let blobUrl = URL.createObjectURL(mp3)
+        document.getElementById("source").setAttribute("src", blobUrl)
+        let player = document.getElementById("player")
+        player.pause()
+        player.load()
+        player.play()
       }
 
       function connect (){
@@ -67,18 +67,22 @@
         // Connection opened
         socket.addEventListener('open', function (event) {
           console.log("Connected")
-          socket.send(JSON.stringify({channel: findGetParameter("channel") || ""}));
-        });
+          socket.send(JSON.stringify({channel: findGetParameter("channel") || ""}))
+        })
 
         // Listen for messages
         socket.addEventListener('message', function (event) {
-          console.log('Message from server ', event.data);
+          console.log('Message from server ', event.data)
           let obj = JSON.parse(event.data)
           console.log(obj)
           if (obj.message) {
-            speak(obj.message)
+            if (obj.voice) {
+              speak(obj.message, obj.voice)
+            } else {
+              speak(obj.message)
+            }
           }
-        });
+        })
 
         socket.addEventListener('close', event => {
           socket = null
