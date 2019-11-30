@@ -19,6 +19,8 @@ module.exports = class Points {
     this.pointsSettings = {}
     this.runningIntervals = []
     this.userActivity = {}
+    this.lastUsage = {}
+    this.lastShot = {}
 
     setTimeout(this.updatePointSettings.bind(this), 2000)
     setInterval(this.updatePointSettings.bind(this), UPDATE_INTERVAL)
@@ -39,8 +41,8 @@ module.exports = class Points {
 
       let ps = this.pointsSettings[privMsgObj.roomId]
 
-      if (ps.commandTimeout * 1000 + (ps["_lastUsage"] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-        ps["_lastUsage"] = Date.now()
+      if (ps.commandTimeout * 1000 + (this.lastUsage[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+        this.lastUsage[privMsgObj.roomId] = Date.now()
 
         if (ps.commandPointsEnabled && privMsgObj.message.startsWith(ps.commandPointsCommand + " ")) {
           let queryName = privMsgObj.message.split(" ")[ps.commandPointsTargetNr] || ""
@@ -90,8 +92,8 @@ module.exports = class Points {
 
         } else if (ps.commandShootEnabled && ps.commandShootCommandRegexObj.test(privMsgObj.message)) {
           let returnMessage = ps.commandShootRejectCooldown
-          if (ps.commandShootCooldown * 1000 + (ps["_lastShot"] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-            ps["_lastShot"] = Date.now()
+          if (ps.commandShootCooldown * 1000 + (this.lastShot[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+            this.lastShot[privMsgObj.roomId] = Date.now()
             let target = privMsgObj.message.split(" ")[ps.commandShootTargetNr]
             let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
 
