@@ -40,6 +40,17 @@ module.exports = class Hardcoded {
 
       return true
     }
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<ttsD ")) {
+
+      wss.clients.forEach(function each (client) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({message: messageObj.message.substr(messageObj.message.indexOf(" ") + 1), voice: "Justin"}))
+        }
+      })
+
+      return true
+    }
 
     /* Shutting down the bot */
     if (messageObj.userLevel === UserLevels.BOTADMIN
