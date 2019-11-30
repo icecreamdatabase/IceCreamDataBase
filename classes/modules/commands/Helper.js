@@ -5,6 +5,7 @@ const Api = require('../../api/Api.js')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
+const Counters = require('./Counters')
 const UserLevels = require("../../../ENUMS/UserLevels")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
@@ -73,6 +74,7 @@ module.exports = class Helper {
       }
       input = await this.replaceParameterCommand(commandObj, input)
       input = await this.replaceParameterMessage(msgObj, input)
+      input = await Counters.replaceParameter(msgObj, input)
     }
     return input
   }
