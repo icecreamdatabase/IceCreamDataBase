@@ -107,24 +107,25 @@ module.exports = class Points {
         } else if (ps.commandPointsEnabled && ( privMsgObj.message.startsWith(ps.commandTtsCommandBrian + " ")
                                              || privMsgObj.message.startsWith(ps.commandTtsCommandJustin + " "))
                   ) {
-          let returnMessage = ps.commandTtsRejectCooldown
-          if (ps.commandTtsCooldown * 1000 + (this.lastShot[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-            let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
-            if (ps.commandTtsCost <= pointsObj.balance && privMsgObj.userLevel >= ps.commandTtsReqUserLevel) {
-              //reduce points
-              SqlPoints.addPoints(privMsgObj.userId, privMsgObj.roomId, -ps.commandTtsCost)
-              Tts.sendTts(privMsgObj.channel,
-                          privMsgObj.message.substr(privMsgObj.message.indexOf(" ") + 1),
-                          privMsgObj.message.startsWith(ps.commandTtsCommandJustin + " ") ? "Justin" : "Brian")
-              returnMessage = ps.commandTtsResponseAccept
-            } else {
-              returnMessage = ps.commandTtsRejectPoints
+          if (privMsgObj.userLevel >= ps.commandTtsReqUserLevel) {
+            let returnMessage = ps.commandTtsRejectCooldown
+            if (ps.commandTtsCooldown * 1000 + (this.lastShot[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+              let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
+              if (ps.commandTtsCost <= pointsObj.balance) {
+                //reduce points
+                SqlPoints.addPoints(privMsgObj.userId, privMsgObj.roomId, -ps.commandTtsCost)
+                Tts.sendTts(privMsgObj.channel,
+                  privMsgObj.message.substr(privMsgObj.message.indexOf(" ") + 1),
+                  privMsgObj.message.startsWith(ps.commandTtsCommandJustin + " ") ? "Justin" : "Brian")
+                returnMessage = ps.commandTtsResponseAccept
+              } else {
+                returnMessage = ps.commandTtsRejectPoints
+              }
             }
+            returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+            bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+            this.lastUsage[privMsgObj.roomId] = Date.now()
           }
-          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
-          bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
-          this.lastUsage[privMsgObj.roomId] = Date.now()
-
         }
       }
     }
