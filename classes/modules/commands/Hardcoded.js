@@ -6,16 +6,9 @@ const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
+const Tts = new (require('./../Tts')) //singleton
 
-const WebSocket = require('ws')
-const wss = new WebSocket.Server({ port: 4700 })
 
-wss.on('connection', function connection (ws) {
-  console.log("-----------------")
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message)
-  })
-})
 
 module.exports = class Hardcoded {
   constructor (bot) {
@@ -31,13 +24,7 @@ module.exports = class Hardcoded {
   handle (messageObj) {
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<tts ")) {
-
-      wss.clients.forEach(function each (client) {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({message: messageObj.message.substr(messageObj.message.indexOf(" ") + 1)}))
-        }
-      })
-
+      Tts.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1))
       return true
     }
     if (messageObj.userLevel === UserLevels.BOTADMIN
