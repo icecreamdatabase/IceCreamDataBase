@@ -24,20 +24,24 @@ module.exports = class Tts {
   }
 
   newConnection (ws) {
-    console.log("-----------------")
-    ws.on('message', function incoming(message) {
-      console.log('received: %s', message)
-    })
+    console.log("-------------------")
+    console.log("WS connected")
+    ws.on('message', this.newMessage.bind(this))
   }
 
-  sendTts (channel, message) {
+  newMessage (message) {
+    console.log('WS received: %s', message)
+  }
+
+  sendTts (channel, message, voice = "Brian") {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
 
+    // save the channel you receive uppon connecting and only send to those
     this.wss.clients.forEach(function each (client) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({channel: channel, message: message}))
+        client.send(JSON.stringify({channel: channel, message: message, voice: voice}))
       }
     })
   }

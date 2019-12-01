@@ -119,7 +119,16 @@ module.exports = class SqlPoints {
                commandShootRejectPoints,
                commandShootRejectCooldown,
                commandShootCost,
-               commandShootCooldown
+               commandShootCooldown,
+               commandTtsEnabled,
+               commandTtsCommandBrian,
+               commandTtsCommandJustin,
+               commandTtsResponseAccept,
+               commandTtsResponseRejectPoints,
+               commandTtsResponseRejectCooldown,
+               commandTtsCooldown,
+               commandTtsCost,
+               commandTtsReqUserLevel
         FROM pointsSettings
         WHERE enabled = b'1'
         ;`)

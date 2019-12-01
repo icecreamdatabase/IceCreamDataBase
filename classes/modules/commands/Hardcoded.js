@@ -23,12 +23,12 @@ module.exports = class Hardcoded {
    */
   handle (messageObj) {
     if (messageObj.userLevel === UserLevels.BOTADMIN
-      && messageObj.message.startsWith("<tts ")) {
+      && messageObj.message.startsWith("<t ")) {
       Tts.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1))
       return true
     }
     if (messageObj.userLevel === UserLevels.BOTADMIN
-      && messageObj.message.startsWith("<ttsD ")) {
+      && messageObj.message.startsWith("<tj ")) {
 
       wss.clients.forEach(function each (client) {
         if (client.readyState === WebSocket.OPEN) {

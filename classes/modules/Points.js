@@ -39,11 +39,8 @@ module.exports = class Points {
       }
       this.userActivity[privMsgObj.roomId][privMsgObj.userId]++
 
-
       let ps = this.pointsSettings[privMsgObj.roomId]
-
       if (ps.commandTimeout * 1000 + (this.lastUsage[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-
         if (ps.commandPointsEnabled && privMsgObj.message.startsWith(ps.commandPointsCommand + " ")) {
           let queryName = privMsgObj.message.split(" ")[ps.commandPointsTargetNr] || ""
           let returnMessage
@@ -60,7 +57,6 @@ module.exports = class Points {
           returnMessage = returnMessage.replace(new RegExp("\\${pointsBalance}", 'g'), pointsObj.balance)
           returnMessage = returnMessage.replace(new RegExp("\\${pointsRank}", 'g'), pointsObj.rank)
           returnMessage = returnMessage.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
-
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
           this.lastUsage[privMsgObj.roomId] = Date.now()
 
@@ -79,16 +75,13 @@ module.exports = class Points {
           let userInfo = await Api.userDataFromIds(global.clientIdFallback, userIDs)
           let usernames = userInfo.map(x => x['display_name'])
           usernames = usernames.map(x => x.split("").join("\u{E0000}"))
-
           let topMessage = ""
           for (let i = 0; i < usernames.length; ++i) {
             topMessage += i > 0 ? ", " : ""
             topMessage += "#" + (i + 1) + " " + usernames[i] + " (" + balance[i] + ")"
           }
-
           returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
           returnMessage = returnMessage.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
-
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
           this.lastUsage[privMsgObj.roomId] = Date.now()
 
@@ -108,7 +101,27 @@ module.exports = class Points {
             }
           }
           returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+          bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+          this.lastUsage[privMsgObj.roomId] = Date.now()
 
+        } else if (ps.commandPointsEnabled && ( privMsgObj.message.startsWith(ps.commandTtsCommandBrian + " ")
+                                             || privMsgObj.message.startsWith(ps.commandTtsCommandJustin + " "))
+                  ) {
+          let returnMessage = ps.commandTtsRejectCooldown
+          if (ps.commandTtsCooldown * 1000 + (this.lastShot[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+            let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
+            if (ps.commandTtsCost <= pointsObj.balance && privMsgObj.userLevel >= ps.commandTtsReqUserLevel) {
+              //reduce points
+              SqlPoints.addPoints(privMsgObj.userId, privMsgObj.roomId, -ps.commandTtsCost)
+              Tts.sendTts(privMsgObj.channel,
+                          privMsgObj.message.substr(privMsgObj.message.indexOf(" ") + 1),
+                          privMsgObj.message.startsWith(ps.commandTtsCommandJustin + " ") ? "Justin" : "Brian")
+              returnMessage = ps.commandTtsResponseAccept
+            } else {
+              returnMessage = ps.commandTtsRejectPoints
+            }
+          }
+          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
           this.lastUsage[privMsgObj.roomId] = Date.now()
 
