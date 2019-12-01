@@ -42,7 +42,6 @@ module.exports = class Points {
       let ps = this.pointsSettings[privMsgObj.roomId]
 
       if (ps.commandTimeout * 1000 + (this.lastUsage[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-        this.lastUsage[privMsgObj.roomId] = Date.now()
 
         if (ps.commandPointsEnabled && privMsgObj.message.startsWith(ps.commandPointsCommand + " ")) {
           let queryName = privMsgObj.message.split(" ")[ps.commandPointsTargetNr] || ""
@@ -62,7 +61,7 @@ module.exports = class Points {
           returnMessage = returnMessage.replace(new RegExp("\\${pointsTotalWallets}", 'g'), pointsObj.total)
 
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
-
+          this.lastUsage[privMsgObj.roomId] = Date.now()
 
         } else if (ps.commandTopEnabled && privMsgObj.message.startsWith(ps.commandTopCommand + " ")) {
           let returnMessage = ps.commandTopResponse
@@ -88,7 +87,9 @@ module.exports = class Points {
 
           returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
           returnMessage = returnMessage.replace(new RegExp("\\${pointsTop}", 'g'), topMessage)
+
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+          this.lastUsage[privMsgObj.roomId] = Date.now()
 
         } else if (ps.commandShootEnabled && ps.commandShootCommandRegexObj.test(privMsgObj.message)) {
           let returnMessage = ps.commandShootRejectCooldown
@@ -106,7 +107,10 @@ module.exports = class Points {
             }
           }
           returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+
           bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+          this.lastUsage[privMsgObj.roomId] = Date.now()
+
         }
       }
     }
