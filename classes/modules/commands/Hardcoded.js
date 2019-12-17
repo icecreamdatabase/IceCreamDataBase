@@ -39,6 +39,14 @@ module.exports = class Hardcoded {
       return true
     }
 
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<tags ")) {
+
+      DiscordLog.debug(JSON.stringify(messageObj, null, 2))
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done. Check Discord.")
+      return true
+    }
+
     /* Shutting down the bot */
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<s ")) {
