@@ -33,7 +33,7 @@ module.exports = class ChannelPoints {
         }
 
         if (voice) {
-          Tts.sendTts(privMsgObj.channel, privMsgObj.message.substr(privMsgObj.message), voice)
+          Tts.sendTts(privMsgObj.channel, privMsgObj.message, voice)
         }
       }
     }
