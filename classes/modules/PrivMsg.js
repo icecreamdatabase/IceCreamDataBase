@@ -18,6 +18,7 @@ module.exports = class PrivMsg {
 
     this.hardcoded = new HardCoded(this.bot)
     this.commands = new Commands(this.bot)
+    this.channelPoints = new ChannelPoints(this.bot)
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -42,7 +43,7 @@ module.exports = class PrivMsg {
 
     if (channelObj.useChannelPoints) {
       // noinspection ES6MissingAwait
-      ChannelPoints.handlePrivMsg(messageObj, this.bot)
+      this.channelPoints.handlePrivMsg(messageObj, this.bot)
     }
 
     if (channelObj.usePoints) {

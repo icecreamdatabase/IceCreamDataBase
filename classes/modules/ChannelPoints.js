@@ -1,7 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const SqlPoints = require('../sql/modules/SqlPoints')
+const SqlChannelPoints = require('../sql/modules/SqlChannelPoints')
 const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
 const Helper = require('./commands/Helper')
@@ -11,7 +11,8 @@ const UserLevels = require("../../ENUMS/UserLevels")
 const UPDATE_INTERVAL = 30000//ms
 
 module.exports = class ChannelPoints {
-  constructor () {
+  constructor (bot) {
+    this.bot = bot
 
     this.channelPointsSettings = {}
 
@@ -19,8 +20,14 @@ module.exports = class ChannelPoints {
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
   }
 
-  async handlePrivMsg (privMsgObj, bot) {
-    if (this.pointsSettings.hasOwnProperty(privMsgObj.roomId)) {
+  async handlePrivMsg (privMsgObj) {
+    if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId)) {
+      if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
+        let customRewardId = privMsgObj.raw.tags["custom-reward-id"]
+
+        //this.channelPointsSettings[privMsgObj.roomId].ttsBrianCustomRewardId === customRewardId
+        //this.channelPointsSettings[privMsgObj.roomId].ttsJustinCustomRewardId === customRewardId
+      }
     }
     return false
   }

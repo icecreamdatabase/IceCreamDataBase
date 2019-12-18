@@ -6,14 +6,12 @@ module.exports = class SqlChannelPoints {
 
   }
 
-  static async getChannelPointsData (botId, channelId) {
-    let results = await sqlPool.query(`SELECT 
-    FROM 
-    WHERE bots.ID = botID
-    AND channels.ID = channelID
-    AND channels.enabled = B'1'
-    AND bots.ID = ?`, [botId, channelId])
-    //TODO
+  static async getChannelPointsSettings (botId) {
+    let results = await sqlPool.query(`SELECT channelID, ttsBrianCustomRewardId, ttsJustinCustomRewardId
+    FROM channelPointsSettings
+    WHERE enabled = B'1'
+    AND botID = ?
+    ;`, botId)
 
     let returnObj = {}
     results.forEach(x => {
