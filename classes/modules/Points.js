@@ -109,6 +109,7 @@ module.exports = class Points {
                   ) {
           if (privMsgObj.userLevel >= ps.commandTtsReqUserLevel) {
             let returnMessage = ps.commandTtsResponseRejectCooldown
+            //TODO: this.lastShot into something like this.lastTts
             if (ps.commandTtsCooldown * 1000 + (this.lastShot[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
               let pointsObj = await SqlPoints.getUserInfo(privMsgObj.userId, privMsgObj.roomId)
               if (ps.commandTtsCost <= pointsObj.balance) {

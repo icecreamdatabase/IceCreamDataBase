@@ -24,9 +24,17 @@ module.exports = class ChannelPoints {
     if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId)) {
       if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
         let customRewardId = privMsgObj.raw.tags["custom-reward-id"]
+        let voice
 
-        //this.channelPointsSettings[privMsgObj.roomId].ttsBrianCustomRewardId === customRewardId
-        //this.channelPointsSettings[privMsgObj.roomId].ttsJustinCustomRewardId === customRewardId
+        if (this.channelPointsSettings[privMsgObj.roomId].ttsBrianCustomRewardId === customRewardId) {
+          voice = "Brian"
+        } else if (this.channelPointsSettings[privMsgObj.roomId].ttsJustinCustomRewardId === customRewardId) {
+          voice = "Justin"
+        }
+
+        if (voice) {
+          Tts.sendTts(privMsgObj.channel, privMsgObj.message.substr(privMsgObj.message), voice)
+        }
       }
     }
     return false
