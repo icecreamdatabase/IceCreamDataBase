@@ -6,6 +6,8 @@ const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
+const Tts = new (require('./../Tts')) //singleton
+
 
 
 module.exports = class Hardcoded {
@@ -20,6 +22,26 @@ module.exports = class Hardcoded {
    * @returns {boolean} don't allow further commands
    */
   handle (messageObj) {
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<t ")) {
+      Tts.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), "Brian")
+      return true
+    }
+
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<tJ ")) {
+      Tts.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), "Justin")
+      return true
+    }
+
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<tags ")) {
+
+      DiscordLog.debug(JSON.stringify(messageObj, null, 2))
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done. Check Discord.")
+      return true
+    }
+
     /* Shutting down the bot */
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<s ")) {

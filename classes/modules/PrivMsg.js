@@ -6,6 +6,7 @@ const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Commands = require('./commands/Commands')
 const Points = new (require('./Points')) //singleton
+const ChannelPoints = require('./ChannelPoints')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
 
@@ -17,6 +18,7 @@ module.exports = class PrivMsg {
 
     this.hardcoded = new HardCoded(this.bot)
     this.commands = new Commands(this.bot)
+    this.channelPoints = new ChannelPoints(this.bot)
 
     bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
@@ -37,6 +39,11 @@ module.exports = class PrivMsg {
     //hardcoded always first
     if (channelObj.useHardcodedCommands) {
       if (this.hardcoded.handle(messageObj)) { return }
+    }
+
+    if (channelObj.useChannelPoints) {
+      // noinspection ES6MissingAwait
+      this.channelPoints.handlePrivMsg(messageObj, this.bot)
     }
 
     if (channelObj.usePoints) {
