@@ -7,7 +7,7 @@ module.exports = class SqlChannelPoints {
   }
 
   static async getChannelPointsSettings (botId) {
-    let results = await sqlPool.query(`SELECT channelID, ttsBrianCustomRewardId, ttsJustinCustomRewardId, ttsCooldown
+    let results = await sqlPool.query(`SELECT channelID, ttsBrianCustomRewardId, ttsJustinCustomRewardId, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
     FROM channelPointsSettings
     WHERE enabled = B'1'
     AND botID = ?

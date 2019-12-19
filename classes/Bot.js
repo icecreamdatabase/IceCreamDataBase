@@ -5,6 +5,7 @@ const TwitchIRCConnection = require('../classes/TwitchIRCConnection.js')
 const ApiFunctions = require('./api/ApiFunctions.js')
 const PrivMsg = require('./modules/PrivMsg.js')
 const UserNotice = require('./modules/UserNotice.js')
+const ClearChat = require('./modules/ClearChat.js')
 const Queue = require('../classes/Queue.js')
 
 const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
@@ -48,6 +49,7 @@ module.exports = class Bot {
             //OnX modules
             this.privMsg = new PrivMsg(this)
             this.userNotice = new UserNotice(this)
+            this.clearChat = new ClearChat(this)
 
             console.info(this.TwitchIRCConnection.botData.userId + " (" + this.TwitchIRCConnection.botData.username + ") is fully setup!")
           })

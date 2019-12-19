@@ -34,6 +34,12 @@ module.exports = class Hardcoded {
       return true
     }
 
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<y ")) {
+      Tts.sendTtsWithTimeoutCheck(messageObj.channel, messageObj.username, "test", "Brian", 5)
+      return true
+    }
+
     if (messageObj.userLevel === UserLevels.BROADCASTER
       && messageObj.message.startsWith("<tags ")) {
 

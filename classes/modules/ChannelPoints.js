@@ -24,20 +24,43 @@ module.exports = class ChannelPoints {
   async handlePrivMsg (privMsgObj) {
     if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId)) {
       if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
-        if (this.channelPointsSettings[privMsgObj.roomId].ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-          this.lastTts[privMsgObj.roomId] = Date.now()
-          let customRewardId = privMsgObj.raw.tags["custom-reward-id"]
-          let voice
+        let returnMessage
+        let settingObj = this.channelPointsSettings[privMsgObj.roomId]
+        if (settingObj.ttsUserLevel <= privMsgObj.userLevel) {
+          if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+            this.lastTts[privMsgObj.roomId] = Date.now()
+            let customRewardId = privMsgObj.raw.tags["custom-reward-id"]
+            let voice
 
-          if (this.channelPointsSettings[privMsgObj.roomId].ttsBrianCustomRewardId === customRewardId) {
-            voice = "Brian"
-          } else if (this.channelPointsSettings[privMsgObj.roomId].ttsJustinCustomRewardId === customRewardId) {
-            voice = "Justin"
-          }
+            if (settingObj.ttsBrianCustomRewardId === customRewardId) {
+              voice = "Brian"
+            } else if (settingObj.ttsJustinCustomRewardId === customRewardId) {
+              voice = "Justin"
+            }
 
-          if (voice) {
-            Tts.sendTts(privMsgObj.channel, privMsgObj.message, voice)
+            if (voice) {
+              let wasSent = await Tts.sendTtsWithTimeoutCheck(privMsgObj.channel, privMsgObj.username, privMsgObj.message, voice, settingObj.ttsTimeoutCheckTime)
+              console.log("Was sent: " + wasSent)
+              if (wasSent) {
+                //Accept
+                returnMessage = settingObj.ttsAcceptMessage
+              } else {
+                //Reject timeout
+                returnMessage = settingObj.ttsRejectTimeoutMessage
+              }
+            }
+          } else {
+            //Reject cooldown
+            returnMessage = settingObj.ttsRejectCooldownMessage
           }
+        } else {
+          //Reject userlevel
+          returnMessage = settingObj.ttsRejectUserLevelMessage
+        }
+        if (returnMessage) {
+          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+          //send returnMesage
+          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
         }
       }
     }

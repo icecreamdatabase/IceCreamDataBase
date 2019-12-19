@@ -6,6 +6,7 @@ const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
 const Helper = require('./commands/Helper')
 const UserLevels = require("../../ENUMS/UserLevels")
+const ClearChat = require("./ClearChat")
 
 const WebSocket = require('ws')
 
@@ -31,6 +32,23 @@ module.exports = class Tts {
 
   newMessage (message) {
     console.log('WS received: %s', message)
+  }
+
+  sendTtsWithTimeoutCheck (channel, user, message, voice, waitForTimeoutLength = 5) {
+    return new Promise((resolve)=> {
+      setTimeout(async (channel, user, message, voice) => {
+        // * 2 so we are also checking a bit before "now"
+        let wasTimed = await ClearChat.wasTimedOut(channel, user, waitForTimeoutLength * 2)
+
+        if (wasTimed) {
+          DiscordLog.warn("TTS fail due to timeout: \n#" + channel + ", " + user + ": " + message)
+          resolve(false)
+        } else {
+          this.sendTts(channel, message, voice)
+          resolve(true)
+        }
+      }, waitForTimeoutLength * 1000, channel, user, message, voice)
+    })
   }
 
   sendTts (channel, message, voice = "Brian") {
