@@ -7,6 +7,7 @@ const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
 const Counters = require('./Counters')
 const UserLevels = require("../../../ENUMS/UserLevels")
+const TimeConversion = require("../../../ENUMS/TimeConversion")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
@@ -112,7 +113,7 @@ module.exports = class Helper {
     message = message.replace(new RegExp("\\${userNoPing}", 'g'), msgObj.username.split("").join("\u{E0000}"))
     message = message.replace(new RegExp("\\${p1}", 'g'), msgObj.message.split(" ")[1] || "")
     message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel.substring(1))
-    message = message.replace(new RegExp("\\${uptime}", 'g'), this.msToDDHHMMSS(process.uptime()))
+    message = message.replace(new RegExp("\\${uptime}", 'g'), this.secondsToYYMMDDHHMMSS(process.uptime()))
 
     if (message.includes("${icecream}")) {
       let keys = Object.keys(icecreamFacts)
@@ -170,12 +171,16 @@ module.exports = class Helper {
     return false
   }
 
-  static msToDDHHMMSS (ms) {
-    let secNum = parseInt(ms + "", 10) // don't forget the second param
-    let days = Math.floor(secNum / 86400)
-    let hours = Math.floor((secNum - (days * 86400)) / 3600)
-    let minutes = Math.floor((secNum - (days * 86400) - (hours * 3600)) / 60)
-    let seconds = secNum - (days * 86400) - (hours * 3600) - (minutes * 60)
+  static secondsToYYMMDDHHMMSS (inputSeconds) {
+    let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
+    /* eslint-disable no-multi-spaces */
+    let years   = Math.floor( secNum /  TimeConversion.YEARTOSECONDS)
+    let months  = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS) / TimeConversion.MONTHTOSECONDS )
+    let days    = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS) / TimeConversion.DAYTOSECONDS)
+    let hours   = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS) / TimeConversion.HOURTOSECONDS)
+    let minutes = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS) / TimeConversion.MINUTETOSECONDS)
+    let seconds = Math.floor( secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
+    /* eslint-enable no-multi-spaces */
 
     /*
     if (hours < 10) { hours = "0" + hours }
@@ -192,6 +197,12 @@ module.exports = class Helper {
     }
     if (days > 0) {
       time = days + 'd ' + time
+    }
+    if (months > 0) {
+      time = months + 'm ' + time
+    }
+    if (years > 0) {
+      time = years + 'y ' + time
     }
     return time
   }

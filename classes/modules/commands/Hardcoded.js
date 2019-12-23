@@ -36,7 +36,9 @@ module.exports = class Hardcoded {
 
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<y ")) {
-      Tts.sendTtsWithTimeoutCheck(messageObj.channel, messageObj.username, "test", "Brian", 5)
+      this.bot.apiFunctions.followTime(38949074, 57019243).then(x => {
+        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))
+      })
       return true
     }
 

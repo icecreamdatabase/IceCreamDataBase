@@ -1,6 +1,7 @@
 "use strict"
 const axios = require('axios')
 const util = require('util')
+const TimeConversion = require("../../ENUMS/TimeConversion")
 
 const TWITCH_API_KRAKEN = {
   url: "https://api.twitch.tv/kraken/",
@@ -288,6 +289,23 @@ module.exports = class ApiFunctions {
       }
     }
     return false
+  }
+
+  static async followTime (clientID, userId, channelId) {
+    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + channelId).catch(e => console.log(e))
+    console.log(response)
+    let returnObj = {followDate: undefined, followTimeMs: -1}
+    if (response && response.hasOwnProperty("created_at")) {
+      returnObj.followDate = new Date(response.created_at)
+      returnObj.followTimeMs = Date.now() - returnObj.followDate
+      returnObj.followTimeS = Math.floor(returnObj.followTimeMs / 1000)
+      returnObj.followtimeM = Math.floor(returnObj.followTimeS / TimeConversion.MINUTETOSECONDS)
+      returnObj.followtimeH = Math.floor(returnObj.followTimeS / TimeConversion.HOURTOSECONDS)
+      returnObj.followtimeD = Math.floor(returnObj.followTimeS / TimeConversion.DAYTOSECONDS)
+      returnObj.followtimeM = Math.floor(returnObj.followTimeS / TimeConversion.MONTHTOSECONDS)
+      returnObj.followtimeY = Math.floor(returnObj.followTimeS / TimeConversion.YEARTOSECONDS)
+    }
+    return returnObj
   }
 
 }

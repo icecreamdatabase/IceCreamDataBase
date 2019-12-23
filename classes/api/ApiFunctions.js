@@ -52,6 +52,10 @@ module.exports = class ApiFunctions {
   }
 
 
+  async followTime (userId, roomId) {
+    return await Api.followTime(this.clientID, userId, roomId)
+  }
+
 
 
 
