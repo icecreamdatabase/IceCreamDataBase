@@ -93,6 +93,10 @@ module.exports = class ApiFunctions {
     return await this.apiRequestKraken(clientID, 'streams/' + channelID)
   }
 
+  static async getVods (clientId, channelID) {
+    return await this.apiRequestKraken(clientId, 'channels/' + channelID + '/videos?broadcast_type=archive&limit=100')
+  }
+
 //TODO: cleanup of duplicated stuff
   /**
    * receive login name from a single userid

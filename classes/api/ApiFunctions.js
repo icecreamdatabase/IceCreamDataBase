@@ -51,13 +51,9 @@ module.exports = class ApiFunctions {
     return await this.apiRequestKraken('users/' + userId + '/chat/channels/' + roomId)
   }
 
-
   async followTime (userId, roomId) {
     return await Api.followTime(this.clientID, userId, roomId)
   }
-
-
-
 
   /**
    * Returns the userstate of a userId inside a room from the api

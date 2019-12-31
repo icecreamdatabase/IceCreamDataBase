@@ -115,6 +115,12 @@ module.exports = class Helper {
     message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel.substring(1))
     message = message.replace(new RegExp("\\${uptime}", 'g'), this.secondsToYYMMDDHHMMSS(process.uptime()))
 
+    if (message.includes("${monthlyUptime}")) {
+      let vods = await Api.getVods(global.clientIdFallback, msgObj.roomId)
+      let seconds = this.vodsTotalUptimeSince(vods, this.getFirstOfMonthDate())
+      message = message.replace(new RegExp("\\${monthlyUptime}", 'g'), this.secondsToYYMMDDHHMMSS(seconds))
+    }
+
     if (message.includes("${icecream}")) {
       let keys = Object.keys(icecreamFacts)
       let icecreamFactKey = keys[Math.floor(Math.random() * keys.length)]
@@ -234,5 +240,26 @@ module.exports = class Helper {
         userWasInChannelObj[channelName].add(userName)
       }
     }
+  }
+
+  static getFirstOfMonthDate () {
+    let date = new Date()
+    return new Date(date.getFullYear(), date.getMonth(), 1)
+  }
+
+  static vodsTotalUptimeSince (vodsObj, dateSince) {
+    let timeSum = 0
+    if (vodsObj.hasOwnProperty("videos")) {
+      for (let vidObj of vodsObj.videos) {
+        if (vidObj.hasOwnProperty("created_at")){
+          if (dateSince < new Date(vidObj["created_at"])) {
+            timeSum += vidObj["length"]
+          } else { //not sure if this else is really needed ... we are only looping through 100 entires
+            return timeSum
+          }
+        }
+      }
+    }
+    return timeSum
   }
 }
