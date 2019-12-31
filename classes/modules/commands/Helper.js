@@ -119,7 +119,13 @@ module.exports = class Helper {
     if (message.includes("${monthlyUptime}")) {
       let vods = await Api.getVods(global.clientIdFallback, msgObj.roomId)
       let seconds = this.vodsTotalUptimeSince(vods, this.getFirstOfMonthDate())
-      message = message.replace(new RegExp("\\${monthlyUptime}", 'g'), TimeConversionHelper.secondsToHHMM(seconds, true))
+      let replacement
+      if (seconds > 0) {
+        replacement = TimeConversionHelper.secondsToHHMM(seconds, true)
+      } else {
+        replacement = "[NO VODS AVAILABLE]"
+      }
+      message = message.replace(new RegExp("\\${monthlyUptime}", 'g'), replacement)
     }
 
     if (message.includes("${icecream}")) {
