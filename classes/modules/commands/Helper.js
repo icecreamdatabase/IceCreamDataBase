@@ -8,6 +8,7 @@ const Gdq = require('./../Gdq')
 const Counters = require('./Counters')
 const UserLevels = require("../../../ENUMS/UserLevels")
 const TimeConversion = require("../../../ENUMS/TimeConversion")
+const TimeConversionHelper = require("../../helper/TimeConversionHelper")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
@@ -113,12 +114,12 @@ module.exports = class Helper {
     message = message.replace(new RegExp("\\${userNoPing}", 'g'), msgObj.username.split("").join("\u{E0000}"))
     message = message.replace(new RegExp("\\${p1}", 'g'), msgObj.message.split(" ")[1] || "")
     message = message.replace(new RegExp("\\${channel}", 'g'), msgObj.channel.substring(1))
-    message = message.replace(new RegExp("\\${uptime}", 'g'), this.secondsToYYMMDDHHMMSS(process.uptime()))
+    message = message.replace(new RegExp("\\${uptime}", 'g'), TimeConversionHelper.secondsToYYMMDDHHMMSS(process.uptime()))
 
     if (message.includes("${monthlyUptime}")) {
       let vods = await Api.getVods(global.clientIdFallback, msgObj.roomId)
       let seconds = this.vodsTotalUptimeSince(vods, this.getFirstOfMonthDate())
-      message = message.replace(new RegExp("\\${monthlyUptime}", 'g'), this.secondsToYYMMDDHHMMSS(seconds))
+      message = message.replace(new RegExp("\\${monthlyUptime}", 'g'), TimeConversionHelper.secondsToHHMM(seconds, true))
     }
 
     if (message.includes("${icecream}")) {
@@ -175,42 +176,6 @@ module.exports = class Helper {
       return cooldownPassed
     }
     return false
-  }
-
-  static secondsToYYMMDDHHMMSS (inputSeconds) {
-    let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
-    /* eslint-disable no-multi-spaces */
-    let years   = Math.floor( secNum /  TimeConversion.YEARTOSECONDS)
-    let months  = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS) / TimeConversion.MONTHTOSECONDS )
-    let days    = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS) / TimeConversion.DAYTOSECONDS)
-    let hours   = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS) / TimeConversion.HOURTOSECONDS)
-    let minutes = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS) / TimeConversion.MINUTETOSECONDS)
-    let seconds = Math.floor( secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
-    /* eslint-enable no-multi-spaces */
-
-    /*
-    if (hours < 10) { hours = "0" + hours }
-    if (minutes < 10) { minutes = "0" + minutes }
-    if (seconds < 10) { seconds = "0" + seconds }
-    */
-
-    let time = seconds + 's'
-    if (minutes > 0 || hours > 0) {
-      time = minutes + 'm ' + time
-    }
-    if (hours > 0) {
-      time = hours + 'h ' + time
-    }
-    if (days > 0) {
-      time = days + 'd ' + time
-    }
-    if (months > 0) {
-      time = months + 'm ' + time
-    }
-    if (years > 0) {
-      time = years + 'y ' + time
-    }
-    return time
   }
 
   static async checkUserWasInChannel (channelName, userName) {
