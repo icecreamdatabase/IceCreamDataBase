@@ -123,7 +123,7 @@ module.exports = class Helper {
       if (seconds > 0) {
         replacement = TimeConversionHelper.secondsToHHMM(seconds, true)
       } else {
-        replacement = "[NO VODS AVAILABLE]"
+        replacement = "0 minutes"
       }
       message = message.replace(new RegExp("\\${monthlyUptime}", 'g'), replacement)
     }
