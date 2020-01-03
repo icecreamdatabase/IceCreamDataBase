@@ -8,7 +8,6 @@ const UserNotice = require('./modules/UserNotice.js')
 const ClearChat = require('./modules/ClearChat.js')
 const Queue = require('../classes/Queue.js')
 
-const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 const ChatLimit = require("../ENUMS/ChatLimit")
 
 // noinspection JSUndefinedPropertyAssignment
@@ -39,10 +38,10 @@ module.exports = class Bot {
       this.TwitchIRCConnection.connect().then(() => {
         console.info(this.TwitchIRCConnection.botData.userId + " (" + this.TwitchIRCConnection.botData.username + ") Connected!")
 
+        this.apiFunctions = new ApiFunctions(this)
         this.updateBotChannels().then(()=>{
           setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
-          this.apiFunctions = new ApiFunctions(this)
           this.apiFunctions.updateBotStatus().then(() => {
             this.TwitchIRCConnection.queue = new Queue(this)
 
@@ -84,7 +83,7 @@ module.exports = class Bot {
         }
         //part
         if (!contains) {
-          let channelName = await UserIdLoginCache.idToName(channelId)
+          let channelName = await this.apiFunctions.loginFromUserId(channelId)
           this.TwitchIRCConnection.leave(channelName)
           console.info(this.TwitchIRCConnection.botData.username + " Parted: #" + channelName)
         }
@@ -107,7 +106,7 @@ module.exports = class Bot {
         }
         //join
         if (!contains) {
-          let channelName = await UserIdLoginCache.idToName(channelId)
+          let channelName = await this.apiFunctions.loginFromUserId(channelId)
           console.info(this.TwitchIRCConnection.botData.username + " Joining: #" + channelName)
           this.TwitchIRCConnection.join(channelName)
           console.info(this.TwitchIRCConnection.botData.username + " Joined: #" + channelName)

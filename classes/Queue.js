@@ -4,7 +4,6 @@ const EventEmitter = require('eventemitter3')
 //CLASSES
 const DiscordLog = require('./modules/DiscordLog')
 const BasicBucket = require('../classes/BasicBucket.js')
-const UserIdLoginCache = require('../classes/UserIdLoginCache.js')
 //ENUMS
 const UserLevels = require('../ENUMS/UserLevels.js')
 //other consts
@@ -28,11 +27,11 @@ module.exports = class Queue {
   }
 
   async sayWithChannelId (channelId, message, userId) {
-    this.sayWithBoth(channelId, await UserIdLoginCache.idToName(channelId), message, userId)
+    this.sayWithBoth(channelId, await this.bot.apiFunctions.loginFromUserId(channelId), message, userId)
   }
 
   async sayWithChannelName (channelName, message, userId) {
-    this.sayWithBoth(await UserIdLoginCache.nameToId(channelName), channelName, message, userId)
+    this.sayWithBoth(await this.bot.apiFunctions.userIdFromLogin(channelName), channelName, message, userId)
   }
 
   sayWithMsgObj (msgObj, message) {
