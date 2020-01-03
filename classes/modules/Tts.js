@@ -41,7 +41,7 @@ module.exports = class Tts {
         let wasTimed = await ClearChat.wasTimedOut(channel, user, waitForTimeoutLength * 2)
 
         if (wasTimed) {
-          DiscordLog.warn("TTS fail due to timeout: \n#" + channel + ", " + user + ": " + message)
+          DiscordLog.warn("TTS fail due to timeout: \n" + channel + ", " + user + ": " + message)
           resolve(false)
         } else {
           this.sendTts(channel, message, voice)
