@@ -3,7 +3,6 @@ const util = require('util')
 //CLASSES
 const DiscordLog = require('./DiscordLog')
 const Sql = require('../sql/modules/SqlUserNotice.js')
-const Points = new (require('./Points')) //singleton
 
 //ENUMS
 const UserNoticeTypes = require('../../ENUMS/UserNoticeTypes.js')
@@ -31,9 +30,6 @@ module.exports = class UserNotice {
 
     if (usernoticeObj.hasOwnProperty("command")) {
       let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
-      if (this.bot.channels[usernoticeObj.tags['room-id']].usePoints) {
-        Points.handleUserNotice(userNoticeType, usernoticeObj)
-      }
       if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
         let notificationObj = this.notificationData[usernoticeObj.tags["room-id"]]
 

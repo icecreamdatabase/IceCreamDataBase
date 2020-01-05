@@ -5,7 +5,6 @@ const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Commands = require('./commands/Commands')
-const Points = new (require('./Points')) //singleton
 const ChannelPoints = require('./ChannelPoints')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
@@ -44,11 +43,6 @@ module.exports = class PrivMsg {
     if (channelObj.useChannelPoints) {
       // noinspection ES6MissingAwait
       this.channelPoints.handlePrivMsg(messageObj, this.bot)
-    }
-
-    if (channelObj.usePoints) {
-      // noinspection ES6MissingAwait
-      Points.handlePrivMsg(messageObj, this.bot)
     }
 
     if (channelObj.useCommands) {

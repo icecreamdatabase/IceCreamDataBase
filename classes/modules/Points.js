@@ -11,6 +11,15 @@ const UserLevels = require("../../ENUMS/UserLevels")
 const UPDATE_INTERVAL = 30000//ms
 
 module.exports = class Points {
+
+  /**
+   * Singleton class constructor
+   *
+   * Import like this:
+   *   const Points = new (require('./Points')) //singleton
+   *
+   * @returns {Points|Points}
+   */
   constructor () {
     if (Points.instance) {
       return Points.instance
@@ -29,6 +38,19 @@ module.exports = class Points {
     return this
   }
 
+  /**
+   * Handles PRIVMSG
+   *
+   * Call like this:
+   *   if (channelObj.usePoints) {
+   *     // noinspection ES6MissingAwait
+   *     Points.handlePrivMsg(messageObj, this.bot)
+   *   }
+   *
+   * @param privMsgObj
+   * @param bot
+   * @returns {Promise<boolean>}
+   */
   async handlePrivMsg (privMsgObj, bot) {
     if (this.pointsSettings.hasOwnProperty(privMsgObj.roomId)) {
       if (!this.userActivity[privMsgObj.roomId]) {
@@ -133,6 +155,18 @@ module.exports = class Points {
     return false
   }
 
+  /**
+   * Handles incoming usernotices.
+   *
+   * Call like this:
+   *   let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
+   *   if (this.bot.channels[usernoticeObj.tags['room-id']].usePoints) {
+   *     Points.handleUserNotice(userNoticeType, usernoticeObj)
+   *   }
+   *
+   * @param userNoticeType
+   * @param userNoticeObj
+   */
   handleUserNotice (userNoticeType, userNoticeObj) {
     let username = userNoticeObj.tags["display-name"] || userNoticeObj.tags["login"]
     let userId = userNoticeObj.tags['user-id']
