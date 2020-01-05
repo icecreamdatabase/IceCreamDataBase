@@ -18,6 +18,12 @@ module.exports = class Points {
    * Import like this:
    *   const Points = new (require('./Points')) //singleton
    *
+   * Also import once in index.js like this:
+   * const Points = require('./classes/modules/Points')
+   *
+   * After bot data received from DB create new Points (Could be done as normal singleton?)
+   * points = new Points()
+   *
    * @returns {Points|Points}
    */
   constructor () {

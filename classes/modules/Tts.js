@@ -1,7 +1,6 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const SqlPoints = require('../sql/modules/SqlPoints')
 const Api = require('../api/Api.js')
 const DiscordLog = require('./DiscordLog')
 const Helper = require('./commands/Helper')
