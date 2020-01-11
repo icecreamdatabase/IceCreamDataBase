@@ -75,7 +75,7 @@
   <script>
     // Instantiate client.
     // noinspection JSUnresolvedFunction
-    const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47"})
+    const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47", log: {level: "warn"}})
 
     let channels = (findGetParameter("channels") || "").split(",").filter(Boolean)
     let singleChannel = findGetParameter("channel")
@@ -100,11 +100,9 @@
         if (sayNames) {
           ttsMessage = msgObj.username + " says " + ttsMessage
         }
-      console.log("Said: " + ttsMessage)
-      setTimeout(() => shouldSend = true, ttsRatelimit)
-      speak(ttsMessage, voice)
-      } else {
-        console.log("Skipped message by " + msgObj.username)
+        console.log("TTS: " + msgObj.username + ": " + msgObj.message)
+        setTimeout(() => shouldSend = true, ttsRatelimit)
+        speak(ttsMessage, voice)
       }
     })
 
