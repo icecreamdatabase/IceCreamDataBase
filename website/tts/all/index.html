@@ -25,6 +25,10 @@
     const defaultVoice = "Brian"
     const defaultTtsRateLimit = 1000
 
+
+    let audioPlaying = false
+    document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
+
     function findGetParameter(parameterName) {
       let result = null
       let tmp = []
@@ -41,6 +45,10 @@
     }
 
     async function speak(text, voice = "Brian") {
+      if (!(!noSkip || !audioPlaying)) {
+        return
+      }
+      audioPlaying = true
       if (!voices.includes(voice)) {
         voice = defaultVoice
       }
@@ -48,22 +56,11 @@
         voice +
         "&text=" +
         encodeURIComponent(text.trim()))
-
       if (speak.status !== 200) {
-        let text = await speak.text()
-
-        ga('send', {
-          hitType: 'event',
-          eventCategory: 'streamlabs',
-          eventAction: 'api-error',
-          eventLabel: text
-        })
-
+        console.warn(await speak.text())
         return
       }
-
       let mp3 = await speak.blob()
-
       let blobUrl = URL.createObjectURL(mp3)
       document.getElementById("source").setAttribute("src", blobUrl)
       let player = document.getElementById("player")
@@ -82,10 +79,11 @@
     if (singleChannel) {
       channels.push(singleChannel)
     }
-    const sayNames = !!findGetParameter("names")
-    const voice = findGetParameter("voice") || defaultVoice
-    const ttsRatelimit = parseInt(findGetParameter("ttsRateLimit")) || defaultTtsRateLimit
+    let sayNames = !!findGetParameter("names")
+    let voice = findGetParameter("voice") || defaultVoice
+    let ttsRatelimit = parseInt(findGetParameter("ttsRateLimit")) || defaultTtsRateLimit
     let shouldSend = true
+    let noSkip = !!findGetParameter("noSkip")
 
     // Connect ...
     chat.connect().then(() => {
@@ -93,7 +91,6 @@
     })
 
     chat.on("PRIVMSG", (msgObj) => {
-      //console.log(msgObj)
       if (shouldSend) {
         shouldSend = false
         let ttsMessage = msgObj.message
