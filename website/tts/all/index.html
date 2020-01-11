@@ -9,7 +9,7 @@
   <title>Text to Speech</title>
   <style>
     @media (prefers-color-scheme: dark) {
-      body{
+      body {
         background-color: #191919;
       }
     }
@@ -35,6 +35,7 @@
 
     let audioPlaying = false
     document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
+    document.getElementById("player").volume = parseFloat(findGetParameter("volume") || "1")
 
     function findGetParameter (parameterName) {
       let result = null
