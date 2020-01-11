@@ -49,9 +49,7 @@
         return
       }
       audioPlaying = true
-      if (!voices.includes(voice)) {
-        voice = defaultVoice
-      }
+      voice = voices.find(x => x.toLowerCase() === voice.toLowerCase()) || defaultVoice
       let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
         voice +
         "&text=" +
