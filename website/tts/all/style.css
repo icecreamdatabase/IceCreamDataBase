@@ -125,7 +125,7 @@ input:checked + .slider:before {
 .dropdown-content button {
     color: black;
     padding: 4px 8px;
-    width: 50%;
+    width: 100%;
     text-decoration: none;
     display: block;
     font-size: large;
