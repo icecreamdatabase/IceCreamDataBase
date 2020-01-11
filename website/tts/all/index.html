@@ -45,7 +45,7 @@
     }
 
     async function speak(text, voice = "Brian") {
-      if (!(!noSkip || !audioPlaying)) {
+      if (noSkip && audioPlaying) {
         return
       }
       audioPlaying = true
@@ -82,8 +82,9 @@
     let sayNames = !!findGetParameter("names")
     let voice = findGetParameter("voice") || defaultVoice
     let ttsRatelimit = parseInt(findGetParameter("ttsRateLimit")) || defaultTtsRateLimit
-    let shouldSend = true
     let noSkip = !!findGetParameter("noSkip")
+
+    let shouldSend = true
 
     // Connect ...
     chat.connect().then(() => {
@@ -102,7 +103,6 @@
         speak(ttsMessage, voice)
       }
     })
-
   </script>
 </footer>
 </html>
