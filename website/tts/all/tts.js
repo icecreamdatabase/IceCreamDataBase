@@ -13,17 +13,22 @@ if (singleChannel) {
 let sayNames = !!findGetParameter("names")
 let voice = findGetParameter("voice") || defaultVoice
 let ttsRatelimit = parseInt(findGetParameter("ttsRateLimit")) || defaultTtsRateLimit
-let noSkip = !!findGetParameter("noSkip")
+let alwaysFullPlayback = !!findGetParameter("alwaysFullPlayback")
 let volume = parseFloat(findGetParameter("volume") || "1")
 let interactive = !!findGetParameter("interactive")
 
 //needed variables
 let shouldSend = true
 let audioPlaying = false
+buttonApplyVoice(voice)
+fillVoiceDropDown(voices)
 
 //apply values
 document.getElementById("player").volume = volume
 document.getElementById("interactive").style.display = interactive ? "block" : "none"
+document.getElementById("tts-saynames-checkbox").checked = sayNames
+document.getElementById("tts-alwaysfullplayback-checkbox").checked = alwaysFullPlayback
+document.getElementById("tts-ratelimit-numberfield").value = ttsRatelimit
 
 //Eventlistener for TTS audio done playing
 document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
@@ -38,7 +43,7 @@ chat.connect().then(() => {
 })
 
 chat.on("PRIVMSG", (msgObj) => {
-  if (shouldSend && (!interactive || document.getElementById("checkbox-tts-enabled").checked)) {
+  if (shouldSend && (!interactive || document.getElementById("tts-enabled-checkbox").checked)) {
     shouldSend = false
     let ttsMessage = msgObj.message
     if (sayNames) {
@@ -50,12 +55,12 @@ chat.on("PRIVMSG", (msgObj) => {
   }
 })
 
-async function speak(text, voice = "Brian") {
-  if (noSkip && audioPlaying) {
+async function speak (text, voice = "Brian") {
+  if (audioPlaying && alwaysFullPlayback) {
     return
   }
   audioPlaying = true
-  voice = voices.find(x => x.toLowerCase() === voice.toLowerCase()) || defaultVoice
+  setVoice(voice)
   let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
     voice +
     "&text=" +
@@ -73,7 +78,7 @@ async function speak(text, voice = "Brian") {
   player.play()
 }
 
-function findGetParameter(parameterName) {
+function findGetParameter (parameterName) {
   let result = null
   let tmp = []
   location.search
@@ -87,8 +92,6 @@ function findGetParameter(parameterName) {
     })
   return result
 }
-
-function onVolumechange (value) {
-  document.getElementById("player").volume = value
+function setVoice (value) {
+  voice = voices.find(x => x.toLowerCase() === value.toLowerCase()) || defaultVoice
 }
-
