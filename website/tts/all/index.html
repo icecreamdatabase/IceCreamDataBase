@@ -89,14 +89,17 @@
       })
 
       chat.on("PRIVMSG", (msgObj) => {
-        console.log(msgObj)
+        //console.log(msgObj)
         let ttsMessage = msgObj.message
         if (sayNames) {
           ttsMessage = msgObj.username + " says " + ttsMessage
         }
         if (lastTTS + ttsRatelimit < Date.now()) {
           lastTTS = Date.now()
+          console.log("Said: " + ttsMessage)
           speak(ttsMessage, voice)
+        } else {
+          console.log("Skipped message by " + msgObj.username)
         }
       })
 
