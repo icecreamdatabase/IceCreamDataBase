@@ -20,6 +20,9 @@
     <!--suppress JSUnresolvedLibraryURL -->
     <script src="https://unpkg.com/twitch-js@2.0.0-beta.33/dist/twitch.js"></script>
     <script>
+      const voices = ["Aditi", "Amy", "Astrid", "Bianca", "Brian", "Carla", "Carmen", "Celine", "Chantal", "Conchita", "Cristiano", "Dora", "Emma", "Enrique", "Ewa", "Filiz", "Geraint", "Giorgio", "Gwyneth", "Hans", "Ines", "Ivy", "Jacek", "Jan", "Joanna", "Joey", "Justin", "Karl", "Kendra", "Kimberly", "Liv", "Lotte", "Mads", "Maja", "Marlene", "Mathieu", "Matthew", "Maxim", "Mia", "Miguel", "Mizuki", "Naja", "Nicole", "Penelope", "Raveena", "Ricardo", "Ruben", "Russell", "Salli", "Seoyeon", "Takumi", "Tatyana", "Vicki", "Vitoria", "Zhiyu"]
+      const defaultVoice = "Brian"
+
       function findGetParameter (parameterName) {
         let result = null
         let tmp = []
@@ -33,6 +36,9 @@
         return result
       }
       async function speak (text, voice = "Brian") {
+        if (!voices.includes(voice)) {
+          voice = defaultVoice
+        }
         let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
           voice +
           "&text=" +
@@ -66,26 +72,26 @@
       // noinspection JSUnresolvedFunction
       const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47"})
 
-      const skipNames = !findGetParameter("skipnames")
+      let channels = (findGetParameter("channels") || "").split(",").filter(Boolean)
+      let singleChannel = findGetParameter("channel")
+      if (singleChannel) {
+        channels.push(singleChannel)
+      }
+      const sayNames = !!findGetParameter("names")
+      const voice = findGetParameter("voice") || defaultVoice
 
       // Connect ...
       chat.connect().then(() => {
-        let channel = findGetParameter("channel")
-        if (channel) {
-          chat.join(channel)
-          //speak("Connected to " + channel)
-        } else {
-          console.log("No channel parameter")
-        }
+        channels.forEach(channel => chat.join(channel))
       })
 
       chat.on("PRIVMSG", (msgObj) => {
         console.log(msgObj)
         let ttsMessage = msgObj.message
-        if (skipNames) {
+        if (sayNames) {
           ttsMessage = msgObj.username + " says " + ttsMessage
         }
-        speak(ttsMessage)
+        speak(ttsMessage, voice)
       })
 
     </script>
