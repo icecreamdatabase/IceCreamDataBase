@@ -64,7 +64,9 @@
     <script>
       // Instantiate client.
       // noinspection JSUnresolvedFunction
-      const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47"});
+      const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47"})
+
+      const skipNames = !findGetParameter("skipnames")
 
       // Connect ...
       chat.connect().then(() => {
@@ -79,7 +81,11 @@
 
       chat.on("PRIVMSG", (msgObj) => {
         console.log(msgObj)
-        speak(msgObj.username + " says " + msgObj.message)
+        let ttsMessage = msgObj.message
+        if (skipNames) {
+          ttsMessage = msgObj.username + " says " + ttsMessage
+        }
+        speak(ttsMessage)
       })
 
     </script>
