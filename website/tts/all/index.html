@@ -7,13 +7,7 @@
   <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
 
   <title>Text to Speech</title>
-  <style>
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #191919;
-      }
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
@@ -23,92 +17,29 @@
 <audio id="player" controls="" style="display:none">
   <source id="source" type="audio/wav">
 </audio>
+<div id="interactive" style="display: none">
+  <table>
+    <tr>
+      <td><label for="checkbox-tts-enabled">TTS enabled:</label></td>
+      <td>
+        <label class="switch">
+          <input type="checkbox" id="checkbox-tts-enabled">
+          <span class="slider round"></span>
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="slider-tts-volume">Volume:</label></td>
+      <td>
+        <input type="range" id="slider-tts-volume" min="0" max="1" step="0.01" value="1" onchange="onVolumechange(this.value)">
+      </td>
+    </tr>
+  </table>
+</div>
 </body>
 <footer>
   <!--suppress JSUnresolvedLibraryURL -->
   <script src="https://unpkg.com/twitch-js@2.0.0-beta.33/dist/twitch.js"></script>
-  <script>
-    const voices = ["Aditi", "Amy", "Astrid", "Bianca", "Brian", "Carla", "Carmen", "Celine", "Chantal", "Conchita", "Cristiano", "Dora", "Emma", "Enrique", "Ewa", "Filiz", "Geraint", "Giorgio", "Gwyneth", "Hans", "Ines", "Ivy", "Jacek", "Jan", "Joanna", "Joey", "Justin", "Karl", "Kendra", "Kimberly", "Liv", "Lotte", "Mads", "Maja", "Marlene", "Mathieu", "Matthew", "Maxim", "Mia", "Miguel", "Mizuki", "Naja", "Nicole", "Penelope", "Raveena", "Ricardo", "Ruben", "Russell", "Salli", "Seoyeon", "Takumi", "Tatyana", "Vicki", "Vitoria", "Zhiyu", /* Less refinded ones */ "An", "Andika", "Asaf", "Danny", "Filip", "Guillaume", "HanHan", "Heather", "Heidi", "Hemant", "Herena", "Hoda", "Huihui", "Ivan", "Jakub", "Kalpana", "Kangkang", "Karsten", "Lado", "Linda", "Matej", "Michael", "Naayf", "Pattara", "Rizwan", "Sean", "Stefanos", "Szabolcs", "Tracy", "Valluvar", "Yaoyao", "Zhiwei"]
-    const defaultVoice = "Brian"
-    const defaultTtsRateLimit = 1000
-
-
-    let audioPlaying = false
-    document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
-    document.getElementById("player").volume = parseFloat(findGetParameter("volume") || "1")
-
-    function findGetParameter (parameterName) {
-      let result = null
-      let tmp = []
-      location.search
-        .substr(1)
-        .split("&")
-        .forEach(function (item) {
-          tmp = item.split("=")
-          if (tmp[0].toLowerCase() === parameterName.toLowerCase()) {
-            result = decodeURIComponent(tmp[1])
-          }
-        })
-      return result
-    }
-
-    async function speak(text, voice = "Brian") {
-      if (noSkip && audioPlaying) {
-        return
-      }
-      audioPlaying = true
-      voice = voices.find(x => x.toLowerCase() === voice.toLowerCase()) || defaultVoice
-      let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
-        voice +
-        "&text=" +
-        encodeURIComponent(text.trim()))
-      if (speak.status !== 200) {
-        console.warn(await speak.text())
-        return
-      }
-      let mp3 = await speak.blob()
-      let blobUrl = URL.createObjectURL(mp3)
-      document.getElementById("source").setAttribute("src", blobUrl)
-      let player = document.getElementById("player")
-      player.pause()
-      player.load()
-      player.play()
-    }
-  </script>
-  <script>
-    // Instantiate client.
-    // noinspection JSUnresolvedFunction
-    const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47", log: {level: "warn"}})
-
-    let channels = (findGetParameter("channels") || "").split(",").filter(Boolean)
-    let singleChannel = findGetParameter("channel")
-    if (singleChannel) {
-      channels.push(singleChannel)
-    }
-    let sayNames = !!findGetParameter("names")
-    let voice = findGetParameter("voice") || defaultVoice
-    let ttsRatelimit = parseInt(findGetParameter("ttsRateLimit")) || defaultTtsRateLimit
-    let noSkip = !!findGetParameter("noSkip")
-
-    let shouldSend = true
-
-    // Connect ...
-    chat.connect().then(() => {
-      channels.forEach(channel => chat.join(channel))
-    })
-
-    chat.on("PRIVMSG", (msgObj) => {
-      if (shouldSend) {
-        shouldSend = false
-        let ttsMessage = msgObj.message
-        if (sayNames) {
-          ttsMessage = msgObj.username + " says " + ttsMessage
-        }
-        console.log("TTS: " + msgObj.username + ": " + msgObj.message)
-        setTimeout(() => shouldSend = true, ttsRatelimit)
-        speak(ttsMessage, voice)
-      }
-    })
-  </script>
+  <script src="tts.js"></script>
 </footer>
 </html>
