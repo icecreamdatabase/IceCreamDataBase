@@ -42,7 +42,7 @@ module.exports = class Hardcoded {
       return true
     }
 
-    if (messageObj.userLevel === UserLevels.BROADCASTER
+    if (messageObj.userLevel >= UserLevels.BROADCASTER
       && messageObj.message.startsWith("<tags ")) {
 
       DiscordLog.debug(JSON.stringify(messageObj, null, 2))
