@@ -13,14 +13,16 @@ const UPDATE_INTERVAL = 30000//ms
 
 const ttsCommandPrefix = "!tts"
 const ttsCommandRegister = "register"
-const ttsResponseRegister = "Sucessfully registered. The bot will join your chat soon. Please use \"!tts help\" command in your own channel."
-const ttsCommandHelp = "help"
-const ttsResponseHelp = "Example help message."
+const ttsResponseRegister = "Sucessfully registered. Please use \"!tts help\" command in your own channel."
 const ttsCommandLink = "link"
 const ttsResponseLink = "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
 const ttsResponseLinkCustomReward = "Sucessfully linked reward. " + ttsResponseLink
 const ttsCommandVoices = "voices"
 const ttsResponseVoices = "Check available voices here: https://supinic.com/stream/tts"
+const ttsCommandHelp = "help"
+const ttsResponseHelp = "Use your channel points to play a TTS message."
+const ttsResponseHelpConversation = "Use your channel points to play a TTS message. You can use multiple voices in your message by prefixing their text like this: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\". To check available voices: \"" + ttsCommandPrefix + " " + ttsCommandVoices + "\""
+const ttsResponseHelpUnlinked = "The broadcaster has to create a custom reward with \"Require Viewer to Enter Text\" checked and use the reward with the command \"" + ttsCommandPrefix + " " + ttsCommandLink + "\" to enable TTS."
 
 const ttsCommandCooldownMs = 5000
 
@@ -55,7 +57,15 @@ module.exports = class ChannelPoints {
         responseMessage = ttsResponseRegister
 
       } else if (command.toLowerCase().startsWith(ttsCommandHelp)) {
-        responseMessage = ttsResponseHelp
+        if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
+          if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+            responseMessage = ttsResponseHelpConversation
+          } else {
+            responseMessage = ttsResponseHelp
+          }
+        } else {
+          responseMessage = ttsResponseHelpUnlinked
+        }
 
       } else if (command.toLowerCase().startsWith(ttsCommandLink) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
         if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
