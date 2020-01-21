@@ -6,13 +6,30 @@ module.exports = class SqlChannels {
 
   }
 
+  static async addChannel (botID, channelID, channelName, logMessages = false, shouldModerate = false, useCommands = false, useHardcodedCommands = true, shouldAnnounceSubs = false, useChannelPoints = false, ttsRegisterEnabled = false) {
+    await sqlPool.query(`INSERT IGNORE INTO channels(ID, channelName, enabled)
+    VALUES (?,?,b'1');`, [channelID, channelName])
+
+    await sqlPool.query(`INSERT INTO connections(botID, channelID, logMessages, shouldModerate, useCommands, useHardcodedCommands, shouldAnnounceSubs, useChannelPoints, ttsRegisterEnabled) 
+    VALUES (?,?,?,?,?,?,?,?,?) 
+    ON DUPLICATE KEY UPDATE 
+    logMessages = logMessages,
+    shouldModerate = shouldModerate,
+    useCommands = useCommands,
+    useHardcodedCommands = useHardcodedCommands,
+    shouldAnnounceSubs = shouldAnnounceSubs,
+    useChannelPoints = useChannelPoints,
+    ttsRegisterEnabled = ttsRegisterEnabled`,
+      [botID, channelID, logMessages, shouldModerate, useCommands, useHardcodedCommands, shouldAnnounceSubs, useChannelPoints, ttsRegisterEnabled])
+  }
+
   /**
    * Get channel data about a singular bot
    * @param  {int} botID Database id of the bot in question
    * @return {botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown}          All data about the channel
    */
   static async getChannelData (botID) {
-    let results = await sqlPool.query(`SELECT botID, channelID, channelName, logMessages ,shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown
+    let results = await sqlPool.query(`SELECT botID, channelID, channelName, logMessages ,shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, ttsRegisterEnabled, maxMessageLength, minCooldown
     FROM bots, channels, connections
     WHERE bots.ID = botID
     AND channels.ID = channelID
@@ -29,10 +46,11 @@ module.exports = class SqlChannels {
       let useCommands = row.useCommands || false
       let useHardcodedCommands = row.useHardcodedCommands || false
       let useChannelPoints = row.useChannelPoints || false
+      let ttsRegisterEnabled = row.ttsRegisterEnabled || false
       let maxMessageLength = row.maxMessageLength || 500
       let minCooldown = row.minCooldown || 0
 
-      return {botID, channelID, channelName, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown}
+      return {botID, channelID, channelName, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, ttsRegisterEnabled, maxMessageLength, minCooldown}
     })
 
     //make sure the index is the channelID

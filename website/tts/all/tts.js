@@ -95,3 +95,19 @@ function findGetParameter (parameterName) {
 function setVoice (value) {
   voice = voices.find(x => x.toLowerCase() === value.toLowerCase()) || defaultVoice
 }
+
+function createTTSObject (message, defaultVoice = defaultVoice) {
+  let output = [{voice: defaultVoice, text: ""}]
+  let outputIndex = 0
+  for (let word of message.split(" ")) {
+    if (word.endsWith(":") && voices.includes(word.substr(0, word.length - 1))) {
+      output[++outputIndex] = {}
+      output[outputIndex]["voice"] = word.substr(0, word.length - 1)
+      output[outputIndex]["text"] = ""
+    } else {
+      output[outputIndex]["text"] += " " + word
+    }
+  }
+  output.map(x => x.text = x.text.trim())
+  return output.filter(x => x.text)
+}

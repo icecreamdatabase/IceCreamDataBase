@@ -26,6 +26,8 @@
   </body>
   <footer>
 	<script>
+      let audioPlaying = false
+      document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
 
       function findGetParameter(parameterName) {
         let result = null
@@ -42,7 +44,23 @@
         return result
       }
 
+      let msgQueue = []
+      let newQueue = true
+      async function speakQueue () {
+        if (msgQueue.length > 0) {
+          if (newQueue || !audioPlaying) {
+            newQueue = false
+            let msgObj = msgQueue.shift()
+            if (msgObj) {
+              await speak(msgObj.message, msgObj.voice)
+            }
+          }
+          setTimeout(speakQueue, 250)
+        }
+      }
+
       async function speak (text, voice = "Brian") {
+        audioPlaying = true
 
         let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
           voice +
@@ -50,15 +68,7 @@
           encodeURIComponent(text.trim()))
 
         if (speak.status !== 200) {
-          let text = await speak.text()
-
-          ga('send', {
-            hitType: 'event',
-            eventCategory: 'streamlabs',
-            eventAction: 'api-error',
-            eventLabel: text
-          })
-
+          console.warn(await speak.text())
           return
         }
 
@@ -81,16 +91,14 @@
         })
 
         // Listen for messages
-        socket.addEventListener('message', function (event) {
+        socket.addEventListener('message', async function (event) {
           console.log('Message from server ', event.data)
           let obj = JSON.parse(event.data)
           console.log(obj)
-          if (obj.message && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
-            if (obj.voice) {
-              speak(obj.message, obj.voice)
-            } else {
-              speak(obj.message)
-            }
+          if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
+            msgQueue = obj.data
+            newQueue = true
+            speakQueue()
           }
         })
 

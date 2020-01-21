@@ -29,12 +29,6 @@ module.exports = class Hardcoded {
     }
 
     if (messageObj.userLevel === UserLevels.BOTADMIN
-      && messageObj.message.startsWith("<tJ ")) {
-      Tts.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), "Justin")
-      return true
-    }
-
-    if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<y ")) {
       this.bot.apiFunctions.followTime(38949074, 57019243).then(x => {
         this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))

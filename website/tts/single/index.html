@@ -1,110 +1,118 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
 
-    <title>Text to Speech</title>
-  </head>
+  <title>Text to Speech</title>
+</head>
 
-  <body>
-  <!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
-  <iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
-  <audio id="player" controls="" style="display:none">
-	<source id="source" type="audio/wav">
-  </audio>
-  </body>
-  <footer>
-	<script>
+<body>
+<!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
+<iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
+<audio id="player" controls="" style="display:none">
+  <source id="source" type="audio/wav">
+</audio>
+</body>
+<footer>
+  <script>
+    let audioPlaying = false
+    document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
 
-      function findGetParameter(parameterName) {
-        let result = null
-        let tmp = []
-        location.search
-                .substr(1)
-                .split("&")
-                .forEach(function (item) {
-                  tmp = item.split("=")
-                  if (tmp[0].toLowerCase() === parameterName.toLowerCase()) {
-                    result = decodeURIComponent(tmp[1])
-                  }
-                })
-        return result
-      }
-
-      async function speak (text, voice = "Brian") {
-
-        let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
-          voice +
-          "&text=" +
-          encodeURIComponent(text.trim()))
-
-        if (speak.status !== 200) {
-          let text = await speak.text()
-
-          ga('send', {
-            hitType: 'event',
-            eventCategory: 'streamlabs',
-            eventAction: 'api-error',
-            eventLabel: text
-          })
-
-          return
-        }
-
-        let mp3 = await speak.blob()
-
-        let blobUrl = URL.createObjectURL(mp3)
-        document.getElementById("source").setAttribute("src", blobUrl)
-        let player = document.getElementById("player")
-        player.pause()
-        player.load()
-        player.play()
-      }
-
-      function connect () {
-        let socket = new WebSocket('wss://ws.icecreamdatabase.com')
-        // Connection opened
-        socket.addEventListener('open', function (event) {
-          console.log("Connected")
-          socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase()}))
-        })
-
-        // Listen for messages
-        socket.addEventListener('message', function (event) {
-          console.log('Message from server ', event.data)
-          let obj = JSON.parse(event.data)
-          console.log(obj)
-          if (obj.message && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
-            if (obj.voice) {
-              speak(obj.message, obj.voice)
-            } else {
-              speak(obj.message)
-            }
+    function findGetParameter(parameterName) {
+      let result = null
+      let tmp = []
+      location.search
+        .substr(1)
+        .split("&")
+        .forEach(function (item) {
+          tmp = item.split("=")
+          if (tmp[0].toLowerCase() === parameterName.toLowerCase()) {
+            result = decodeURIComponent(tmp[1])
           }
         })
+      return result
+    }
 
-        socket.addEventListener('close', event => {
-          socket = null
-          connect()
-        })
-        socket.addEventListener('error', event => {
-          //socket = null
-          //connect()
-        })
+    let msgQueue = []
+    let newQueue = true
+    async function speakQueue () {
+      if (msgQueue.length > 0) {
+        if (newQueue || !audioPlaying) {
+          newQueue = false
+          let msgObj = msgQueue.shift()
+          if (msgObj) {
+            await speak(msgObj.message, msgObj.voice)
+          }
+        }
+        setTimeout(speakQueue, 250)
       }
-      connect()
+    }
 
-	</script>
-  </footer>
+    async function speak (text, voice = "Brian") {
+      audioPlaying = true
+
+      let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
+        voice +
+        "&text=" +
+        encodeURIComponent(text.trim()))
+
+      if (speak.status !== 200) {
+        console.warn(await speak.text())
+        return
+      }
+
+      let mp3 = await speak.blob()
+
+      let blobUrl = URL.createObjectURL(mp3)
+      document.getElementById("source").setAttribute("src", blobUrl)
+      let player = document.getElementById("player")
+      player.pause()
+      player.load()
+      player.play()
+    }
+
+    function connect () {
+      let socket = new WebSocket('wss://ws.icecreamdatabase.com')
+      // Connection opened
+      socket.addEventListener('open', function (event) {
+        console.log("Connected")
+        socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase()}))
+      })
+
+      // Listen for messages
+      socket.addEventListener('message', async function (event) {
+        console.log('Message from server ', event.data)
+        let obj = JSON.parse(event.data)
+        console.log(obj)
+        if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
+          msgQueue = obj.data
+          newQueue = true
+          speakQueue()
+        }
+      })
+
+      socket.addEventListener('close', event => {
+        socket = null
+        connect()
+      })
+      socket.addEventListener('error', event => {
+        //socket = null
+        //connect()
+      })
+    }
+    connect()
+
+  </script>
+</footer>
 </html>
