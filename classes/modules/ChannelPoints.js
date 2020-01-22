@@ -13,7 +13,9 @@ const UPDATE_INTERVAL = 30000//ms
 
 const ttsCommandPrefix = "!tts"
 const ttsCommandRegister = "register"
-const ttsResponseRegister = "Sucessfully registered. Please use \"!tts help\" command in your own channel."
+const ttsResponseRegister = "Successfully registered. Please use \"!tts help\" command in your own channel."
+const ttsCommandUnregister = "unregister"
+const ttsResponseUnregister = "Successfully unregistered."
 const ttsCommandLink = "link"
 const ttsResponseLink = "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
 const ttsResponseLinkCustomReward = "Sucessfully linked reward. " + ttsResponseLink
@@ -23,6 +25,12 @@ const ttsCommandHelp = "help"
 const ttsResponseHelp = "Use your channel points to play a TTS message."
 const ttsResponseHelpConversation = "Use your channel points to play a TTS message. You can use multiple voices in your message by prefixing their text like this: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\". To check available voices: \"" + ttsCommandPrefix + " " + ttsCommandVoices + "\""
 const ttsResponseHelpUnlinked = "The broadcaster has to create a custom reward with \"Require Viewer to Enter Text\" checked and use the reward with the command \"" + ttsCommandPrefix + " " + ttsCommandLink + "\" to enable TTS."
+const ttsCommandSettings = "settings"
+const ttsCommandSettingsConversation = "conversation"
+const ttsCommandSettingsSubscriber = "sub"
+const ttsResponseSettings = "Updating successful."
+const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Available options are: \"" + ttsCommandSettingsConversation + "\" and \"" + ttsCommandSettingsSubscriber + "\". Values are \"true\" and \"false\"."
+const ttsResponseSettingsFail = "Updating failed."
 
 const ttsCommandCooldownMs = 5000
 
@@ -65,6 +73,31 @@ module.exports = class ChannelPoints {
           }
         } else {
           responseMessage = ttsResponseHelpUnlinked
+        }
+
+      } else if (command.toLowerCase().startsWith(ttsCommandSettings) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
+
+        let setting = command.substr(ttsCommandSettings.length + 1)
+        if (setting.toLowerCase().startsWith(ttsCommandSettingsSubscriber)) {
+          try {
+            await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsSubscriber.length + 1).toLowerCase()))
+            responseMessage = ttsResponseSettings
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
+        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsConversation)) {
+          try {
+            await SqlChannelPoints.setSettingConversation(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsConversation.length + 1).toLowerCase()))
+            responseMessage = ttsResponseSettings
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
+        } else {
+          if (setting.trim()) {
+            responseMessage = ttsResponseSettingsFail
+          } else {
+            responseMessage = ttsResponseSettingsHelp
+          }
         }
 
       } else if (command.toLowerCase().startsWith(ttsCommandLink) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
