@@ -81,6 +81,7 @@ module.exports = class ChannelPoints {
         if (setting.toLowerCase().startsWith(ttsCommandSettingsSubscriber)) {
           try {
             await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsSubscriber.length + 1).toLowerCase()))
+            this.updateChannelPointSettings()
             responseMessage = ttsResponseSettings
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
@@ -88,6 +89,7 @@ module.exports = class ChannelPoints {
         } else if (setting.toLowerCase().startsWith(ttsCommandSettingsConversation)) {
           try {
             await SqlChannelPoints.setSettingConversation(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsConversation.length + 1).toLowerCase()))
+            this.updateChannelPointSettings()
             responseMessage = ttsResponseSettings
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
