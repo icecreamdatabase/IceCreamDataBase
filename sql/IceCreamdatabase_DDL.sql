@@ -17,8 +17,9 @@ create table channelPointsSettings
     botID int unsigned not null,
     channelID int unsigned not null,
     enabled bit default b'0' not null,
-    ttsBrianCustomRewardId varchar(45) null,
-    ttsJustinCustomRewardId varchar(45) null,
+    ttsCustomRewardId varchar(45) null,
+    ttsConversation bit default b'0' not null,
+    ttsDefaultVoiceName varchar(45) not null,
     ttsCooldown int(11) unsigned default 15 null,
     ttsUserLevel int(11) unsigned default 0 not null,
     ttsTimeoutCheckTime int(11) unsigned default 5 not null,
@@ -26,7 +27,11 @@ create table channelPointsSettings
     ttsRejectTimeoutMessage text null,
     ttsRejectCooldownMessage text null,
     ttsRejectUserLevelMessage text null,
-    primary key (botID, channelID)
+    primary key (botID, channelID),
+    constraint connections_bots_ID_fk
+        foreign key (botID) references bots (ID),
+    constraint connections_channels_ID_fk
+        foreign key (channelID) references channels (ID)
 );
 
 create table channels
@@ -73,6 +78,7 @@ create table connections
     useHardcodedCommands bit default b'0' not null,
     shouldAnnounceSubs bit default b'0' not null,
     useChannelPoints bit default b'0' not null,
+    ttsRegisterEnabled bit default b'0' not null,
     primary key (botID, channelID),
     constraint connections_bots_ID_fk
         foreign key (botID) references bots (ID),
