@@ -8,7 +8,7 @@ const UserLevels = require("../../ENUMS/UserLevels")
 const ClearChat = require("./ClearChat")
 
 const WebSocket = require('ws')
-const voices = ["Aditi", "Amy", "Astrid", "Bianca", "Brian", "Carla", "Carmen", "Celine", "Chantal", "Conchita", "Cristiano", "Dora", "Emma", "Enrique", "Ewa", "Filiz", "Geraint", "Giorgio", "Gwyneth", "Hans", "Ines", "Ivy", "Jacek", "Jan", "Joanna", "Joey", "Justin", "Karl", "Kendra", "Kimberly", "Liv", "Lotte", "Mads", "Maja", "Marlene", "Mathieu", "Matthew", "Maxim", "Mia", "Miguel", "Mizuki", "Naja", "Nicole", "Penelope", "Raveena", "Ricardo", "Ruben", "Russell", "Salli", "Seoyeon", "Takumi", "Tatyana", "Vicki", "Vitoria", "Zhiyu", /* Less refinded ones */ "An", "Andika", "Asaf", "Danny", "Filip", "Guillaume", "HanHan", "Heather", "Heidi", "Hemant", "Herena", "Hoda", "Huihui", "Ivan", "Jakub", "Kalpana", "Kangkang", "Karsten", "Lado", "Linda", "Matej", "Michael", "Naayf", "Pattara", "Rizwan", "Sean", "Stefanos", "Szabolcs", "Tracy", "Valluvar", "Yaoyao", "Zhiwei"]
+const voices = require('../../json/se-voices.json')
 const defaultVoice = "Brian"
 const conversationVoice = "CONVERSATION"
 
@@ -27,6 +27,43 @@ module.exports = class Tts {
 
   getVoices () {
     return voices
+  }
+
+  getVoiceLang (voice, noCase = false) {
+    let voiceLang = null
+
+    voices.some(langElem => {
+        let hasElem = langElem.voices.some(voiceElem => {
+            if (noCase)
+                return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
+            else
+                return (voiceElem.id === voice || voiceElem.name === voice)
+        })
+
+        if (hasElem) voicelang = langElem.lang
+
+        return hasElem
+    })
+
+    return voiceLang
+  }
+
+  getVoiceID (voice, noCase = false) {
+    let voiceID = null
+
+    voices.some(langElem => {
+        return langElem.voices.some(voiceElem => {
+            let match = ( noCase ?
+                (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) :
+                (voiceElem.id === voice || voiceElem.name === voice) )
+
+            if (match) voiceID = voiceElem.id
+
+            return match
+        })
+    })
+
+    return voiceID
   }
 
   newConnection (ws) {
@@ -80,9 +117,10 @@ module.exports = class Tts {
     let output = [{voice: defaultVoice, message: ""}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
-      if (word.endsWith(":") && voices.includes(word.substr(0, word.length - 1))) {
+      let voice
+      if (word.endsWith(":") && (voice = this.getVoiceID(word.substr(0, word.length - 1), true))) {
         output[++outputIndex] = {}
-        output[outputIndex]["voice"] = word.substr(0, word.length - 1)
+        output[outputIndex]["voice"] = voice
         output[outputIndex]["message"] = ""
       } else {
         output[outputIndex]["message"] += " " + word

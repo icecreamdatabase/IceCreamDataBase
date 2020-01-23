@@ -1,8 +1,8 @@
 //default parameter
-const voices = ["Aditi", "Amy", "Astrid", "Bianca", "Brian", "Carla", "Carmen", "Celine", "Chantal", "Conchita", "Cristiano", "Dora", "Emma", "Enrique", "Ewa", "Filiz", "Geraint", "Giorgio", "Gwyneth", "Hans", "Ines", "Ivy", "Jacek", "Jan", "Joanna", "Joey", "Justin", "Karl", "Kendra", "Kimberly", "Liv", "Lotte", "Mads", "Maja", "Marlene", "Mathieu", "Matthew", "Maxim", "Mia", "Miguel", "Mizuki", "Naja", "Nicole", "Penelope", "Raveena", "Ricardo", "Ruben", "Russell", "Salli", "Seoyeon", "Takumi", "Tatyana", "Vicki", "Vitoria", "Zhiyu", /* Less refinded ones */ "An", "Andika", "Asaf", "Danny", "Filip", "Guillaume", "HanHan", "Heather", "Heidi", "Hemant", "Herena", "Hoda", "Huihui", "Ivan", "Jakub", "Kalpana", "Kangkang", "Karsten", "Lado", "Linda", "Matej", "Michael", "Naayf", "Pattara", "Rizwan", "Sean", "Stefanos", "Szabolcs", "Tracy", "Valluvar", "Yaoyao", "Zhiwei"]
 const defaultVoice = "Brian"
 const defaultTtsRateLimit = 1000
-
+const seVoiceFile = '../se-voices.json'
+let voices = null
 
 //get parameters out of url
 let channels = (findGetParameter("channels") || "").split(",").filter(Boolean)
@@ -21,7 +21,7 @@ let interactive = !!findGetParameter("interactive")
 let shouldSend = true
 let audioPlaying = false
 buttonApplyVoice(voice)
-fillVoiceDropDown(voices)
+fillVoiceDropDown(getVoices())
 
 //apply values
 document.getElementById("player").volume = volume
@@ -60,7 +60,7 @@ async function speak (text, voice = "Brian") {
     return
   }
   audioPlaying = true
-  setVoice(voice)
+  setVoice(voice, true)
   let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
     voice +
     "&text=" +
@@ -92,8 +92,58 @@ function findGetParameter (parameterName) {
     })
   return result
 }
-function setVoice (value) {
-  voice = voices.find(x => x.toLowerCase() === value.toLowerCase()) || defaultVoice
+
+async function setVoice (value, noCase = false) {
+  let voiceID = defaultVoice
+
+  getVoices().some(langElem => {
+    return langElem.voices.some(voiceElem => {
+      let match = ( noCase ? (voiceElem.id.toLowerCase() === value.toLowerCase()) : (voiceElem.id === value) )
+
+      if (match) voiceID = voiceElem.id
+
+      return match
+    })
+  })
+
+  voice = voiceID
+}
+
+function getVoiceLang (value, noCase = false) {
+  let voiceLang = null
+
+  getVoices().some(langElem => {
+    let hasElem = langElem.voices.some(voiceElem => {
+      if (noCase)
+        return (voiceElem.id.toLowerCase() === value.toLowerCase() || voiceElem.name.toLowerCase() === value.toLowerCase())
+        else
+          return (voiceElem.id === value || voiceElem.name === value)
+      })
+
+      if (hasElem) voicelang = langElem.lang
+
+      return hasElem
+  })
+
+  return voiceLang
+}
+
+function getVoiceID (value, noCase = false) {
+  let voiceID = null
+
+  getVoices().some(langElem => {
+    return langElem.voices.some(voiceElem => {
+      let match = ( noCase ?
+        (voiceElem.id.toLowerCase() === value.toLowerCase() || voiceElem.name.toLowerCase() === value.toLowerCase()) :
+        (voiceElem.id === value || voiceElem.name === value) )
+
+      if (match) voiceID = voiceElem.id
+
+      return match
+    })
+  })
+
+  return voiceID
 }
 
 function createTTSObject (message, defaultVoice = defaultVoice) {
@@ -110,4 +160,37 @@ function createTTSObject (message, defaultVoice = defaultVoice) {
   }
   output.map(x => x.text = x.text.trim())
   return output.filter(x => x.text)
+}
+
+// TODO: Load asynchronously
+function getVoices () {
+  if (voices === null) {
+    voices = loadJSON(seVoiceFile)
+  }
+
+  return voices
+}
+
+// Load JSON text from server hosted file and return JSON parsed object
+function loadJSON (filePath) {
+  var json = loadTextFileAjaxSync(filePath, "application/json");
+  return JSON.parse(json);
+}
+
+// Load text with Ajax synchronously: takes path to file and optional MIME type
+function loadTextFileAjaxSync (filePath, mimeType) {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.open("GET", filePath, false);
+  if (mimeType != null) {
+    if (xmlHttp.overrideMimeType) {
+      xmlHttp.overrideMimeType(mimeType);
+    }
+  }
+  xmlHttp.send();
+  if (xmlHttp.status == 200) {
+    return xmlHttp.responseText;
+  } else {
+    // TODO: Throw exception
+    return null;
+  }
 }
