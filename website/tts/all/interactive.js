@@ -54,15 +54,17 @@ function filterFunction (dropDownSearch, dropDownDiv) {
   let div = document.getElementById(dropDownDiv)
   let langDivs = div.children
   for (let i = 0; i < langDivs.length; i++) {
-    if (langDivs[i].tagName.toLowerCase() != "div")
-      continue
+    if (langDivs[i].tagName.toLowerCase() !== "div") {
+        continue
+      }
 
     let a = langDivs[i].children
     let buttonNum = 0
     let hiddenItems = 0
     for (let j = 0; j < a.length; j++) {
-      if (a[j].tagName.toLowerCase() != "button")
+      if (a[j].tagName.toLowerCase() !== "button") {
         continue
+      }
 
       buttonNum++
       let txtValue = a[j].textContent || a[j].innerText
@@ -73,10 +75,11 @@ function filterFunction (dropDownSearch, dropDownDiv) {
         hiddenItems++
       }
     }
-    if (buttonNum == hiddenItems)
+    if (buttonNum === hiddenItems) {
       langDivs[i].style.display = "none"
-    else
+    } else {
       langDivs[i].style.display = ""
+    }
   }
 }
 

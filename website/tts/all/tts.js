@@ -100,7 +100,9 @@ async function setVoice (value, noCase = false) {
     return langElem.voices.some(voiceElem => {
       let match = ( noCase ? (voiceElem.id.toLowerCase() === value.toLowerCase()) : (voiceElem.id === value) )
 
-      if (match) voiceID = voiceElem.id
+      if (match) {
+        voiceID = voiceElem.id
+      }
 
       return match
     })
@@ -114,15 +116,18 @@ function getVoiceLang (value, noCase = false) {
 
   getVoices().some(langElem => {
     let hasElem = langElem.voices.some(voiceElem => {
-      if (noCase)
+      if (noCase) {
         return (voiceElem.id.toLowerCase() === value.toLowerCase() || voiceElem.name.toLowerCase() === value.toLowerCase())
-        else
-          return (voiceElem.id === value || voiceElem.name === value)
-      })
+      } else {
+        return (voiceElem.id === value || voiceElem.name === value)
+      }
+    })
 
-      if (hasElem) voicelang = langElem.lang
+    if (hasElem) {
+      voicelang = langElem.lang
+    }
 
-      return hasElem
+    return hasElem
   })
 
   return voiceLang
@@ -137,7 +142,7 @@ function getVoiceID (value, noCase = false) {
         (voiceElem.id.toLowerCase() === value.toLowerCase() || voiceElem.name.toLowerCase() === value.toLowerCase()) :
         (voiceElem.id === value || voiceElem.name === value) )
 
-      if (match) voiceID = voiceElem.id
+      if (match) { voiceID = voiceElem.id }
 
       return match
     })
@@ -166,6 +171,7 @@ function createTTSObject (message, defaultVoice = defaultVoice) {
 function getVoices () {
   if (voices === null) {
     voices = loadJSON(seVoiceFile)
+    //TODO: sorting
   }
 
   return voices
@@ -173,24 +179,24 @@ function getVoices () {
 
 // Load JSON text from server hosted file and return JSON parsed object
 function loadJSON (filePath) {
-  var json = loadTextFileAjaxSync(filePath, "application/json");
-  return JSON.parse(json);
+  let json = loadTextFileAjaxSync(filePath, "application/json")
+  return JSON.parse(json)
 }
 
 // Load text with Ajax synchronously: takes path to file and optional MIME type
 function loadTextFileAjaxSync (filePath, mimeType) {
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open("GET", filePath, false);
+  var xmlHttp = new XMLHttpRequest()
+  xmlHttp.open("GET", filePath, false)
   if (mimeType != null) {
     if (xmlHttp.overrideMimeType) {
-      xmlHttp.overrideMimeType(mimeType);
+      xmlHttp.overrideMimeType(mimeType)
     }
   }
-  xmlHttp.send();
-  if (xmlHttp.status == 200) {
-    return xmlHttp.responseText;
+  xmlHttp.send()
+  if (xmlHttp.status === 200) {
+    return xmlHttp.responseText
   } else {
     // TODO: Throw exception
-    return null;
+    return null
   }
 }
