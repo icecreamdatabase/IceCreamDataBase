@@ -33,16 +33,19 @@ module.exports = class Tts {
     let voiceLang = null
 
     voices.some(langElem => {
-        let hasElem = langElem.voices.some(voiceElem => {
-            if (noCase)
-                return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
-            else
-                return (voiceElem.id === voice || voiceElem.name === voice)
-        })
+      let hasElem = langElem.voices.some(voiceElem => {
+        if (noCase) {
+          return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
+        } else {
+          return (voiceElem.id === voice || voiceElem.name === voice)
+        }
+      })
 
-        if (hasElem) voicelang = langElem.lang
+      if (hasElem) {
+        voicelang = langElem.lang
+      }
 
-        return hasElem
+      return hasElem
     })
 
     return voiceLang
@@ -52,15 +55,17 @@ module.exports = class Tts {
     let voiceID = null
 
     voices.some(langElem => {
-        return langElem.voices.some(voiceElem => {
-            let match = ( noCase ?
-                (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) :
-                (voiceElem.id === voice || voiceElem.name === voice) )
+      return langElem.voices.some(voiceElem => {
+        let match = ( noCase ?
+            (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) :
+            (voiceElem.id === voice || voiceElem.name === voice) )
 
-            if (match) voiceID = voiceElem.id
+        if (match) {
+          voiceID = voiceElem.id
+        }
 
-            return match
-        })
+        return match
+      })
     })
 
     return voiceID
