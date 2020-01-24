@@ -171,7 +171,26 @@ function createTTSObject (message, defaultVoice = defaultVoice) {
 function getVoices () {
   if (voices === null) {
     voices = loadJSON(seVoiceFile)
-    //TODO: sorting
+    voices.sort((a, b) => {
+      if (a.lang < b.lang) {
+        return -1
+      } else if (a.lang > b.lang) {
+        return 1
+      } else {
+        return 0
+      }
+    })
+    voices.forEach((element) => {
+      element.voices.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1
+        } else if (a.name > b.name) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+    })
   }
 
   return voices
