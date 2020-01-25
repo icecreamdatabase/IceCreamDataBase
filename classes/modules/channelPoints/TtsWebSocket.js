@@ -42,7 +42,7 @@ module.exports = class TtsWebSocket {
       })
 
       if (hasElem) {
-        voicelang = langElem.lang
+        voiceLang = langElem.lang
       }
 
       return hasElem

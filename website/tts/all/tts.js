@@ -124,7 +124,7 @@ function getVoiceLang (value, noCase = false) {
     })
 
     if (hasElem) {
-      voicelang = langElem.lang
+      voiceLang = langElem.lang
     }
 
     return hasElem
