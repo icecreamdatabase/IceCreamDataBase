@@ -27,7 +27,7 @@ function fillVoiceDropDown (voices) {
   let filter = /^((US|British)\s)?English$/g
   let preferredVoices = ["Aditi", "Amy", "Astrid", "Bianca", "Brian", "Carla", "Carmen", "Celine", "Chantal", "Conchita", "Cristiano", "Dora", "Emma", "Enrique", "Ewa", "Filiz", "Geraint", "Giorgio", "Gwyneth", "Hans", "Ines", "Ivy", "Jacek", "Jan", "Joanna", "Joey", "Justin", "Karl", "Kendra", "Kimberly", "Liv", "Lotte", "Mads", "Maja", "Marlene", "Mathieu", "Matthew", "Maxim", "Mia", "Miguel", "Mizuki", "Naja", "Nicole", "Penelope", "Raveena", "Ricardo", "Ruben", "Russell", "Salli", "Seoyeon", "Takumi", "Tatyana", "Vicki", "Vitoria", "Zhiyu"]
 
-  voices.sort((a, b) => a.lang.localeCompare(b.lang, 'en-US', { sensitivity: 'accent' }))
+  voices.sort((a, b) => a.lang.localeCompare(b.lang, 'en-US', {sensitivity: 'accent'}))
   // Put filter match on top
   voices.sort((a, b) => {
     let m = a.lang.search(filter) !== -1
@@ -35,7 +35,7 @@ function fillVoiceDropDown (voices) {
     return (!m && n ? 1 : 0) || (m && !n ? -1 : 0)
   })
   voices.forEach(e => {
-    e.voices.sort((a, b) => a.name.localeCompare(b.name, 'en-US', { sensitivity: 'accent' }))
+    e.voices.sort((a, b) => a.name.localeCompare(b.name, 'en-US', {sensitivity: 'accent'}))
     //e.voices.filter(x => preferredVoices.includes(x.id)).map(x => { x.name += '*' })
   })
 
@@ -73,7 +73,6 @@ function toggleVoiceDropdown () {
   document.getElementById("tts-voice-dropdowndiv").classList.toggle("show")
 }
 
-
 function filterFunction (dropDownSearch, dropDownDiv, asterisk = false) {
   let input = document.getElementById(dropDownSearch)
   let filter = input.value && input.value.toLowerCase() || ""
@@ -81,8 +80,8 @@ function filterFunction (dropDownSearch, dropDownDiv, asterisk = false) {
   let langDivs = div.children
   for (let i = 0; i < langDivs.length; i++) {
     if (langDivs[i].tagName.toLowerCase() !== "div") {
-        continue
-      }
+      continue
+    }
 
     let a = langDivs[i].children
     let buttonNum = 0

@@ -93,12 +93,12 @@ function findGetParameter (parameterName) {
   return result
 }
 
-async function setVoice (value, noCase = false) {
+function setVoice (value, noCase = false) {
   let voiceID = defaultVoice
 
   getVoices().some(langElem => {
     return langElem.voices.some(voiceElem => {
-      let match = ( noCase ? (voiceElem.id.toLowerCase() === value.toLowerCase()) : (voiceElem.id === value) )
+      let match = (noCase ? (voiceElem.id.toLowerCase() === value.toLowerCase()) : (voiceElem.id === value))
 
       if (match) {
         voiceID = voiceElem.id
@@ -138,11 +138,13 @@ function getVoiceID (value, noCase = false) {
 
   getVoices().some(langElem => {
     return langElem.voices.some(voiceElem => {
-      let match = ( noCase ?
+      let match = (noCase ?
         (voiceElem.id.toLowerCase() === value.toLowerCase() || voiceElem.name.toLowerCase() === value.toLowerCase()) :
-        (voiceElem.id === value || voiceElem.name === value) )
+        (voiceElem.id === value || voiceElem.name === value))
 
-      if (match) { voiceID = voiceElem.id }
+      if (match) {
+        voiceID = voiceElem.id
+      }
 
       return match
     })
