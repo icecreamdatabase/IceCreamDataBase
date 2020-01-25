@@ -12,12 +12,12 @@ const voices = require('../../../json/se-voices.json')
 const defaultVoice = "Brian"
 const conversationVoice = "CONVERSATION"
 
-module.exports = class Tts {
+module.exports = class TtsWebSocket {
   constructor () {
-    if (Tts.instance) {
-      return Tts.instance
+    if (TtsWebSocket.instance) {
+      return TtsWebSocket.instance
     }
-    Tts.instance = this
+    TtsWebSocket.instance = this
 
     this.wss = new WebSocket.Server({ port: 4700 })
     this.wss.on('connection', this.newConnection.bind(this))

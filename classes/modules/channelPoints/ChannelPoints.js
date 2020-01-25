@@ -6,7 +6,7 @@ const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
 const Api = require('../../api/Api.js')
 const DiscordLog = require('../DiscordLog')
 const Helper = require('../commands/Helper')
-const Tts = new (require('./Tts')) //singleton
+const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
 const UserLevels = require("../../../ENUMS/UserLevels")
 
 const UPDATE_INTERVAL = 30000//ms
@@ -133,7 +133,7 @@ module.exports = class ChannelPoints {
             this.lastTts[privMsgObj.roomId] = Date.now()
 
             if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-              let wasSent = await Tts.sendTtsWithTimeoutCheck(privMsgObj.channel, privMsgObj.username, privMsgObj.message,
+              let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj.channel, privMsgObj.username, privMsgObj.message,
                                                               settingObj.ttsConversation, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
               console.log("Was sent: " + wasSent)
               if (wasSent) {
