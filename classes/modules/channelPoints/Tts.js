@@ -1,16 +1,17 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const SqlChannels = require('../sql/main/SqlChannels')
-const SqlChannelPoints = require('../sql/modules/SqlChannelPoints')
-const Api = require('../api/Api.js')
-const DiscordLog = require('./DiscordLog')
-const Helper = require('./commands/Helper')
-const Tts = new (require('./Tts')) //singleton
-const UserLevels = require("../../ENUMS/UserLevels")
+const SqlChannels = require('../../sql/main/SqlChannels')
+const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
+const Api = require('../../api/Api.js')
+const DiscordLog = require('../DiscordLog')
+const Helper = require('../commands/Helper')
+const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
+const UserLevels = require("../../../ENUMS/UserLevels")
 
 const UPDATE_INTERVAL = 30000//ms
 
+//TODO: put this as json into a file
 const ttsCommandPrefix = "!tts"
 const ttsCommandRegister = "register"
 const ttsResponseRegister = "Successfully registered. Please use \"!tts help\" command in your own channel."
@@ -32,9 +33,9 @@ const ttsResponseSettings = "Updating successful."
 const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Available options are: \"" + ttsCommandSettingsConversation + "\" and \"" + ttsCommandSettingsSubscriber + "\". Values are \"true\" and \"false\"."
 const ttsResponseSettingsFail = "Updating failed."
 
-const ttsCommandCooldownMs = 5000
+const ttsCommandCooldownMs = 3000
 
-module.exports = class ChannelPoints {
+module.exports = class Tts {
   constructor (bot) {
     this.bot = bot
 
@@ -47,13 +48,21 @@ module.exports = class ChannelPoints {
   }
 
   async handlePrivMsg (privMsgObj) {
-    //Handle channelpoint register
+
+    await this.handleTtsRegiser(privMsgObj)
+
+    if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId)) {
+      await this.handleTtsRedeem(privMsgObj)
+    }
+  }
+
+  async handleTtsRegiser (privMsgObj) {
     if (privMsgObj.message.toLowerCase().startsWith(ttsCommandPrefix)
-        && (this.bot.channels[privMsgObj.roomId].useChannelPoints
-            || this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled)
-        && (this.ttsCommandLastUsage + ttsCommandCooldownMs < Date.now()
-            || privMsgObj.userLevel >= UserLevels.MODERATOR)
-       ) {
+      && (this.bot.channels[privMsgObj.roomId].useChannelPoints
+        || this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled)
+      && (this.ttsCommandLastUsage + ttsCommandCooldownMs < Date.now()
+        || privMsgObj.userLevel >= UserLevels.MODERATOR)
+    ) {
       this.ttsCommandLastUsage = Date.now()
       let command = privMsgObj.message.substr(ttsCommandPrefix.length + 1)
       let responseMessage = ""
@@ -119,47 +128,49 @@ module.exports = class ChannelPoints {
       if (responseMessage) {
         this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, "@" + privMsgObj.username + ", " + responseMessage)
       }
-    }
-
-    /* -------------------------------------------------------------- */
-
-    //Handle channelpoints
-    if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId)) {
-      if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
-        let returnMessage
-        let settingObj = this.channelPointsSettings[privMsgObj.roomId]
-        if (settingObj.ttsUserLevel <= privMsgObj.userLevel) {
-          if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
-            this.lastTts[privMsgObj.roomId] = Date.now()
-
-            if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-              let wasSent = await Tts.sendTtsWithTimeoutCheck(privMsgObj.channel, privMsgObj.username, privMsgObj.message,
-                                                              settingObj.ttsConversation, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
-              console.log("Was sent: " + wasSent)
-              if (wasSent) {
-                //Accept
-                returnMessage = settingObj.ttsAcceptMessage
-              } else {
-                //Reject timeout
-                returnMessage = settingObj.ttsRejectTimeoutMessage
-              }
-            }
-          } else {
-            //Reject cooldown
-            returnMessage = settingObj.ttsRejectCooldownMessage
-          }
-        } else {
-          //Reject userlevel
-          returnMessage = settingObj.ttsRejectUserLevelMessage
-        }
-        if (returnMessage) {
-          returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
-          //send returnMesage
-          this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
-        }
-      }
+      return true
     }
     return false
+  }
+
+  async handleTtsRedeem (privMsgObj) {
+    let hasTakenAction = false
+    if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
+      let returnMessage
+      let settingObj = this.channelPointsSettings[privMsgObj.roomId]
+      if (settingObj.ttsUserLevel <= privMsgObj.userLevel) {
+        if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+          this.lastTts[privMsgObj.roomId] = Date.now()
+
+          if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj.channel, privMsgObj.username, privMsgObj.message,
+                                                            settingObj.ttsConversation, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
+            //console.log("Was sent: " + wasSent)
+            if (wasSent) {
+              //Accept
+              returnMessage = settingObj.ttsAcceptMessage
+            } else {
+              //Reject timeout
+              returnMessage = settingObj.ttsRejectTimeoutMessage
+            }
+            hasTakenAction = true
+          }
+        } else {
+          //Reject cooldown
+          returnMessage = settingObj.ttsRejectCooldownMessage
+        }
+      } else {
+        //Reject userlevel
+        returnMessage = settingObj.ttsRejectUserLevelMessage
+      }
+      if (returnMessage) {
+        returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
+        //send returnMesage
+        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+        hasTakenAction = true
+      }
+    }
+    return hasTakenAction
   }
 
   updateChannelPointSettings () {

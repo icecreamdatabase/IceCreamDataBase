@@ -1,23 +1,23 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Api = require('../api/Api.js')
-const DiscordLog = require('./DiscordLog')
-const Helper = require('./commands/Helper')
-const UserLevels = require("../../ENUMS/UserLevels")
-const ClearChat = require("./ClearChat")
+const Api = require('../../api/Api.js')
+const DiscordLog = require('../DiscordLog')
+const Helper = require('../commands/Helper')
+const UserLevels = require("../../../ENUMS/UserLevels")
+const ClearChat = require("../ClearChat")
 
 const WebSocket = require('ws')
-const voices = require('../../json/se-voices.json')
+const voices = require('../../../json/se-voices.json')
 const defaultVoice = "Brian"
 const conversationVoice = "CONVERSATION"
 
-module.exports = class Tts {
+module.exports = class TtsWebSocket {
   constructor () {
-    if (Tts.instance) {
-      return Tts.instance
+    if (TtsWebSocket.instance) {
+      return TtsWebSocket.instance
     }
-    Tts.instance = this
+    TtsWebSocket.instance = this
 
     this.wss = new WebSocket.Server({ port: 4700 })
     this.wss.on('connection', this.newConnection.bind(this))

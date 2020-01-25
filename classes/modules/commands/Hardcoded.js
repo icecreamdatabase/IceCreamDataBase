@@ -6,7 +6,7 @@ const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
-const Tts = new (require('./../Tts')) //singleton
+const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
 
 
@@ -24,7 +24,7 @@ module.exports = class Hardcoded {
   handle (messageObj) {
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<t ")) {
-      Tts.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), "Brian")
+      TtsWebSocket.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), "Brian")
       return true
     }
 
