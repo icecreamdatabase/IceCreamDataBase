@@ -5,7 +5,7 @@ const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Commands = require('./commands/Commands')
-const ChannelPoints = require('./ChannelPoints')
+const ChannelPoints = require('./channelPoints/ChannelPoints')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
 

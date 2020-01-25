@@ -6,7 +6,7 @@ const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
-const Tts = new (require('./../Tts')) //singleton
+const Tts = new (require('../channelPoints/Tts')) //singleton
 
 
 

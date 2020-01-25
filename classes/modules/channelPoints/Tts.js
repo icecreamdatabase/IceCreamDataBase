@@ -1,14 +1,14 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Api = require('../api/Api.js')
-const DiscordLog = require('./DiscordLog')
-const Helper = require('./commands/Helper')
-const UserLevels = require("../../ENUMS/UserLevels")
-const ClearChat = require("./ClearChat")
+const Api = require('../../api/Api.js')
+const DiscordLog = require('../DiscordLog')
+const Helper = require('../commands/Helper')
+const UserLevels = require("../../../ENUMS/UserLevels")
+const ClearChat = require("../ClearChat")
 
 const WebSocket = require('ws')
-const voices = require('../../json/se-voices.json')
+const voices = require('../../../json/se-voices.json')
 const defaultVoice = "Brian"
 const conversationVoice = "CONVERSATION"
 

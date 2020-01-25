@@ -1,13 +1,13 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const SqlChannels = require('../sql/main/SqlChannels')
-const SqlChannelPoints = require('../sql/modules/SqlChannelPoints')
-const Api = require('../api/Api.js')
-const DiscordLog = require('./DiscordLog')
-const Helper = require('./commands/Helper')
+const SqlChannels = require('../../sql/main/SqlChannels')
+const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
+const Api = require('../../api/Api.js')
+const DiscordLog = require('../DiscordLog')
+const Helper = require('../commands/Helper')
 const Tts = new (require('./Tts')) //singleton
-const UserLevels = require("../../ENUMS/UserLevels")
+const UserLevels = require("../../../ENUMS/UserLevels")
 
 const UPDATE_INTERVAL = 30000//ms
 
