@@ -66,11 +66,18 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-#tts-voice-dropdowndiv > div {
-    color: #666;
-    text-align: left;
+/* TTS Dropdown menu */
+#tts-voice-dropdowndiv {
     padding: 3px;
+    color: #666;
+}
+#tts-voice-dropdowndiv > div {
+    text-align: left;
     font-style: italic;
+}
+#tts-voice-dropdowndiv .preferred-lang {
+    color: #333;
+    font-weight: 600;
 }
 
 /* Rounded sliders */

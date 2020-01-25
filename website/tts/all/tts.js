@@ -2,7 +2,7 @@
 const defaultVoice = "Brian"
 const defaultTtsRateLimit = 1000
 const seVoiceFile = '../se-voices.json'
-let voices = null
+let seVoiceData = null
 
 //get parameters out of url
 let channels = (findGetParameter("channels") || "").split(",").filter(Boolean)
@@ -169,31 +169,12 @@ function createTTSObject (message, defaultVoice = defaultVoice) {
 
 // TODO: Load asynchronously
 function getVoices () {
-  if (voices === null) {
-    voices = loadJSON(seVoiceFile)
-    voices.sort((a, b) => {
-      if (a.lang < b.lang) {
-        return -1
-      } else if (a.lang > b.lang) {
-        return 1
-      } else {
-        return 0
-      }
-    })
-    voices.forEach((element) => {
-      element.voices.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1
-        } else if (a.name > b.name) {
-          return 1
-        } else {
-          return 0
-        }
-      })
-    })
+  if (seVoiceData === null) {
+    seVoiceData = loadJSON(seVoiceFile)
+    //console.log(seVoiceFile + " loaded")
   }
 
-  return voices
+  return seVoiceData
 }
 
 // Load JSON text from server hosted file and return JSON parsed object

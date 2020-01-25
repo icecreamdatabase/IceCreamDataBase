@@ -3,9 +3,9 @@
  * app that is used when creating an overlay on the StreamElements dashboard:
  * (https://streamelements.com/dashboard/overlays)
  * Creating an alertbox and going into the TTS settings of the element should reveal a dropdown
- * menu containg all tts voices and their respective mapping to the actual ids that are sent to the
+ * menu containing all TTS voices and their respective mapping to the actual IDs that are sent to the
  * StreamElements API.
- * Using the raw html as file input should let you convert it to a clean json object.
+ * Using the raw HTML as file input should let you convert it to a clean json object.
  */
 const SEVoiceHTMLFile = 'se-voices.html'
 const SEVoiceJSONFile = 'se-voices.json'

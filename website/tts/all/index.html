@@ -48,6 +48,7 @@
         <div id="tts-voice-dropdowndiv" class="dropdown-content">
           <!--suppress HtmlFormInputWithoutLabel -->
           <input type="text" placeholder="Search.." id="tts-voice-dropdownsearch" onkeyup="filterFunction('tts-voice-dropdownsearch', 'tts-voice-dropdowndiv')">
+          <input type="checkbox" id="tts-voice-prioritycheckbox" onchange="filterFunction('tts-voice-dropdownsearch', 'tts-voice-dropdowndiv', this.checked)" checked><label for="tts-voice-prioritycheckbox">*</label>
         </div>
       </td>
     </tr>
