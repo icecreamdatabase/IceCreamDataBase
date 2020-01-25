@@ -30,8 +30,8 @@ function fillVoiceDropDown (voices) {
   voices.sort((a, b) => a.lang.localeCompare(b.lang, 'en-US', { sensitivity: 'accent' }))
   // Put filter match on top
   voices.sort((a, b) => {
-    let m = a.lang.search(filter) != -1
-    let n = b.lang.search(filter) != -1
+    let m = a.lang.search(filter) !== -1
+    let n = b.lang.search(filter) !== -1
     return (!m && n ? 1 : 0) || (m && !n ? -1 : 0)
   })
   voices.forEach(e => {
@@ -43,7 +43,7 @@ function fillVoiceDropDown (voices) {
     let langNode = document.createElement("div")
     let langLabel = document.createElement("label")
     langLabel.appendChild(document.createTextNode(langElem.lang))
-    if (langElem.lang.search(filter) != -1) {
+    if (langElem.lang.search(filter) !== -1) {
       langLabel.classList.add("preferred-lang")
     }
     langNode.appendChild(langLabel)
@@ -73,9 +73,6 @@ function toggleVoiceDropdown () {
   document.getElementById("tts-voice-dropdowndiv").classList.toggle("show")
 }
 
-function toggleCheckbox(id) {
-    updateVoiceDropDown(document.getElementById(id).checked ? true : false)
-}
 
 function filterFunction (dropDownSearch, dropDownDiv, asterisk = false) {
   let input = document.getElementById(dropDownSearch)
