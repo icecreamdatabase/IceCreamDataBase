@@ -2,7 +2,7 @@
 const defaultVoice = "Brian"
 const defaultTtsRateLimit = 1000
 const seVoiceFile = '../se-voices.json'
-let voices = null
+let seVoiceData = null
 
 //get parameters out of url
 let channels = (findGetParameter("channels") || "").split(",").filter(Boolean)
@@ -93,12 +93,12 @@ function findGetParameter (parameterName) {
   return result
 }
 
-async function setVoice (value, noCase = false) {
+function setVoice (value, noCase = false) {
   let voiceID = defaultVoice
 
   getVoices().some(langElem => {
     return langElem.voices.some(voiceElem => {
-      let match = ( noCase ? (voiceElem.id.toLowerCase() === value.toLowerCase()) : (voiceElem.id === value) )
+      let match = (noCase ? (voiceElem.id.toLowerCase() === value.toLowerCase()) : (voiceElem.id === value))
 
       if (match) {
         voiceID = voiceElem.id
@@ -138,11 +138,13 @@ function getVoiceID (value, noCase = false) {
 
   getVoices().some(langElem => {
     return langElem.voices.some(voiceElem => {
-      let match = ( noCase ?
+      let match = (noCase ?
         (voiceElem.id.toLowerCase() === value.toLowerCase() || voiceElem.name.toLowerCase() === value.toLowerCase()) :
-        (voiceElem.id === value || voiceElem.name === value) )
+        (voiceElem.id === value || voiceElem.name === value))
 
-      if (match) { voiceID = voiceElem.id }
+      if (match) {
+        voiceID = voiceElem.id
+      }
 
       return match
     })
@@ -169,31 +171,12 @@ function createTTSObject (message, defaultVoice = defaultVoice) {
 
 // TODO: Load asynchronously
 function getVoices () {
-  if (voices === null) {
-    voices = loadJSON(seVoiceFile)
-    voices.sort((a, b) => {
-      if (a.lang < b.lang) {
-        return -1
-      } else if (a.lang > b.lang) {
-        return 1
-      } else {
-        return 0
-      }
-    })
-    voices.forEach((element) => {
-      element.voices.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1
-        } else if (a.name > b.name) {
-          return 1
-        } else {
-          return 0
-        }
-      })
-    })
+  if (seVoiceData === null) {
+    seVoiceData = loadJSON(seVoiceFile)
+    //console.log(seVoiceFile + " loaded")
   }
 
-  return voices
+  return seVoiceData
 }
 
 // Load JSON text from server hosted file and return JSON parsed object

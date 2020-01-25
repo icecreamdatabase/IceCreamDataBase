@@ -1,0 +1,16 @@
+{
+  "name": "se-parser",
+  "version": "1.0.0",
+  "private": true,
+  "description": "parser for streamelements overlay site for extracting tts voice data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SunRed <manuel@sunred.org>",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.4.1",
+    "jsdom": "^16.0.1"
+  }
+}
