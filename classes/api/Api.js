@@ -123,7 +123,7 @@ module.exports = class ApiFunctions {
   static async userIdFromLogin (clientID, username) {
     let response = await this.userInfosFromLogins(clientID, [username])
 
-    if (response.total === 0) {
+    if (response.total === 0 || response.users.length === 0) {
       return '-1'
     } else {
       return response.users[0]["_id"]

@@ -69,7 +69,21 @@ module.exports = class Tts {
 
       if (command.toLowerCase().startsWith(ttsCommandRegister) && this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled) {
         //channel and connection creating
-        await SqlChannels.addChannel(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.userId, privMsgObj.username, false, false, false, true, false, true, false)
+        let userId = privMsgObj.userId
+        let username = privMsgObj.username
+        //botadmins can register for other users
+        if (privMsgObj.userLevel === UserLevels.BOTADMIN) {
+          let p1User = command.substr(ttsCommandRegister.length + 1).toLowerCase().trim()
+          if (p1User) {
+            let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
+            if (p1Id !== '-1') {
+              userId = p1Id
+              username = p1User
+            }
+          }
+        }
+        await SqlChannels.addChannel(this.bot.TwitchIRCConnection.botData.userId, userId, username, false, false, false, true, false, true, false)
+        DiscordLog.trace("ChannelPoints_TTS added to channel: " + username)
         await this.bot.updateBotChannels()
         responseMessage = ttsResponseRegister
 
