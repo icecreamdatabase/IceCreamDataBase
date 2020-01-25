@@ -19,6 +19,7 @@ const ttsCommandUnregister = "unregister"
 const ttsResponseUnregister = "Successfully unregistered."
 const ttsCommandLink = "link"
 const ttsResponseLink = "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
+const ttsResponseLinkUnlinked = "Please link a reward by using this command inside the TTS textfield."
 const ttsResponseLinkCustomReward = "Sucessfully linked reward. " + ttsResponseLink
 const ttsCommandVoices = "voices"
 const ttsResponseVoices = "Check available voices here: https://supinic.com/stream/tts"
@@ -130,11 +131,14 @@ module.exports = class Tts {
           //channelPointSettings creating / updating
           await SqlChannelPoints.addChannel(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, false, privMsgObj.raw.tags["custom-reward-id"])
           this.updateChannelPointSettings()
-          responseMessage = ttsResponseLinkCustomReward
+          responseMessage = ttsResponseLinkCustomReward + privMsgObj.channel.substr(1)
         } else {
-          responseMessage = ttsResponseLink
+          if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]){
+            responseMessage = ttsResponseLink + privMsgObj.channel.substr(1)
+          } else {
+            responseMessage = ttsResponseLinkUnlinked
+          }
         }
-        responseMessage += privMsgObj.channel.substr(1)
 
       } else if (command.toLowerCase().startsWith(ttsCommandVoices) && this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
         responseMessage = ttsResponseVoices
