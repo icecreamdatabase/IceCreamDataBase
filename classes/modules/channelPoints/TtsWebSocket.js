@@ -74,11 +74,18 @@ module.exports = class TtsWebSocket {
   newConnection (ws) {
     console.log("-------------------")
     console.log("WS connected")
-    ws.on('message', this.newMessage.bind(this))
+    ws.on('message', this.newMessage)
   }
 
   newMessage (message) {
     console.log('WS received: %s', message)
+    try {
+      this.channel = JSON.parse(message).channel.toLowerCase()
+    } catch (e) {
+      this.channel = ""
+      console.error("Websocket bad json: " + message)
+      DiscordLog.error("Websocket bad json: " + message)
+    }
   }
 
   sendTtsWithTimeoutCheck (channel, user, message, conversation = false, voice = defaultVoice, waitForTimeoutLength = 5) {
@@ -112,7 +119,7 @@ module.exports = class TtsWebSocket {
 
     // save the channel you receive uppon connecting and only send to those
     this.wss.clients.forEach(function each (client) {
-      if (client.readyState === WebSocket.OPEN) {
+      if (client.readyState === WebSocket.OPEN && channel.toLowerCase() === (client.channel || "").toLowerCase()) {
         client.send(JSON.stringify(data))
       }
     })
