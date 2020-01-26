@@ -39,17 +39,29 @@ module.exports = class Bot {
     }
   }
 
+  /**
+   * Callback for this.TwitchIRCConnection.connect()
+   * Don't forget .bind(this)!
+   */
   onConnected () {
     console.info("### Connected: " + this.userId + " (" + this.userName + ")")
     this.apiFunctions = new ApiFunctions(this)
     this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
   }
 
+  /**
+   * Callback for this.updateBotChannels()
+   * Don't forget .bind(this)!
+   */
   onUpdatedChannels () {
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
     this.apiFunctions.updateBotStatus().then(this.onUpdatedBotStatus.bind(this))
   }
 
+  /**
+   * Callback for this.apiFunctions.updateBotStatus()
+   * Don't forget .bind(this)!
+   */
   onUpdatedBotStatus () {
     this.TwitchIRCConnection.queue = new Queue(this)
     //OnX modules
@@ -59,18 +71,34 @@ module.exports = class Bot {
     console.info("### Fully setup: " + this.userId + " (" + this.userName + ")")
   }
 
+  /**
+   * clientId of the current bot
+   * @returns {string} clientId
+   */
   get clientId () {
     return this.TwitchIRCConnection.botData.clientId
   }
 
+  /**
+   * userId of the current bot
+   * @returns {number} userId
+   */
   get userId () {
     return this.TwitchIRCConnection.botData.userId
   }
 
+  /**
+   * userName of the current bot
+   * @returns {string} userName
+   */
   get userName () {
     return this.TwitchIRCConnection.botData.username
   }
 
+  /**
+   * Update and sync this.channels object from database
+   * @returns {Promise<void>} "All channels updated promise"
+   */
   async updateBotChannels () {
     let allChannelData = await Sql.getChannelData(this.userId)
 
@@ -103,6 +131,7 @@ module.exports = class Bot {
           if (this.channels.hasOwnProperty(currentChannelId)) {
             if (this.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
               contains = true
+              // Don't reset these 3 values. Copy them over instead.
               allChannelData[channelId].botStatus = this.channels[currentChannelId].botStatus || null
               allChannelData[channelId].lastMessage = this.channels[currentChannelId].lastMessage || ""
               allChannelData[channelId].lastMessageTimeMillis = this.channels[currentChannelId].lastMessageTimeMillis || 0

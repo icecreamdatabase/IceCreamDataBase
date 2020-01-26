@@ -20,10 +20,14 @@ module.exports = class PrivMsg {
     this.commands = new Commands(this.bot)
     this.channelPoints = new ChannelPoints(this.bot)
 
-    bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
+    this.bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
 
-
+  /**
+   * Method from bot.TwitchIRCconnection event emitter 'PRIVMSG'.
+   * @param obj raw object from TwitchIRCconnection registerEvents
+   * @returns {Promise<boolean>} Was action taken
+   */
   async onChat (obj) {
     let messageObj = PrivMsg.createRawMessageObj(obj)
     PrivMsg.handleACTION(messageObj)
@@ -41,21 +45,25 @@ module.exports = class PrivMsg {
 
     //hardcoded always first
     if (channelObj.useHardcodedCommands) {
-      if (this.hardcoded.handle(messageObj)) { return }
+      if (this.hardcoded.handle(messageObj)) { return true }
     }
 
     if (channelObj.useChannelPoints) {
       // noinspection ES6MissingAwait
-      this.channelPoints.handlePrivMsg(messageObj, this.bot)
+      this.channelPoints.handlePrivMsg(messageObj)
     }
 
     if (channelObj.useCommands) {
-      if (this.commands.handle(messageObj)) { return }
+      if (this.commands.handle(messageObj)) { return true }
     }
 
     return false
   }
 
+  /**
+   * Determines and sets userlevel inside of messageObj
+   * @param messageObj Object to set userLevel in
+   */
   static findAndSetUserLevel (messageObj) {
     if (options.hasOwnProperty("botadmins")
         && options.botadmins.includes(messageObj.userId)) {
