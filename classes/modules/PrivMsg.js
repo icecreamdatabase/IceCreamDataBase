@@ -6,6 +6,7 @@ const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
 const Commands = require('./commands/Commands')
 const ChannelPoints = require('./channelPoints/ChannelPoints')
+const Helper = require('./commands/Helper')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
 
@@ -30,6 +31,9 @@ module.exports = class PrivMsg {
     PrivMsg.findAndSetUserLevel(messageObj)
 
     let channelObj = this.bot.channels[messageObj.roomId]
+
+    // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
+    Helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
 
     if (channelObj.logMessages) {
       console.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
