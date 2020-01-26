@@ -82,7 +82,7 @@ module.exports = class Commands {
   }
 
   updateCommandData () {
-    SqlLocalCommands.getCommandData(this.bot.TwitchIRCConnection.botData.userId).then((data) => {
+    SqlLocalCommands.getCommandData(this.bot.userId).then((data) => {
       this.commandDataNormal = data.normal
       this.commandDataRegex = data.regex
     })

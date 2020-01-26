@@ -10,37 +10,36 @@ const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
 module.exports = class ApiFunctions {
   constructor (bot) {
     this.bot = bot
-    this.clientID = bot.TwitchIRCConnection.botData.clientID
 
     setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
   }
 
   async apiRequestKraken (pathAppend) {
-    return await Api.apiRequestKraken(this.clientID, pathAppend)
+    return await Api.apiRequestKraken(this.bot.clientId, pathAppend)
   }
 
   async apiRequestHelix (pathAppend) {
-    return await Api.apiRequestHelix(this.clientID, pathAppend)
+    return await Api.apiRequestHelix(this.bot.clientId, pathAppend)
   }
 
   async apiRequestJson (requestBase, pathAppend) {
-    return await Api.apiRequestJson(this.clientID, requestBase, pathAppend)
+    return await Api.apiRequestJson(this.bot.clientId, requestBase, pathAppend)
   }
 
   async apiRequestString (requestBase, pathAppend) {
-    return await Api.apiRequestString(this.clientID, requestBase, pathAppend)
+    return await Api.apiRequestString(this.bot.clientId, requestBase, pathAppend)
   }
 
   async loginFromUserId (userId) {
-    return await Api.loginFromUserId(this.clientID, userId)
+    return await Api.loginFromUserId(this.bot.clientId, userId)
   }
 
   async userIdFromLogin (username) {
-    return await Api.userIdFromLogin(this.clientID, username)
+    return await Api.userIdFromLogin(this.bot.clientId, username)
   }
 
   async userInfosFromLogins (usernames) {
-    return await Api.apiRequestKraken(this.clientID, usernames)
+    return await Api.apiRequestKraken(this.bot.clientId, usernames)
   }
 
   async userInfo (userId) {
@@ -52,7 +51,7 @@ module.exports = class ApiFunctions {
   }
 
   async followTime (userId, roomId) {
-    return await Api.followTime(this.clientID, userId, roomId)
+    return await Api.followTime(this.bot.clientId, userId, roomId)
   }
 
   /**
@@ -91,7 +90,7 @@ module.exports = class ApiFunctions {
   async updateBotStatus () {
     for (let i in this.bot.channels) {
       let channel = this.bot.channels[i]
-      let botStatus = await this.userStatus(this.bot.TwitchIRCConnection.botData.userId, channel.channelID)
+      let botStatus = await this.userStatus(this.bot.userId, channel.channelID)
       channel.botStatus = UserLevels.PLEB
       if (botStatus.isSubscriber) {
         channel.botStatus = UserLevels.SUBSCRIBER

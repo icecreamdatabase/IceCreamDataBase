@@ -124,7 +124,7 @@ module.exports = class UserNotice {
 
 
   async updateNotificationData () {
-    this.notificationData = await Sql.getNotificationData(this.bot.TwitchIRCConnection.botData.userId)
+    this.notificationData = await Sql.getNotificationData(this.bot.userId)
   }
 }
 

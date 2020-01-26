@@ -83,7 +83,7 @@ module.exports = class Tts {
             }
           }
         }
-        await SqlChannels.addChannel(this.bot.TwitchIRCConnection.botData.userId, userId, username, false, false, false, true, false, true, false)
+        await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.trace("ChannelPoints_TTS added to channel: " + username)
         await this.bot.updateBotChannels()
         responseMessage = ttsResponseRegister
@@ -104,7 +104,7 @@ module.exports = class Tts {
         let setting = command.substr(ttsCommandSettings.length + 1)
         if (setting.toLowerCase().startsWith(ttsCommandSettingsSubscriber)) {
           try {
-            await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsSubscriber.length + 1).toLowerCase()))
+            await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsSubscriber.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
             responseMessage = ttsResponseSettings
           } catch (e) {
@@ -112,7 +112,7 @@ module.exports = class Tts {
           }
         } else if (setting.toLowerCase().startsWith(ttsCommandSettingsConversation)) {
           try {
-            await SqlChannelPoints.setSettingConversation(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsConversation.length + 1).toLowerCase()))
+            await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsConversation.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
             responseMessage = ttsResponseSettings
           } catch (e) {
@@ -129,11 +129,11 @@ module.exports = class Tts {
       } else if (command.toLowerCase().startsWith(ttsCommandLink) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
         if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
           //channelPointSettings creating / updating
-          await SqlChannelPoints.addChannel(this.bot.TwitchIRCConnection.botData.userId, privMsgObj.roomId, false, privMsgObj.raw.tags["custom-reward-id"])
+          await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, false, privMsgObj.raw.tags["custom-reward-id"])
           this.updateChannelPointSettings()
           responseMessage = ttsResponseLinkCustomReward + privMsgObj.channel.substr(1)
         } else {
-          if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]){
+          if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {
             responseMessage = ttsResponseLink + privMsgObj.channel.substr(1)
           } else {
             responseMessage = ttsResponseLinkUnlinked
@@ -192,7 +192,7 @@ module.exports = class Tts {
   }
 
   updateChannelPointSettings () {
-    SqlChannelPoints.getChannelPointsSettings(this.bot.TwitchIRCConnection.botData.userId).then(data => {
+    SqlChannelPoints.getChannelPointsSettings(this.bot.userId).then(data => {
       this.channelPointsSettings = data
     })
   }

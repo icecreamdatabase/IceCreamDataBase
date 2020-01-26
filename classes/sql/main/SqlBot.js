@@ -18,12 +18,12 @@ module.exports = class SqlBot {
       //get username through userIdLoginCache instead of storing in db
       let username = row.username || ""
       let token = row.password || ""
-      let clientID = row.krakenClientId || ""
+      let clientId = row.krakenClientId || ""
       let enabled = row.enabled || false
       let supinicAPIuser = row.supinicAPIuser || null
       let supinicAPIkey = row.supinicAPIkey || null
 
-      return {userId, username, token, clientID, enabled, supinicAPIuser, supinicAPIkey}
+      return {userId, username, token, clientId, enabled, supinicAPIuser, supinicAPIkey}
     })
   }
 }
