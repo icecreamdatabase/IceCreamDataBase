@@ -33,6 +33,10 @@ class TwitchIRCConnection extends EventEmitter {
     }, 30 * 1000)
   }
 
+  /**
+   * Send ping to twitch servers and handle reconnect if not pong received.
+   * @private
+   */
   _sendPing () {
     if (this.awaitingPong) {
       this.client.destroy(new Error('No PONG received back.'))
@@ -45,6 +49,9 @@ class TwitchIRCConnection extends EventEmitter {
     }
   }
 
+  /**
+   * Register IRC events like 'PRIVMSG'
+   */
   registerEvents () {
     this.client.pipe(ircMessage.createStream())
       .on('data', (parsed) => {
@@ -85,20 +92,35 @@ class TwitchIRCConnection extends EventEmitter {
     })
   }
 
+  /**
+   * Clear ping interval
+   */
   close () {
     clearInterval(this.interval)
   }
 
+  /**
+   * Join a channel
+   * @param channel
+   */
   join (channel) {
     this.send(`JOIN #${channel}`)
     this.channels.push(channel)
   }
 
+  /**
+   * Part a channel
+   * @param channel
+   */
   leave (channel) {
     this.channels = this.channels.filter(c => c !== channel)
     this.send(`PART #${channel}`)
   }
 
+  /**
+   * Connect to the twitch IRC server, login and send CAP REQ
+   * @returns {Promise<void>}
+   */
   async connect () {
     console.info(`Connecting to ${host}:${port}`)
     return new Promise((resolve) => {
@@ -126,6 +148,11 @@ class TwitchIRCConnection extends EventEmitter {
     })
   }
 
+  /**
+   * Say a message in a channel
+   * @param channel
+   * @param message
+   */
   say (channel, message) {
     if (channel.charAt(0) !== '#') {
       channel = '#' + channel
@@ -133,6 +160,10 @@ class TwitchIRCConnection extends EventEmitter {
     this.send(`PRIVMSG ${channel} :${message}`)
   }
 
+  /**
+   * Send a raw line to the twitch IRC
+   * @param data
+   */
   send (data) {
     if (data.indexOf("\n") >= 0) {
       console.warn('Tried to send a newline character!')
@@ -146,6 +177,9 @@ class TwitchIRCConnection extends EventEmitter {
     this.client.write(`${data}\n`)
   }
 
+  /**
+   * Handle the disconnect and start a timeout to reconnect
+   */
   handleDisconnect () {
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout)
@@ -163,6 +197,9 @@ class TwitchIRCConnection extends EventEmitter {
     this.reconnectTimeout = setTimeout(() => this.attemptReconnect(), timeout)
   }
 
+  /**
+   * Try reconnecting with increasing delay on failure
+   */
   attemptReconnect () {
     if (this.connected) {
       return

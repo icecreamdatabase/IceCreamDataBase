@@ -12,14 +12,26 @@ module.exports = class BasicBucket {
   //  this._limit = limit
   //}
 
+  /**
+   * Get limit of the current bucket
+   * @returns {number}
+   */
   get limit () {
     return this._limit
   }
 
+  /**
+   * Get remaining tickets of the current bucket
+   * @returns {number}
+   */
   get ticketsRemaining () {
     return this.limit - this.usedTickets
   }
 
+  /**
+   * Take a ticket and start the returnTicket timeout
+   * @returns {boolean} Was ticket taken
+   */
   takeTicket () {
     if (this.usedTickets < this.limit) {
       this.usedTickets++
