@@ -13,6 +13,11 @@ module.exports = class ClearChat {
     this.bot.TwitchIRCConnection.on('CLEARCHAT', this.onClearChat.bind(this))
   }
 
+  /**
+   * Method from bot.TwitchIRCconnection event emitter 'CLEARCHAT'.
+   * @param clearChatObj raw object from TwitchIRCconnection registerEvents
+   * @returns {Promise<void>}
+   */
   async onClearChat (clearChatObj) {
     let channelName = clearChatObj.param.substring(1)
     let userName = clearChatObj.trailing.toLowerCase()
@@ -22,6 +27,13 @@ module.exports = class ClearChat {
     lastTimeoutObj[channelName][userName] = Date.now()
   }
 
+  /**
+   * Check if a user was timed out before in a channel
+   * @param channelName channelName to check in
+   * @param userName userName to check for
+   * @param secondsAgo How far ago to check
+   * @returns {boolean} Was user timed out
+   */
   static wasTimedOut (channelName, userName, secondsAgo = 10) {
     if (channelName.startsWith("#")) {
       channelName = channelName.substring(1)

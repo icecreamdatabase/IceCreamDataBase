@@ -9,10 +9,19 @@ module.exports = class Gdq {
   }
 
   //Random Function (so I dont have to typle a Math.random every time)
+  /**
+   * Random function so one does not have to type Math.random every time
+   * @param r max random value
+   * @returns {number} Int random
+   */
   static rand (r) {
     return Math.floor(Math.random() * r)
   }
 
+  /**
+   * Generate random GDQ text
+   * @returns {string} GDQ text
+   */
   static generateText () {
     //Get date for AGDQ/SGDQ toggle
     let d = new Date()
