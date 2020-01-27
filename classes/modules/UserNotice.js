@@ -32,8 +32,6 @@ module.exports = class UserNotice {
    * @returns {Promise<void>}
    */
   async onUsernotice (usernoticeObj) {
-    DiscordLog.custom("usernotice", usernoticeObj.command, util.inspect(usernoticeObj))
-
     if (usernoticeObj.hasOwnProperty("command")) {
       let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
       if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
@@ -43,15 +41,14 @@ module.exports = class UserNotice {
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
             announcementMessage = UserNotice.notificationParameter(announcementMessage, usernoticeObj)
-            DiscordLog.custom("usernotice-handled", usernoticeObj.command, announcementMessage)
             this.bot.TwitchIRCConnection.queue.sayWithBoth(usernoticeObj.tags["room-id"], usernoticeObj.param, announcementMessage, usernoticeObj.tags["user-id"])
           }
         } else {
-          DiscordLog.error(__filename + ": Get first key by value failed: " + userNoticeType)
+          DiscordLog.warn(__filename + ": Get first key by value failed: " + usernoticeObj.tags["msg-id"] + "\n\n\n" + util.inspect(usernoticeObj))
         }
       }
     } else {
-      DiscordLog.error("USERNOTICE without command property!")
+      DiscordLog.error("USERNOTICE without command property! \n\n\n" + util.inspect(usernoticeObj))
     }
   }
 

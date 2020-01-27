@@ -7,14 +7,6 @@
     "firehose-notify": {
       "id": "xxxxxxxxxxxxxxxxxx",
       "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    },
-    "usernotice": {
-      "id": "xxxxxxxxxxxxxxxxxx",
-      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    },
-    "usernotice-handled": {
-      "id": "xxxxxxxxxxxxxxxxxx",
-      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     }
   },
   "waoptions": {
