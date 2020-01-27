@@ -6,6 +6,13 @@ module.exports = class SqlChannelPoints {
 
   }
 
+  /**
+   * Update the ttsConversation setting for a connection
+   * @param botID
+   * @param channelID
+   * @param conversation
+   * @returns {Promise<void>}
+   */
   static async setSettingConversation (botID, channelID, conversation = false) {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings
     SET ttsConversation = ?
@@ -14,6 +21,15 @@ module.exports = class SqlChannelPoints {
     ;`, [conversation, botID, channelID])
   }
 
+  /**
+   * Update the ttsUserLevel setting for a connection
+   * subonly === true: ttsUserLevel = 1
+   * subonly === false: ttsUserLevel = 0
+   * @param botID
+   * @param channelID
+   * @param subonly
+   * @returns {Promise<void>}
+   */
   static async setSettingUserLevelSubonly (botID, channelID, subonly = false) {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings 
     SET ttsUserLevel = ?
@@ -22,6 +38,14 @@ module.exports = class SqlChannelPoints {
     ;`, [subonly ? 1 : 0, botID, channelID])
   }
 
+  /**
+   * Add or update channelPointsSettings for a connection
+   * @param botID
+   * @param channelID
+   * @param ttsConversation
+   * @param ttsCustomRewardId
+   * @returns {Promise<void>}
+   */
   static async addChannel (botID, channelID, ttsConversation = false, ttsCustomRewardId) {
     await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsCustomRewardId) 
     VALUES (?,?,b'1',?,?) 
@@ -32,6 +56,11 @@ module.exports = class SqlChannelPoints {
       [botID, channelID, ttsConversation, ttsCustomRewardId])
   }
 
+  /**
+   * Return all channelPointsSettings for a bot
+   * @param botId
+   * @returns {Promise<{channelID, ttsConversation, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
+   */
   static async getChannelPointsSettings (botId) {
     let results = await sqlPool.query(`SELECT channelID, ttsConversation, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
     FROM channelPointsSettings

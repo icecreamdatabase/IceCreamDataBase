@@ -6,6 +6,12 @@ module.exports = class SqlCommands {
   constructor () {
   }
 
+  /**
+   * Makes commands lowercase and creates new RegEpx for all regex commands.
+   * @param resultsNormal
+   * @param resultsRegex
+   * @returns {{normal: {ID, commandGroupID, commandGroupName, channelID, isRegex, command, response, userLevel, cooldown, timesUsed}[], regex: {ID, commandGroupID, commandGroupName, channelID, isRegex, command, response, userLevel, cooldown, timesUsed}[]}}
+   */
   static resultDataFromResults (resultsNormal, resultsRegex) {
     for (let index in resultsNormal) {
       if (resultsNormal.hasOwnProperty(index) && resultsNormal[index].hasOwnProperty("command")) {
@@ -20,6 +26,11 @@ module.exports = class SqlCommands {
     return {"normal": resultsNormal, "regex": resultsRegex}
   }
 
+  /**
+   * Get all commandData for a bot
+   * @param botID
+   * @returns {Promise<{normal: {ID, commandGroupID, commandGroupName, channelID, isRegex, command, response, userLevel, cooldown, timesUsed}[], regex: {ID, commandGroupID, commandGroupName, channelID, isRegex, command, response, userLevel, cooldown, timesUsed}[]}>}
+   */
   static async getCommandData (botID) {
     let results = await sqlPool.query(`
         SELECT distinct 
@@ -55,6 +66,10 @@ module.exports = class SqlCommands {
     return SqlCommands.resultDataFromResults(resultsNormal, resultsRegex)
   }
 
+  /**
+   * Increase the times used counter by 1 for a command
+   * @param commandID
+   */
   static increaseTimesUsed (commandID) {
     sqlPool.query(`UPDATE commands 
       set timesUsed = timesUsed + 1 

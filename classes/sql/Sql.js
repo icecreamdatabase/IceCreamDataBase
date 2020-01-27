@@ -34,7 +34,7 @@ module.exports = class Sql {
   }
 
   /**
-   *
+   * Returns the SqL instance
    * @returns {Sql}
    */
   static getInstance () {
@@ -47,4 +47,4 @@ module.exports = class Sql {
     return global.SqlSingletonInstance
   }
 
-}.getInstance()
+}.getInstance() //TODO do all singleton classes like this

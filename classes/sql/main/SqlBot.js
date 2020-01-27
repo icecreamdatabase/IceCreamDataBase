@@ -8,7 +8,7 @@ module.exports = class SqlBot {
 
   /**
    * Gets all data about all bots from the database
-   * @return {{userId, username, token, clientID, chat: {isKnown, isVerified}, enabled}} botData Return object with all data
+   * @returns {Promise<{clientId, supinicAPIkey, supinicAPIuser, userId, enabled, username, token}[]>}
    */
   static async getBotData () {
     let results = await sqlPool.query("SELECT * FROM bots order by ID;")
