@@ -8,6 +8,12 @@ module.exports = class TimeConversionHelper {
 
   }
 
+  /**
+   * Converts seconds to formatted YY MM DD HH MM SS string
+   * @param inputSeconds
+   * @param fullUnit
+   * @returns {string}
+   */
   static secondsToYYMMDDHHMMSS (inputSeconds, fullUnit = false) {
     let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
     /* eslint-disable no-multi-spaces */
@@ -22,6 +28,12 @@ module.exports = class TimeConversionHelper {
     return this.valuesToString(fullUnit, seconds, minutes, hours, days, months, years)
   }
 
+  /**
+   * Converts seconds to formatted HH MM SS string
+   * @param inputSeconds
+   * @param fullUnit
+   * @returns {string}
+   */
   static secondsToHHMMSS (inputSeconds, fullUnit = false) {
     let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
     /* eslint-disable no-multi-spaces */
@@ -33,6 +45,12 @@ module.exports = class TimeConversionHelper {
     return this.valuesToString(fullUnit, seconds, minutes, hours)
   }
 
+  /**
+   * converts seconds to formatted HH MM string
+   * @param inputSeconds
+   * @param fullUnit
+   * @returns {string}
+   */
   static secondsToHHMM (inputSeconds, fullUnit = false) {
     let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
     /* eslint-disable no-multi-spaces */
@@ -44,6 +62,17 @@ module.exports = class TimeConversionHelper {
     return this.valuesToString(fullUnit, 0, minutes, hours)
   }
 
+  /**
+   * Creates a nicely formatted string for things like uptime
+   * @param fullUnit E.g. hours instead of h
+   * @param seconds
+   * @param minutes
+   * @param hours
+   * @param days
+   * @param months
+   * @param years
+   * @returns {string}
+   */
   static valuesToString (fullUnit = false, seconds = 0, minutes = 0, hours = 0, days = 0, months = 0, years = 0) {
     let time = ""
     if (seconds > 0) {
