@@ -325,14 +325,15 @@ module.exports = class ApiFunctions {
   }
 
   /**
-   *
+   * TODO: WIP
+   * Get followtime of a user in channel
    * @param clientID
    * @param userId
-   * @param channelId
+   * @param roomId
    * @returns {Promise<{followDate: Date, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number}>}
    */
-  static async followTime (clientID, userId, channelId) {
-    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + channelId).catch(e => console.log(e))
+  static async followTime (clientID, userId, roomId) {
+    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + roomId).catch(e => console.log(e))
     console.log(response)
     let returnObj = {followDate: undefined, followTimeMs: -1, followTimeS: -1, followtimeMin: -1, followtimeH: -1, followtimeD: -1, followtimeMon: -1, followtimeY: -1}
     if (response && response.hasOwnProperty("created_at")) {

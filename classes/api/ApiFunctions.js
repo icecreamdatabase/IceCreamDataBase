@@ -14,26 +14,50 @@ module.exports = class ApiFunctions {
     setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
   }
 
+  /**
+   * Creates an API request towards twitch API version 5 (kraken)
+   * It's recommended to use await to call this function
+   * @param pathAppend path after *api.twitch.tv/kraken/'
+   * @returns {Promise<object>} return from the API parsed from string to json
+   */
   async apiRequestKraken (pathAppend) {
     return await Api.apiRequestKraken(this.bot.clientId, pathAppend)
   }
 
+  /**
+   * Creates an API request towards twitch API version ? (helix)
+   * It's recommended to use await to call this function
+   * @param pathAppend path after *api.twitch.tv/helix/'
+   * @returns {Promise<object>} return from the API parsed from string to json
+   */
   async apiRequestHelix (pathAppend) {
     return await Api.apiRequestHelix(this.bot.clientId, pathAppend)
   }
 
+  /**
+   * Create an https request
+   * @param requestBase Base object to clone to use for the request
+   * @param pathAppend path appended to requestBase.path
+   * @returns {Promise<*>} return body parsed to json
+   */
   async apiRequestJson (requestBase, pathAppend) {
     return await Api.apiRequestJson(this.bot.clientId, requestBase, pathAppend)
   }
 
-  async apiRequestString (requestBase, pathAppend) {
-    return await Api.apiRequestString(this.bot.clientId, requestBase, pathAppend)
-  }
-
+  /**
+   * receive login name from a single userid
+   * @param userId userid to check
+   * @returns {Promise<string>} login name as string inside a promise
+   */
   async loginFromUserId (userId) {
     return await Api.loginFromUserId(this.bot.clientId, userId)
   }
 
+  /**
+   * Returns the userId from a single login
+   * @param username login to check
+   * @returns {Promise<string>} userId as string
+   */
   async userIdFromLogin (username) {
     return await Api.userIdFromLogin(this.bot.clientId, username)
   }
@@ -42,14 +66,59 @@ module.exports = class ApiFunctions {
     return await Api.apiRequestKraken(this.bot.clientId, usernames)
   }
 
+  /**
+   * Accesses the kraken/users/:userID/chat
+   * Example: https://api.twitch.tv/kraken/users/38949074/chat?api_version=5
+   * Example return:
+   * {
+   *   "id":"38949074",
+   *   "login":"icdb",
+   *   "displayName":"icdb",
+   *   "color":"#00FF00",
+   *   "isVerifiedBot":false,
+   *   "isKnownBot":false,
+   *   "badges":[]
+   * }
+   * @param  {String|int} userId The userID to check for
+   * @return {Users} [description]
+   */
   async userInfo (userId) {
-    return await this.apiRequestKraken('users/' + userId + '/chat')
+    return Api.userInfo(this.bot.clientId, userId)
   }
 
+  /**
+   * Accesses the kraken/users/:userID/chat/channels/:roomID
+   * Example: https://api.twitch.tv/kraken/users/38949074/chat/channels/38949074?api_version=5
+   * Example return:
+   * {
+   *   "id":"38949074",
+   *   "login":"icdb",
+   *   "displayName":"icdb",
+   *   "color":"#00FF00",
+   *   "isVerifiedBot":false,
+   *   "isKnownBot":false,
+   *   "badges":[
+   *     {
+   *       "id":"moderator",
+   *       "version":"1"
+   *     }
+   *   ]
+   * }
+   * @param  {String|int} userId The userID to check for
+   * @param  {String|int} roomId The roomID to check in
+   * @return {Users} [description]
+   */
   async userInChannelInfo (userId, roomId) {
-    return await this.apiRequestKraken('users/' + userId + '/chat/channels/' + roomId)
+    return Api.userInChannelInfo(this.bot.clientId, userId, roomId)
   }
 
+  /**
+   * TODO: WIP
+   * Get followtime of a user in channel
+   * @param userId
+   * @param roomId
+   * @returns {Promise<{followDate: Date, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number}>}
+   */
   async followTime (userId, roomId) {
     return await Api.followTime(this.bot.clientId, userId, roomId)
   }
@@ -87,6 +156,10 @@ module.exports = class ApiFunctions {
     return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
 
+  /**
+   * Update the UserLevel of the bot for every channel they are joined.
+   * @returns {Promise<void>}
+   */
   async updateBotStatus () {
     for (let i in this.bot.channels) {
       let channel = this.bot.channels[i]
