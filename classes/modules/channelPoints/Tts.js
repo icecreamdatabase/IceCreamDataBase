@@ -48,6 +48,11 @@ module.exports = class Tts {
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
   }
 
+  /**
+   * Handle the privMsgObj by checking for all TTS related triggers.
+   * @param privMsgObj created in PrivMsg.js
+   * @returns {Promise<boolean>}
+   */
   async handlePrivMsg (privMsgObj) {
 
     await this.handleTtsRegiser(privMsgObj)
@@ -57,6 +62,12 @@ module.exports = class Tts {
     }
   }
 
+  /**
+   * Handle the privMsgObj by checking for all TTS register related triggers.
+   * Stuff like: !tts register, !tts help, ...
+   * @param privMsgObj created in PrivMsg.js
+   * @returns {Promise<boolean>}
+   */
   async handleTtsRegiser (privMsgObj) {
     if (privMsgObj.message.toLowerCase().startsWith(ttsCommandPrefix)
       && (this.bot.channels[privMsgObj.roomId].useChannelPoints
@@ -69,6 +80,7 @@ module.exports = class Tts {
       let responseMessage = ""
 
       if (command.toLowerCase().startsWith(ttsCommandRegister) && this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled) {
+        /* ---------- !tts register ---------- */
         //channel and connection creating
         let userId = privMsgObj.userId
         let username = privMsgObj.username
@@ -89,6 +101,7 @@ module.exports = class Tts {
         responseMessage = ttsResponseRegister
 
       } else if (command.toLowerCase().startsWith(ttsCommandHelp)) {
+        /* ---------- !tts help ---------- */
         if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
           if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
             responseMessage = ttsResponseHelpConversation
@@ -100,7 +113,7 @@ module.exports = class Tts {
         }
 
       } else if (command.toLowerCase().startsWith(ttsCommandSettings) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
-
+        /* ---------- !tts settings ---------- */
         let setting = command.substr(ttsCommandSettings.length + 1)
         if (setting.toLowerCase().startsWith(ttsCommandSettingsSubscriber)) {
           try {
@@ -127,6 +140,7 @@ module.exports = class Tts {
         }
 
       } else if (command.toLowerCase().startsWith(ttsCommandLink) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
+        /* ---------- !tts link ---------- */
         if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
           //channelPointSettings creating / updating
           await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, false, privMsgObj.raw.tags["custom-reward-id"])
@@ -141,6 +155,7 @@ module.exports = class Tts {
         }
 
       } else if (command.toLowerCase().startsWith(ttsCommandVoices) && this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+        /* ---------- !tts voices ---------- */
         responseMessage = ttsResponseVoices
       }
       if (responseMessage) {
@@ -151,6 +166,11 @@ module.exports = class Tts {
     return false
   }
 
+  /**
+   * Handle the privMsgObj by checking for all TTS redemption related triggers.
+   * @param privMsgObj created in PrivMsg.js
+   * @returns {Promise<boolean>}
+   */
   async handleTtsRedeem (privMsgObj) {
     let hasTakenAction = false
     if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
@@ -191,6 +211,10 @@ module.exports = class Tts {
     return hasTakenAction
   }
 
+  /**
+   * Update Tts.channelPointsSettings from the Database
+   * @returns {Promise<void>}
+   */
   updateChannelPointSettings () {
     SqlChannelPoints.getChannelPointsSettings(this.bot.userId).then(data => {
       this.channelPointsSettings = data

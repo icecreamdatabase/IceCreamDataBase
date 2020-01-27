@@ -25,10 +25,12 @@ module.exports = class TtsWebSocket {
     return this
   }
 
-  getVoices () {
-    return voices
-  }
-
+  /**
+   * Get voice language in ISO code by voice name or id.
+   * @param voice voice or id
+   * @param noCase is not case sensitive
+   * @returns {string} voice language
+   */
   getVoiceLang (voice, noCase = false) {
     let voiceLang = null
 
@@ -51,6 +53,13 @@ module.exports = class TtsWebSocket {
     return voiceLang
   }
 
+  /**
+   * Get voice ID by voice name.
+   * Voice ID can be the same as voice name.
+   * @param voice voice name
+   * @param noCase is not case sensitive
+   * @returns {string} voice ID
+   */
   getVoiceID (voice, noCase = false) {
     let voiceID = null
 
@@ -71,12 +80,22 @@ module.exports = class TtsWebSocket {
     return voiceID
   }
 
+  /**
+   * Handle a new incoming Websocket connection
+   * Use like this: this.wss.on('connection', this.newConnection.bind(this))
+   * @param ws websocket
+   */
   newConnection (ws) {
     console.log("-------------------")
     console.log("WS connected")
     ws.on('message', this.newMessage)
   }
 
+  /**
+   * Handles a new incoming Websocket message. and sets the channel.
+   * Do not use .bind(this) for this function. This needs to be the websocket connection not the TtsWebSocket.js class!
+   * @param message received message
+   */
   newMessage (message) {
     console.log('WS received: %s', message)
     try {
@@ -88,6 +107,16 @@ module.exports = class TtsWebSocket {
     }
   }
 
+  /**
+   * Send a TTS message with the "was user timed out for TTS message" check
+   * @param channel
+   * @param user
+   * @param message
+   * @param conversation
+   * @param voice
+   * @param waitForTimeoutLength
+   * @returns {Promise<unknown>}
+   */
   sendTtsWithTimeoutCheck (channel, user, message, conversation = false, voice = defaultVoice, waitForTimeoutLength = 5) {
     return new Promise((resolve)=> {
       setTimeout(async (channel, user, message, conversation, voice) => {
@@ -105,6 +134,13 @@ module.exports = class TtsWebSocket {
     })
   }
 
+  /**
+   * Send a TTS message to all clients, which have registered with the same channel.
+   * @param channel
+   * @param message
+   * @param conversation
+   * @param voice
+   */
   sendTts (channel, message, conversation = false, voice = defaultVoice) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
@@ -125,6 +161,13 @@ module.exports = class TtsWebSocket {
     })
   }
 
+  /**
+   * Split the message like the forsen TTS syntax:
+   * Brian: message 1 Justin: message 2 Brian: message 3
+   * @param message
+   * @param defaultVoice
+   * @returns {{voice: string, message: string}[]}
+   */
   createTTSArray (message, defaultVoice = "Brian") {
     let output = [{voice: defaultVoice, message: ""}]
     let outputIndex = 0
@@ -141,5 +184,4 @@ module.exports = class TtsWebSocket {
     output.map(x => x.message = x.message.trim())
     return output.filter(x => x.message)
   }
-
 }
