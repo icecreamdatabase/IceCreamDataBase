@@ -19,6 +19,11 @@ module.exports = class Firehose {
     setTimeout(this.checkFirehose.bind(this), 5000)
   }
 
+  /**
+   * Check if firehose is still running.
+   * By checking if there was a message in the past 5 seconds.
+   * Restart the module if not.
+   */
   checkFirehose () {
     if (this.lastLine + 5000 < new Date()) {
       if (this.req) {
@@ -30,6 +35,9 @@ module.exports = class Firehose {
     setTimeout(this.checkFirehose.bind(this), 10000)
   }
 
+  /**
+   * Start the firehose parser
+   */
   startFirehose () {
     let verifiedBot = (Object.values(this.bots)).find(x => x.rateLimitUser === ChatLimit.VERIFIED)
     if (verifiedBot) {

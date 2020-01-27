@@ -40,20 +40,14 @@ module.exports = class Helper {
 
   }
 
-  static splitMessageToParts (message) {
-    let messageSplit = message.split(" ")
-    return {command: messageSplit[0] || "", first: messageSplit[1] || "", params: messageSplit.splice(1), split: messageSplit}
-  }
-
-  static async fillParams (msgObj, commandObj) {
-    let message = commandObj.response
-
-    message = await this.handleParameter(msgObj, commandObj, message)
-
-    return message
-  }
-
-  static async handleParameter (msgObj, commandObj, input) {
+  /**
+   * Handle replacing paramters in command response
+   * @param msgObj created in PrivMsg.createRawMessageObj
+   * @param commandObj created in Commands.js
+   * @returns {Promise<string>} response
+   */
+  static async handleParameter (msgObj, commandObj) {
+    let input = commandObj.response
     if (input.includes("${")) {
       let message = input
       let depth = 0
@@ -74,13 +68,19 @@ module.exports = class Helper {
         }
         lastDepth = depth
       }
-      input = await this.replaceParameterCommand(commandObj, input)
+      input = this.replaceParameterCommand(commandObj, input)
       input = await this.replaceParameterMessage(msgObj, input)
       input = await Counters.replaceParameter(msgObj, input)
     }
     return input
   }
 
+  /**
+   * Handle and replace the "was user in channel" or paramter
+   * @param msgObj created in PrivMsg.createRawMessageObj
+   * @param msgPart input string
+   * @returns {Promise<string>}
+   */
   static async handleOr (msgObj, msgPart) {
     if (msgPart.includes("||")) {
       let firstParameter = msgObj.message.split(" ")[1]
@@ -95,13 +95,25 @@ module.exports = class Helper {
     }
   }
 
-  static async replaceParameterCommand (commandObj, message) {
+  /**
+   * Replace parameters which need the commandObj
+   * @param commandObj created in Commands.js
+   * @param message input string
+   * @returns {string}
+   */
+  static replaceParameterCommand (commandObj, message) {
     if (commandObj.hasOwnProperty("timesUsed")) {
       message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed + 1)
     }
     return message
   }
 
+  /**
+   * Replace paramters which need the msgObj
+   * @param msgObj created in PrivMsg.createRawMessageObj
+   * @param message input string
+   * @returns {Promise<void|string|*>}
+   */
   static async replaceParameterMessage (msgObj, message) {
     if (message.includes("${rnd=(")) {
       let rndArray = message.match(rndRegExp)[1].split("|")
@@ -165,6 +177,16 @@ module.exports = class Helper {
     return message
   }
 
+  /**
+   * Checks if the bot should response to a command based on cooldowns and applies new cooldowns if needed.
+   * Always send messages if the user is a UserLevels.BOTADMIN but also apply new cooldown.
+   * @param commandMatch created in Commands.js
+   * @param lastCommandUsageObject From Commands.lastCommandUsageObject
+   * @param roomId roomId
+   * @param minCooldown Minimal cooldown defined per channel in Database
+   * @param userLevel userLevel
+   * @returns {boolean} should respond to command
+   */
   static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId, minCooldown, userLevel) {
     if (commandMatch.hasOwnProperty("cooldown") && commandMatch.hasOwnProperty("ID")) {
       let lastUsage = 0
@@ -184,6 +206,13 @@ module.exports = class Helper {
     return false
   }
 
+  /**
+   * Check if a user was seen in a channel before since bot start.
+   * Fetches chatters "api" if not to check.
+   * @param channelName channelName
+   * @param userName userName
+   * @returns {Promise<boolean>} was user in channel
+   */
   static async checkUserWasInChannel (channelName, userName) {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
@@ -200,6 +229,11 @@ module.exports = class Helper {
     return userWasInChannelObj[channelName].has(userName)
   }
 
+  /**
+   * Add a list of usernames to a channel in the userWasInChannel object.
+   * @param channelName channelName
+   * @param userNames Array of userNames
+   */
   static addUsersToUserWasInChannelObj (channelName, userNames) {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
@@ -213,16 +247,28 @@ module.exports = class Helper {
     }
   }
 
+  /**
+   * Get the first day of the current month
+   * Timezones are an issue ... TODO: fix that LuL
+   * If today is 2020-01-27T07:55:20.505Z it returs 2019-12-31T23:00:00.000Z
+   * @returns {Date} First day of the current month
+   */
   static getFirstOfMonthDate () {
     let date = new Date()
     return new Date(date.getFullYear(), date.getMonth(), 1)
   }
 
+  /**
+   * Calculates the total uptime since a start date
+   * @param vodsObj From Api.getVods()
+   * @param dateSince Since which date to check
+   * @returns {number} Seconds
+   */
   static vodsTotalUptimeSince (vodsObj, dateSince) {
     let timeSum = 0
     if (vodsObj.hasOwnProperty("videos")) {
       for (let vidObj of vodsObj.videos) {
-        if (vidObj.hasOwnProperty("created_at")){
+        if (vidObj.hasOwnProperty("created_at")) {
           if (dateSince < new Date(vidObj["created_at"])) {
             timeSum += vidObj["length"]
           } else { //not sure if this else is really needed ... we are only looping through 100 entires

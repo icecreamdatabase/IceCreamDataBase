@@ -16,8 +16,6 @@ module.exports = class Queue {
   constructor (bot) {
     this.bot = bot
 
-    this.noBotStatus = 0
-
     this.messageQueue = []
     this.queueEmitter = new EventEmitter()
 
@@ -26,25 +24,47 @@ module.exports = class Queue {
     this.queueEmitter.on('event', this.checkQueue.bind(this))
   }
 
+  /**
+   * Send a message with the channelId
+   * Does an api call to get channelName! Avoid this function if possible.
+   * @param channelId
+   * @param message
+   * @param userId
+   * @returns {Promise<void>}
+   */
   async sayWithChannelId (channelId, message, userId) {
     this.sayWithBoth(channelId, await this.bot.apiFunctions.loginFromUserId(channelId), message, userId)
   }
 
+  /**
+   * Send a message with the channelName
+   * Does an api call to get channelId! Avoid this function if possible.
+   * @param channelName
+   * @param message
+   * @param userId
+   * @returns {Promise<void>}
+   */
   async sayWithChannelName (channelName, message, userId) {
     this.sayWithBoth(await this.bot.apiFunctions.userIdFromLogin(channelName), channelName, message, userId)
   }
 
+  /**
+   * Send a message with the msgObj
+   * @param msgObj
+   * @param message
+   */
   sayWithMsgObj (msgObj, message) {
     this.bot.TwitchIRCConnection.queue.sayWithBoth(msgObj.roomId, msgObj.channel,
       message, msgObj.userId)
   }
 
   /**
+   * Send a message with both the channelId and the channelName.
    * channelId and channelName have to match else there might be unpredictable problems
-   * @param  {int} channelId   [description]
-   * @param  {String} channelName [description]
-   * @param  {String} message     [description]
-   * @param  {int} userId      [description]
+   * @param channelId
+   * @param channelName
+   * @param message
+   * @param userId
    */
   sayWithBoth (channelId, channelName, message, userId) {
     //if userId paramter is missing just set it to "-1"
@@ -109,6 +129,12 @@ module.exports = class Queue {
     return message
   }
 
+  /**
+   * Check the messageQueue for a new message and handle said message.
+   * If queue is not empty it will call this function until the queue is empty.
+   * Use like this: this.queueEmitter.on('event', this.checkQueue.bind(this))
+   * @returns {Promise<void>}
+   */
   async checkQueue () {
     if (this.messageQueue.length <= 0) {
       return
@@ -124,23 +150,6 @@ module.exports = class Queue {
       botStatus = UserLevels.DEFAULT
       DiscordLog.debug("No botStatus. Using UserLevels.DEFAULT")
     }
-    /*
-    if (typeof botStatus === 'undefined' || botStatus === null
-    || !channel.hasOwnProperty('lastMessage') || !channel.hasOwnProperty('lastMessageTimeMillis')
-    ) {
-      console.info("channel.botStatus: " + (typeof channel.botStatus === 'undefined' || channel.botStatus === null))
-      this.noBotStatus++
-      await sleep(10)
-      msgObj.isBeingChecked = false
-      this.queueEmitter.emit('event')
-      return
-    }
-    //TEMP
-    if (this.noBotStatus > 0) {
-      DiscordLog.debug("no botStatus for " + (this.noBotStatus * 10) + "ms")
-      this.noBotStatus = 0
-    }
-    */
 
     let currentTimeMillis = Date.now()
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
@@ -181,6 +190,11 @@ module.exports = class Queue {
   }
 }
 
+/**
+ * Basic sleep function
+ * @param ms
+ * @returns {Promise<unknown>}
+ */
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }

@@ -7,6 +7,11 @@ module.exports = class SqlSubNotifications {
 
   }
 
+  /**
+   * Gets all notification data for a bot
+   * @param botID
+   * @returns {Promise<{channelID, SUB, SUB_T2, SUB_T3, SUB_PRIME, RESUB, RESUB_T2, RESUB_T3, RESUB_PRIME, SUBGIFT, ANONSUBGIFT, SUBMYSTERYGIFT, GIFTPAIDUPGRADE, ANONGIFTPAIDUPGRADE, REWARDGIFT, RITUAL, RAID}[]>}
+   */
   static async getNotificationData (botID) {
     let results = await sqlPool.query(`
       SELECT 

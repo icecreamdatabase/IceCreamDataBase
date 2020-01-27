@@ -89,10 +89,22 @@ module.exports = class ApiFunctions {
     return ret.data
   }
 
+  /**
+   * Gets info about current live broadcast for channelID
+   * @param clientID
+   * @param channelID
+   * @returns {Promise<Object>}
+   */
   static async streamInfo (clientID, channelID) {
     return await this.apiRequestKraken(clientID, 'streams/' + channelID)
   }
 
+  /**
+   * Get an array with info of past 100 broadcast vods
+   * @param clientId
+   * @param channelID
+   * @returns {Promise<Object>}
+   */
   static async getVods (clientId, channelID) {
     return await this.apiRequestKraken(clientId, 'channels/' + channelID + '/videos?broadcast_type=archive&limit=100')
   }
@@ -268,6 +280,11 @@ module.exports = class ApiFunctions {
     return await this.apiRequestKraken(clientID, 'users/' + userId + '/chat/channels/' + roomId)
   }
 
+  /**
+   * Get a list of users in a channel
+   * @param channelName channel to check
+   * @returns {Promise<string[]>} array of chatters
+   */
   static async getAllUsersInChannel (channelName) {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
@@ -279,11 +296,23 @@ module.exports = class ApiFunctions {
     return []
   }
 
+  /**
+   * Check if uesr is in chatters list
+   * @param loginToCheck
+   * @param channelName
+   * @returns {Promise<boolean>}
+   */
   static async isUserInChannel (loginToCheck, channelName) {
     let allChatters = await this.getAllUsersInChannel(channelName)
     return this.stringEntryInArray(allChatters, loginToCheck)
   }
 
+  /**
+   * Case insensitive version of Array.includes()
+   * @param array Array to check
+   * @param entryToCheck Entry to check
+   * @returns {boolean} includes
+   */
   static stringEntryInArray (array, entryToCheck) {
     if (array.length > 0) {
       for (let entry of array) {
@@ -295,21 +324,28 @@ module.exports = class ApiFunctions {
     return false
   }
 
-  static async followTime (clientID, userId, channelId) {
-    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + channelId).catch(e => console.log(e))
+  /**
+   * TODO: WIP
+   * Get followtime of a user in channel
+   * @param clientID
+   * @param userId
+   * @param roomId
+   * @returns {Promise<{followDate: Date, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number}>}
+   */
+  static async followTime (clientID, userId, roomId) {
+    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + roomId).catch(e => console.log(e))
     console.log(response)
-    let returnObj = {followDate: undefined, followTimeMs: -1}
+    let returnObj = {followDate: undefined, followTimeMs: -1, followTimeS: -1, followtimeMin: -1, followtimeH: -1, followtimeD: -1, followtimeMon: -1, followtimeY: -1}
     if (response && response.hasOwnProperty("created_at")) {
       returnObj.followDate = new Date(response.created_at)
       returnObj.followTimeMs = Date.now() - returnObj.followDate
       returnObj.followTimeS = Math.floor(returnObj.followTimeMs / 1000)
-      returnObj.followtimeM = Math.floor(returnObj.followTimeS / TimeConversion.MINUTETOSECONDS)
+      returnObj.followtimeMin = Math.floor(returnObj.followTimeS / TimeConversion.MINUTETOSECONDS)
       returnObj.followtimeH = Math.floor(returnObj.followTimeS / TimeConversion.HOURTOSECONDS)
       returnObj.followtimeD = Math.floor(returnObj.followTimeS / TimeConversion.DAYTOSECONDS)
-      returnObj.followtimeM = Math.floor(returnObj.followTimeS / TimeConversion.MONTHTOSECONDS)
+      returnObj.followtimeMon = Math.floor(returnObj.followTimeS / TimeConversion.MONTHTOSECONDS)
       returnObj.followtimeY = Math.floor(returnObj.followTimeS / TimeConversion.YEARTOSECONDS)
     }
     return returnObj
   }
-
 }

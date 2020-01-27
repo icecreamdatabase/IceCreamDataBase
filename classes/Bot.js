@@ -34,40 +34,73 @@ module.exports = class Bot {
       this.channels = {}
 
       //Connecting the bot to the twich servers
-      console.info("Connecting...")
-      this.TwitchIRCConnection.connect().then(() => {
-        console.info(this.TwitchIRCConnection.botData.userId + " (" + this.TwitchIRCConnection.botData.username + ") Connected!")
-
-        this.apiFunctions = new ApiFunctions(this)
-        this.updateBotChannels().then(()=>{
-          setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
-
-          this.apiFunctions.updateBotStatus().then(() => {
-            this.TwitchIRCConnection.queue = new Queue(this)
-
-            //OnX modules
-            this.privMsg = new PrivMsg(this)
-            this.userNotice = new UserNotice(this)
-            this.clearChat = new ClearChat(this)
-
-            console.info(this.TwitchIRCConnection.botData.userId + " (" + this.TwitchIRCConnection.botData.username + ") is fully setup!")
-          })
-        })
-
-      })
+      console.info("### Connecting: " + this.userId + " (" + this.userName + ")")
+      this.TwitchIRCConnection.connect().then(this.onConnected.bind(this))
     }
   }
 
+  /**
+   * Callback for this.TwitchIRCConnection.connect()
+   * Don't forget .bind(this)!
+   */
+  onConnected () {
+    console.info("### Connected: " + this.userId + " (" + this.userName + ")")
+    this.apiFunctions = new ApiFunctions(this)
+    this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
+  }
+
+  /**
+   * Callback for this.updateBotChannels()
+   * Don't forget .bind(this)!
+   */
+  onUpdatedChannels () {
+    setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
+    this.apiFunctions.updateBotStatus().then(this.onUpdatedBotStatus.bind(this))
+  }
+
+  /**
+   * Callback for this.apiFunctions.updateBotStatus()
+   * Don't forget .bind(this)!
+   */
+  onUpdatedBotStatus () {
+    this.TwitchIRCConnection.queue = new Queue(this)
+    //OnX modules
+    this.privMsg = new PrivMsg(this)
+    this.userNotice = new UserNotice(this)
+    this.clearChat = new ClearChat(this)
+    console.info("### Fully setup: " + this.userId + " (" + this.userName + ")")
+  }
+
+  /**
+   * clientId of the current bot
+   * @returns {string} clientId
+   */
+  get clientId () {
+    return this.TwitchIRCConnection.botData.clientId
+  }
+
+  /**
+   * userId of the current bot
+   * @returns {number} userId
+   */
   get userId () {
     return this.TwitchIRCConnection.botData.userId
   }
 
+  /**
+   * userName of the current bot
+   * @returns {string} userName
+   */
   get userName () {
     return this.TwitchIRCConnection.botData.username
   }
 
+  /**
+   * Update and sync this.channels object from database
+   * @returns {Promise<void>} "All channels updated promise"
+   */
   async updateBotChannels () {
-    let allChannelData = await Sql.getChannelData(this.TwitchIRCConnection.botData.userId)
+    let allChannelData = await Sql.getChannelData(this.userId)
 
     //remove unused channels
     for (let channelId in this.channels) {
@@ -85,7 +118,7 @@ module.exports = class Bot {
         if (!contains) {
           let channelName = await this.apiFunctions.loginFromUserId(channelId)
           this.TwitchIRCConnection.leave(channelName)
-          console.info(this.TwitchIRCConnection.botData.username + " Parted: #" + channelName)
+          console.info(this.userName + " Parted: #" + channelName)
         }
       }
     }
@@ -98,6 +131,7 @@ module.exports = class Bot {
           if (this.channels.hasOwnProperty(currentChannelId)) {
             if (this.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
               contains = true
+              // Don't reset these 3 values. Copy them over instead.
               allChannelData[channelId].botStatus = this.channels[currentChannelId].botStatus || null
               allChannelData[channelId].lastMessage = this.channels[currentChannelId].lastMessage || ""
               allChannelData[channelId].lastMessageTimeMillis = this.channels[currentChannelId].lastMessageTimeMillis || 0
@@ -107,9 +141,9 @@ module.exports = class Bot {
         //join
         if (!contains) {
           let channelName = await this.apiFunctions.loginFromUserId(channelId)
-          console.info(this.TwitchIRCConnection.botData.username + " Joining: #" + channelName)
+          console.info(this.userName + " Joining: #" + channelName)
           this.TwitchIRCConnection.join(channelName)
-          console.info(this.TwitchIRCConnection.botData.username + " Joined: #" + channelName)
+          console.info(this.userName + " Joined: #" + channelName)
           allChannelData[channelId].botStatus = null
           allChannelData[channelId].lastMessage = ""
           allChannelData[channelId].lastMessageTimeMillis = 0

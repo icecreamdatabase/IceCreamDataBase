@@ -61,7 +61,7 @@ module.exports = class Hardcoded {
 
       let msg
       let evalString = messageObj.message.split(" ").slice(1).join(" ")
-      console.log(evalString)
+      //console.log(evalString)
       if (evalString) {
         try {
           let ss = (x) => {

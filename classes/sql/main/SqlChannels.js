@@ -6,6 +6,22 @@ module.exports = class SqlChannels {
 
   }
 
+  /**
+   * Add a channel to the database.
+   * channels: ignore
+   * connection: update
+   * @param botID
+   * @param channelID
+   * @param channelName
+   * @param logMessages
+   * @param shouldModerate
+   * @param useCommands
+   * @param useHardcodedCommands
+   * @param shouldAnnounceSubs
+   * @param useChannelPoints
+   * @param ttsRegisterEnabled
+   * @returns {Promise<void>}
+   */
   static async addChannel (botID, channelID, channelName, logMessages = false, shouldModerate = false, useCommands = false, useHardcodedCommands = true, shouldAnnounceSubs = false, useChannelPoints = false, ttsRegisterEnabled = false) {
     await sqlPool.query(`INSERT IGNORE INTO channels(ID, channelName, enabled)
     VALUES (?,?,b'1');`, [channelID, channelName])
@@ -24,9 +40,9 @@ module.exports = class SqlChannels {
   }
 
   /**
-   * Get channel data about a singular bot
-   * @param  {int} botID Database id of the bot in question
-   * @return {botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown}          All data about the channel
+   * Get all channel data about a singular bot
+   * @param  botID Database id of the bot in question
+   * @return {Promise<{botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown}[]>} All data about the channel
    */
   static async getChannelData (botID) {
     let results = await sqlPool.query(`SELECT botID, channelID, channelName, logMessages ,shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, ttsRegisterEnabled, maxMessageLength, minCooldown

@@ -42,6 +42,11 @@ module.exports = class Commands {
     return false
   }
 
+  /**
+   * Check if the message starts with any of the commands
+   * @param messageObj created in PrivMsg.createRawMessageObj
+   * @returns {Promise<boolean>} Has handled a message
+   */
   async handleNormal (messageObj) {
     let commandMatchIndices = Object.keys(this.commandDataNormal).filter(key => {
       return messageObj.roomId === this.commandDataNormal[key].channelID.toString()
@@ -50,6 +55,11 @@ module.exports = class Commands {
     return this.handleMatch(messageObj, commandMatchIndices.map(x => this.commandDataNormal[x]))
   }
 
+  /**
+   * Test the message for any of the regex commands
+   * @param messageObj created in PrivMsg.createRawMessageObj
+   * @returns {Promise<boolean>} Has handled a message
+   */
   async handleRegex (messageObj) {
     let commandRegexMatchIndices = Object.keys(this.commandDataRegex).filter(key => {
       return messageObj.roomId === this.commandDataRegex[key].channelID.toString()
@@ -58,6 +68,13 @@ module.exports = class Commands {
     return this.handleMatch(messageObj, commandRegexMatchIndices.map(x => this.commandDataRegex[x]))
   }
 
+  /**
+   * Handles an array of command objects.
+   * Filters out too low userlevel and then handles the command with the lowest ID
+   * @param messageObj created in PrivMsg.createRawMessageObj
+   * @param commandArray Command Array
+   * @returns {boolean} Has handled a message
+   */
   handleMatch (messageObj, commandArray) {
     if (commandArray.length > 0) {
       commandArray = commandArray.filter(x => x.userLevel <= messageObj.userLevel)
@@ -65,7 +82,7 @@ module.exports = class Commands {
         let commandMatch = commandArray[0]
 
         if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
-          Helper.fillParams(messageObj, commandMatch).then((response) => {
+          Helper.handleParameter(messageObj, commandMatch).then((response) => {
             this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
             if (commandMatch.hasOwnProperty("ID")) {
               SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
@@ -81,8 +98,11 @@ module.exports = class Commands {
     return false
   }
 
+  /**
+   * Update Commands.commandDataNormal and Commands.commandDataRegex from the database
+   */
   updateCommandData () {
-    SqlLocalCommands.getCommandData(this.bot.TwitchIRCConnection.botData.userId).then((data) => {
+    SqlLocalCommands.getCommandData(this.bot.userId).then((data) => {
       this.commandDataNormal = data.normal
       this.commandDataRegex = data.regex
     })

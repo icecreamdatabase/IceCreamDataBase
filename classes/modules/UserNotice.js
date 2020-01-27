@@ -25,6 +25,12 @@ module.exports = class UserNotice {
     this.updateNotificationData.bind(this)()
   }
 
+
+  /**
+   * Method from bot.TwitchIRCconnection event emitter 'USERNOTICE'.
+   * @param usernoticeObj raw object from TwitchIRCconnection registerEvents
+   * @returns {Promise<void>}
+   */
   async onUsernotice (usernoticeObj) {
     DiscordLog.custom("usernotice", usernoticeObj.command, util.inspect(usernoticeObj))
 
@@ -49,17 +55,22 @@ module.exports = class UserNotice {
     }
   }
 
-  static methodToEnum (obj) {
+  /**
+   * Converts plan and planName into UserNoticeTypes ENUM and returns UserNoticeType.
+   * @param usernoticeObj raw object from TwitchIRCconnection registerEvents
+   * @returns {string} UserNoticeType fitting to usernoticeObj
+   */
+  static methodToEnum (usernoticeObj) {
     //eventMsg.parameters is build like this:
     //{"prime":true,"plan":"Prime","planName":"Channel Subscription (forsenlol)"}
     //{"prime":false,"plan":"1000","planName":"Channel Subscription (forsenlol)"}
     //{"plan":"1000","planName":"Channel Subscription (forsenlol)"}
-    let UserNoticeType = UserNoticeTypes[obj.tags["msg-id"].toUpperCase()]
+    let UserNoticeType = UserNoticeTypes[usernoticeObj.tags["msg-id"].toUpperCase()]
 
     //TODO: make this look nicer and be more compact
     if (UserNoticeType === UserNoticeTypes.SUB) {
-      if (obj.tags.hasOwnProperty("msg-param-sub-plan")) {
-        switch (obj.tags["msg-param-sub-plan"]) {
+      if (usernoticeObj.tags.hasOwnProperty("msg-param-sub-plan")) {
+        switch (usernoticeObj.tags["msg-param-sub-plan"]) {
           case "Prime":
             UserNoticeType = UserNoticeTypes.SUB_PRIME
             break
@@ -71,12 +82,12 @@ module.exports = class UserNotice {
             break
         }
       } else {
-        DiscordLog.error(__filename + ": SUBSCRIPTION event without obj.tags[\"msg-param-sub-plan\"]")
+        DiscordLog.error(__filename + ": SUBSCRIPTION event without usernoticeObj.tags[\"msg-param-sub-plan\"]")
       }
     }
     if (UserNoticeType === UserNoticeTypes.RESUB) {
-      if (obj.tags.hasOwnProperty("msg-param-sub-plan")) {
-        switch (obj.tags["msg-param-sub-plan"]) {
+      if (usernoticeObj.tags.hasOwnProperty("msg-param-sub-plan")) {
+        switch (usernoticeObj.tags["msg-param-sub-plan"]) {
           case "Prime":
             UserNoticeType = UserNoticeTypes.RESUB_PRIME
             break
@@ -88,26 +99,32 @@ module.exports = class UserNotice {
             break
         }
       } else {
-        DiscordLog.error(__filename + ": RESUBSCRIPTION event without obj.tags[\"msg-param-sub-plan\"]")
+        DiscordLog.error(__filename + ": RESUBSCRIPTION event without usernoticeObj.tags[\"msg-param-sub-plan\"]")
       }
     }
     //Get first key by value ... convert the enum int to it's name
     return Object.keys(UserNoticeTypes).find(key => UserNoticeTypes[key] === UserNoticeType)
   }
 
-  static notificationParameter (message, obj) {
+  /**
+   * Handle and replace replace parameter inside of notification response messages
+   * @param message input response message
+   * @param usernoticeObj raw object from TwitchIRCconnection registerEvents
+   * @returns {string}
+   */
+  static notificationParameter (message, usernoticeObj) {
     //customLog(JSON.stringify(data))
 
-    let channel = obj.param.substring(1) || null
-    let username = obj.tags["display-name"] || obj.tags["login"] || null
-    let secondUser = obj.tags["msg-param-recipient-display-name"] || obj.tags["msg-param-recipient-user-name"] || obj.tags["msg-param-sender-name"] || obj.tags["msg-param-sender-name"] || null
+    let channel = usernoticeObj.param.substring(1) || null
+    let username = usernoticeObj.tags["display-name"] || usernoticeObj.tags["login"] || null
+    let secondUser = usernoticeObj.tags["msg-param-recipient-display-name"] || usernoticeObj.tags["msg-param-recipient-user-name"] || usernoticeObj.tags["msg-param-sender-name"] || usernoticeObj.tags["msg-param-sender-name"] || null
     //msgParamMonths is months in a row
-    let months = obj.tags["msg-param-cumulative-months"] || 0
-    let massGiftCount = obj.tags["msg-param-mass-gift-count"] || 1
-    let senderCount = obj.tags["msg-param-sender-count"] || 0
+    let months = usernoticeObj.tags["msg-param-cumulative-months"] || 0
+    let massGiftCount = usernoticeObj.tags["msg-param-mass-gift-count"] || 1
+    let senderCount = usernoticeObj.tags["msg-param-sender-count"] || 0
     let timeunit = timeunits[Math.floor(Math.random() * timeunits.length)]
     let extraS = months === 1 ? "" : "s"
-    let viewerCount = obj.tags["msg-param-viewerCount"] || 0
+    let viewerCount = usernoticeObj.tags["msg-param-viewerCount"] || 0
 
     message = message.replace(new RegExp("\\${channel}", 'g'), channel)
     message = message.replace(new RegExp("\\${user}", 'g'), username)
@@ -122,9 +139,12 @@ module.exports = class UserNotice {
     return message
   }
 
-
+  /**
+   * Update UserNotice.notificationData from the Database
+   * @returns {Promise<void>}
+   */
   async updateNotificationData () {
-    this.notificationData = await Sql.getNotificationData(this.bot.TwitchIRCConnection.botData.userId)
+    this.notificationData = await Sql.getNotificationData(this.bot.userId)
   }
 }
 
