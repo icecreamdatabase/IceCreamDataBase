@@ -99,7 +99,7 @@ module.exports = class Commands {
   }
 
   /**
-   * Update this.commandDataNormal and this.commandDataRegex from the database
+   * Update Commands.commandDataNormal and Commands.commandDataRegex from the database
    */
   updateCommandData () {
     SqlLocalCommands.getCommandData(this.bot.userId).then((data) => {
