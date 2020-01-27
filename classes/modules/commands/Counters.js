@@ -13,6 +13,12 @@ module.exports = class Counters {
   constructor () {
   }
 
+  /**
+   * Handle and replace counter related parameters
+   * @param msgObj created in PrivMsg.createRawMessageObj
+   * @param message input string
+   * @returns {Promise<string>}
+   */
   static async replaceParameter (msgObj, message) {
 
     if (message.includes("${counter")) {
