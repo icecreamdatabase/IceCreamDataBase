@@ -17,21 +17,18 @@ create table channelPointsSettings
     botID int unsigned not null,
     channelID int unsigned not null,
     enabled bit default b'0' not null,
-    ttsCustomRewardId varchar(45) null,
     ttsConversation bit default b'0' not null,
-    ttsDefaultVoiceName varchar(45) not null,
-    ttsCooldown int(11) unsigned default 15 null,
+    ttsQueueMessages bit default b'0' not null,
+    ttsCustomRewardId varchar(45) null,
+    ttsDefaultVoiceName varchar(45) default 'Brian' null,
+    ttsCooldown int(11) unsigned default 0 null,
     ttsUserLevel int(11) unsigned default 0 not null,
-    ttsTimeoutCheckTime int(11) unsigned default 5 not null,
-    ttsAcceptMessage text null,
-    ttsRejectTimeoutMessage text null,
-    ttsRejectCooldownMessage text null,
-    ttsRejectUserLevelMessage text null,
-    primary key (botID, channelID),
-    constraint connections_bots_ID_fk
-        foreign key (botID) references bots (ID),
-    constraint connections_channels_ID_fk
-        foreign key (channelID) references channels (ID)
+    ttsTimeoutCheckTime int(11) unsigned default 2 not null,
+    ttsAcceptMessage varchar(512) null,
+    ttsRejectUserLevelMessage varchar(512) default '@${user}, Your TTS message has not been sent. You are not a subscriber.' null,
+    ttsRejectCooldownMessage varchar(512) default '@${user}, Your TTS message has not been sent. The cooldown is not over.' null,
+    ttsRejectTimeoutMessage varchar(512) default '@${user}, Your TTS message has not been sent. Your message has been timed out.' null,
+    primary key (botID, channelID)
 );
 
 create table channels
