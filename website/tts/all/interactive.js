@@ -57,8 +57,8 @@ function fillVoiceDropDown (voices) {
       buttonNode.appendChild(document.createTextNode(voiceElem.name + (preferredVoices.includes(voiceElem.id) ? "*" : "")))
       langNode.appendChild(buttonNode)
     })
-    document.getElementById("tts-voice-dropdowndiv").appendChild(langNode)
-    filterFunction("tts-voice-dropdowndiv", "tts-voice-dropdowndiv", document.getElementById("tts-voice-prioritycheckbox").checked)
+    document.getElementById("tts-voice-dropdowncontent").appendChild(langNode)
+    filterFunction("tts-voice-dropdownsearch", "tts-voice-dropdowncontent", document.getElementById("tts-voice-prioritycheckbox").checked)
   })
 }
 
@@ -93,25 +93,24 @@ function filterFunction (dropDownSearch, dropDownDiv, asterisk = false) {
 
       if (asterisk === true) {
         if (!a[j].classList.contains("preferred-voice")) {
-          a[j].style.display = "none"
+          a[j].classList.add("hidden")
           continue
         }
       }
-      console.log(asterisk)
 
       buttonNum++
       let txtValue = a[j].textContent || a[j].innerText
       if (txtValue.toLowerCase().indexOf(filter) > -1) {
-        a[j].style.display = ""
+        a[j].classList.remove("hidden")
       } else {
-        a[j].style.display = "none"
+        a[j].classList.add("hidden")
         hiddenItems++
       }
     }
     if (buttonNum === hiddenItems) {
-      langDivs[i].style.display = "none"
+      langDivs[i].classList.add("hidden")
     } else {
-      langDivs[i].style.display = ""
+      langDivs[i].classList.remove("hidden")
     }
   }
 }

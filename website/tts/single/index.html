@@ -33,6 +33,7 @@
     const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 
     let useQueue = !!findGetParameter("queue")
+
     let audioPlaying = false
     let msgQueue = []
     let currentMessage = []
