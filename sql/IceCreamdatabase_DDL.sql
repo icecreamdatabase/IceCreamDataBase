@@ -12,25 +12,6 @@ create table bots
     supinicAPIkey varchar(45) null
 );
 
-create table channelPointsSettings
-(
-    botID int unsigned not null,
-    channelID int unsigned not null,
-    enabled bit default b'0' not null,
-    ttsConversation bit default b'0' not null,
-    ttsQueueMessages bit default b'0' not null,
-    ttsCustomRewardId varchar(45) null,
-    ttsDefaultVoiceName varchar(45) default 'Brian' null,
-    ttsCooldown int(11) unsigned default 0 null,
-    ttsUserLevel int(11) unsigned default 0 not null,
-    ttsTimeoutCheckTime int(11) unsigned default 2 not null,
-    ttsAcceptMessage varchar(512) null,
-    ttsRejectUserLevelMessage varchar(512) default '@${user}, Your TTS message has not been sent. You are not a subscriber.' null,
-    ttsRejectCooldownMessage varchar(512) default '@${user}, Your TTS message has not been sent. The cooldown is not over.' null,
-    ttsRejectTimeoutMessage varchar(512) default '@${user}, Your TTS message has not been sent. Your message has been timed out.' null,
-    primary key (botID, channelID)
-);
-
 create table channels
 (
     ID int unsigned auto_increment
@@ -83,6 +64,27 @@ create table connections
         foreign key (channelID) references channels (ID)
 );
 
+create table channelPointsSettings
+(
+    botID int unsigned not null,
+    channelID int unsigned not null,
+    enabled bit default b'0' not null,
+    ttsConversation bit default b'0' not null,
+    ttsQueueMessages bit default b'0' not null,
+    ttsCustomRewardId varchar(45) null,
+    ttsDefaultVoiceName varchar(45) default 'Brian' null,
+    ttsCooldown int(11) unsigned default 0 null,
+    ttsUserLevel int(11) unsigned default 0 not null,
+    ttsTimeoutCheckTime int(11) unsigned default 2 not null,
+    ttsAcceptMessage varchar(512) null,
+    ttsRejectUserLevelMessage varchar(512) default '@${user}, Your TTS message has not been sent. You are not a subscriber.' null,
+    ttsRejectCooldownMessage varchar(512) default '@${user}, Your TTS message has not been sent. The cooldown is not over.' null,
+    ttsRejectTimeoutMessage varchar(512) default '@${user}, Your TTS message has not been sent. Your message has been timed out.' null,
+    primary key (botID, channelID),
+    constraint channelPointsSettings_connections_botID_channelID_fk
+        foreign key (botID, channelID) references connections (botID, channelID)
+);
+
 create table commandGroupLink
 (
     id int(11) unsigned auto_increment
@@ -125,5 +127,7 @@ create table notifications
     RAID text null,
     RITUAL text null,
     PRIMEPAIDUPGRADE text null,
-    primary key (botID, channelID)
+    primary key (botID, channelID),
+    constraint notifications_connections_botID_channelID_fk
+        foreign key (botID, channelID) references connections (botID, channelID)
 );
