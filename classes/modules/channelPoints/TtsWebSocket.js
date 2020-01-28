@@ -9,8 +9,9 @@ const ClearChat = require("../ClearChat")
 
 const WebSocket = require('ws')
 const voices = require('../../../json/se-voices.json')
-const defaultVoice = "Brian"
+const fallbackVoice = "Brian"
 const conversationVoice = "CONVERSATION"
+const useCaseSensitiveVoiceMatching = false
 
 module.exports = class TtsWebSocket {
   constructor () {
@@ -28,18 +29,18 @@ module.exports = class TtsWebSocket {
   /**
    * Get voice language in ISO code by voice name or id.
    * @param voice voice or id
-   * @param noCase is not case sensitive
+   * @param useCase is case sensitivity
    * @returns {string} voice language
    */
-  getVoiceLang (voice, noCase = false) {
+  getVoiceLang (voice, useCase = false) {
     let voiceLang = null
 
     voices.some(langElem => {
       let hasElem = langElem.voices.some(voiceElem => {
-        if (noCase) {
-          return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
-        } else {
+        if (useCase) {
           return (voiceElem.id === voice || voiceElem.name === voice)
+        } else {
+          return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
         }
       })
 
@@ -57,17 +58,17 @@ module.exports = class TtsWebSocket {
    * Get voice ID by voice name.
    * Voice ID can be the same as voice name.
    * @param voice voice name
-   * @param noCase is not case sensitive
+   * @param useCase use case sensitivity
    * @returns {string} voice ID
    */
-  getVoiceID (voice, noCase = false) {
+  getVoiceID (voice, useCase = false) {
     let voiceID = null
 
     voices.some(langElem => {
       return langElem.voices.some(voiceElem => {
-        let match = ( noCase ?
-            (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) :
-            (voiceElem.id === voice || voiceElem.name === voice) )
+        let match = ( useCase ?
+            (voiceElem.id === voice || voiceElem.name === voice) :
+            (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) )
 
         if (match) {
           voiceID = voiceElem.id
@@ -147,14 +148,15 @@ module.exports = class TtsWebSocket {
    * @param queue
    * @param voice
    */
-  sendTts (channel, message, conversation = false, queue = false, voice = defaultVoice) {
+  sendTts (channel, message, conversation = false, queue = false, voice = fallbackVoice) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
     let data = {channel: channel, data: [], queue: queue}
+    let useCase = useCaseSensitiveVoiceMatching
 
     if (conversation) {
-      data.data = this.createTTSArray(message, voice)
+      data.data = this.createTTSArray(message, useCase, voice)
     } else {
       data.data[0] = {voice: voice, message: message}
     }
@@ -174,12 +176,12 @@ module.exports = class TtsWebSocket {
    * @param defaultVoice
    * @returns {{voice: string, message: string}[]}
    */
-  createTTSArray (message, defaultVoice = "Brian") {
+  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice) {
     let output = [{voice: defaultVoice, message: ""}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
       let voice
-      if (word.endsWith(":") && (voice = this.getVoiceID(word.substr(0, word.length - 1), true))) {
+      if (word.endsWith(":") && (voice = this.getVoiceID(word.substr(0, word.length - 1), useCase))) {
         output[++outputIndex] = {}
         output[outputIndex]["voice"] = voice
         output[outputIndex]["message"] = ""

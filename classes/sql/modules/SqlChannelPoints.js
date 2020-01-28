@@ -37,6 +37,21 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Update the ttsDefaultVoiceName setting for a connection
+   * @param botID
+   * @param channelID
+   * @param voice
+   * @returns {Promise<void>}
+   */
+  static async setSettingDefaultVoice (botID, channelID, voice = "Brian") {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsDefaultVoiceName = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [conversation, botID, channelID])
+  }
+
+  /**
    * Update the ttsUserLevel setting for a connection
    * subonly === true: ttsUserLevel = 1
    * subonly === false: ttsUserLevel = 0
