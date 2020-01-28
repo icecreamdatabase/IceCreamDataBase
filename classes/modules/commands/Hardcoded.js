@@ -24,7 +24,7 @@ module.exports = class Hardcoded {
   handle (messageObj) {
     if (messageObj.userLevel === UserLevels.BOTADMIN
       && messageObj.message.startsWith("<t ")) {
-      TtsWebSocket.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), "Brian")
+      TtsWebSocket.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1))
       return true
     }
 

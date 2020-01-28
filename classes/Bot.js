@@ -24,14 +24,15 @@ module.exports = class Bot {
       this.rateLimitUser = ChatLimit.NORMAL
       this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
-      if (botData.clientID && !global.clientIdFallback) {
-        global.clientIdFallback = botData.clientID
-      }
       this.TwitchIRCConnection = new TwitchIRCConnection(botData)
       //add botData to chat object
       this.TwitchIRCConnection.botData = botData
       //create empty channel array to chat object
       this.channels = {}
+
+      if (this.clientId && !global.clientIdFallback) {
+        global.clientIdFallback = this.clientId
+      }
 
       //Connecting the bot to the twich servers
       console.info("### Connecting: " + this.userId + " (" + this.userName + ")")
