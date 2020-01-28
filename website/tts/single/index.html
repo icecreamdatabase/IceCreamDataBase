@@ -32,8 +32,7 @@
 
     const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 
-    let useQueue = !!findGetParameter("queue")
-
+    let useQueue = false
     let audioPlaying = false
     let msgQueue = []
     let currentMessage = []
@@ -118,8 +117,10 @@
       // Listen for messages
       socket.addEventListener('message', async function (event) {
         let obj = JSON.parse(event.data)
+        console.log(obj)
         if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
           msgQueue.push(obj.data)
+          useQueue = !!obj.queue
         }
       })
 
