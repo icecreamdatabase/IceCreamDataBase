@@ -32,7 +32,7 @@
 
     const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 
-    let useQueue = findGetParameter("queue") || false
+    let useQueue = !!findGetParameter("queue")
     let audioPlaying = false
     let msgQueue = []
     let currentMessage = []
@@ -56,7 +56,7 @@
       }
 
       // Delay between messages
-      await sleep(findGetParameter("cooldown") || 1000)
+      await sleep(parseInt(findGetParameter("cooldown")) || 1000)
 
       if (msgQueue.length > 0) {
         currentMessage = msgQueue.shift()
@@ -107,7 +107,7 @@
     }
 
     function connect () {
-      let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
+      let socket = new WebSocket(!!findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
       // Connection opened
       socket.addEventListener('open', function (event) {
         console.log("Connected")
