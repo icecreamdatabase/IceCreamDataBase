@@ -15,19 +15,60 @@
   <meta name="theme-color" content="#ffffff">
 
   <title>Text to Speech</title>
-</head>
 
 <body>
-<!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
-<iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
-<audio id="player" controls="" style="display:none">
-  <source id="source" type="audio/wav">
-</audio>
-</body>
-<footer>
+  <!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
+  <iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
+  <audio id="player" controls="" style="display:none">
+    <source id="source" type="audio/wav">
+  </audio>
   <script>
+    const eventify = (arr, callback) => {
+      arr.push = function(e) {
+        Array.prototype.push.call(arr, e)
+        callback(arr)
+      }
+    }
+
+    const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
+
+    let useQueue = findGetParameter("queue") || false
     let audioPlaying = false
-    document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
+    let msgQueue = []
+    let currentMessage = []
+
+    eventify(msgQueue, async (arr) => {
+      if (audioPlaying && useQueue) return
+
+      currentMessage = arr.shift()
+      let msgObj = currentMessage.shift()
+      if (msgObj) {
+        audioPlaying = true
+        await speak(msgObj.message, msgObj.voice)
+      }
+    })
+
+    document.getElementById("player").addEventListener("ended", async () => {
+      if (currentMessage.length > 0) {
+        let msgObj = currentMessage.shift()
+        await speak(msgObj.message, msgObj.voice)
+        return
+      }
+
+      // Delay between messages
+      await sleep(findGetParameter("cooldown") || 1000)
+
+      if (msgQueue.length > 0) {
+        currentMessage = msgQueue.shift()
+        let msgObj = currentMessage.shift()
+        if (msgObj) {
+          await speak(msgObj.message, msgObj.voice)
+          return
+        }
+      }
+
+      audioPlaying = false
+    })
 
     function findGetParameter(parameterName) {
       let result = null
@@ -44,24 +85,7 @@
       return result
     }
 
-    let msgQueue = []
-    let newQueue = true
-    async function speakQueue () {
-      if (msgQueue.length > 0) {
-        if (newQueue || !audioPlaying) {
-          newQueue = false
-          let msgObj = msgQueue.shift()
-          if (msgObj) {
-            await speak(msgObj.message, msgObj.voice)
-          }
-        }
-        setTimeout(speakQueue, 250)
-      }
-    }
-
     async function speak (text, voice = "Brian") {
-      audioPlaying = true
-
       let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
         voice +
         "&text=" +
@@ -83,7 +107,7 @@
     }
 
     function connect () {
-      let socket = new WebSocket('wss://ws.icecreamdatabase.com')
+      let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
       // Connection opened
       socket.addEventListener('open', function (event) {
         console.log("Connected")
@@ -92,13 +116,9 @@
 
       // Listen for messages
       socket.addEventListener('message', async function (event) {
-        console.log('Message from server ', event.data)
         let obj = JSON.parse(event.data)
-        console.log(obj)
         if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
-          msgQueue = obj.data
-          newQueue = true
-          speakQueue()
+          msgQueue.push(obj.data)
         }
       })
 
@@ -114,5 +134,3 @@
     connect()
 
   </script>
-</footer>
-</html>
