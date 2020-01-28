@@ -7,6 +7,10 @@
     "firehose-notify": {
       "id": "xxxxxxxxxxxxxxxxxx",
       "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "tts-log": {
+      "id": "xxxxxxxxxxxxxxxxxx",
+      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     }
   },
   "waoptions": {

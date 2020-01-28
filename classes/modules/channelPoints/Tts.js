@@ -30,8 +30,9 @@ const ttsResponseHelpUnlinked = "The broadcaster has to create a custom reward w
 const ttsCommandSettings = "settings"
 const ttsCommandSettingsConversation = "conversation"
 const ttsCommandSettingsSubscriber = "sub"
+const ttsCommandSettingsQueue = "queue"
 const ttsResponseSettings = "Updating successful."
-const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Available options are: \"" + ttsCommandSettingsConversation + "\" and \"" + ttsCommandSettingsSubscriber + "\". Values are \"true\" and \"false\"."
+const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Available options are: \"" + ttsCommandSettingsConversation + "\", \"" + ttsCommandSettingsSubscriber + "\" and \"" + ttsCommandSettingsQueue + "\". Values are \"true\" and \"false\"."
 const ttsResponseSettingsFail = "Updating failed."
 
 const ttsCommandCooldownMs = 3000
@@ -116,6 +117,7 @@ module.exports = class Tts {
         /* ---------- !tts settings ---------- */
         let setting = command.substr(ttsCommandSettings.length + 1)
         if (setting.toLowerCase().startsWith(ttsCommandSettingsSubscriber)) {
+          /* ---------- sub ---------- */
           try {
             await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsSubscriber.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
@@ -124,6 +126,7 @@ module.exports = class Tts {
             responseMessage = ttsResponseSettingsFail
           }
         } else if (setting.toLowerCase().startsWith(ttsCommandSettingsConversation)) {
+          /* ---------- conversation ---------- */
           try {
             await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsConversation.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
@@ -131,7 +134,17 @@ module.exports = class Tts {
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
           }
+        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsQueue)) {
+          /* ---------- queue ---------- */
+          try {
+            await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsQueue.length + 1).toLowerCase()))
+            this.updateChannelPointSettings()
+            responseMessage = ttsResponseSettings
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
         } else {
+          /* ---------- fail ---------- */
           if (setting.trim()) {
             responseMessage = ttsResponseSettingsFail
           } else {
@@ -181,8 +194,7 @@ module.exports = class Tts {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj.channel, privMsgObj.username, privMsgObj.message,
-                                                            settingObj.ttsConversation, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
             //console.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept

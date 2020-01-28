@@ -109,28 +109,33 @@ module.exports = class TtsWebSocket {
 
   /**
    * Send a TTS message with the "was user timed out for TTS message" check
-   * @param channel
-   * @param user
-   * @param message
+   * @param privMsgObj
    * @param conversation
+   * @param queue
    * @param voice
    * @param waitForTimeoutLength
    * @returns {Promise<unknown>}
    */
-  sendTtsWithTimeoutCheck (channel, user, message, conversation = false, voice = defaultVoice, waitForTimeoutLength = 5) {
+  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, voice = defaultVoice, waitForTimeoutLength = 5) {
     return new Promise((resolve)=> {
-      setTimeout(async (channel, user, message, conversation, voice) => {
+      setTimeout(async (channel, username, message, conversation, queue, voice, color) => {
         // * 2 so we are also checking a bit before "now"
-        let wasTimed = await ClearChat.wasTimedOut(channel, user, waitForTimeoutLength * 2)
-
-        if (wasTimed) {
-          DiscordLog.warn("TTS fail due to timeout: \n" + channel + ", " + user + ": " + message)
+        if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
+          let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
+          DiscordLog.twitchMessageCustom("tts-log",
+                                                  "Failed in: " + channel,
+                                                        message,
+                                                        new Date().toISOString(),
+                                                        color,
+                                                        username,
+                                                        userInfo[0].logo
+                                        )
           resolve(false)
         } else {
-          this.sendTts(channel, message, conversation, voice)
+          this.sendTts(channel, message, conversation, queue, voice)
           resolve(true)
         }
-      }, waitForTimeoutLength * 1000, channel, user, message, conversation, voice)
+      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, voice, privMsgObj.raw.tags.color)
     })
   }
 
@@ -139,13 +144,14 @@ module.exports = class TtsWebSocket {
    * @param channel
    * @param message
    * @param conversation
+   * @param queue
    * @param voice
    */
-  sendTts (channel, message, conversation = false, voice = defaultVoice) {
+  sendTts (channel, message, conversation = false, queue = false, voice = defaultVoice) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    let data = {channel: channel, data: []}
+    let data = {channel: channel, data: [], queue: queue}
 
     if (conversation) {
       data.data = this.createTTSArray(message, voice)
