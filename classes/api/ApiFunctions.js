@@ -123,6 +123,10 @@ module.exports = class ApiFunctions {
     return await Api.followTime(this.bot.clientId, userId, roomId)
   }
 
+  async wolframAlphaRequest (input) {
+    return await Api.wolframAlphaRequest(input)
+  }
+
   /**
    * Returns the userstate of a userId inside a room from the api
    * @param  {String|int} userId The userID to check for
