@@ -6,12 +6,16 @@ const ChatLimit = require('../../ENUMS/ChatLimit.js')
 
 //update bot status every 60 seconds (1 minute)
 const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
+const SUPINIC_API_PING_INTERVAL = 60000
 
 module.exports = class ApiFunctions {
   constructor (bot) {
     this.bot = bot
 
     setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
+    setInterval(this.supinicApiPing.bind(this), SUPINIC_API_PING_INTERVAL)
+    // noinspection JSIgnoredPromiseFromCall
+    this.supinicApiPing()
   }
 
   /**
@@ -123,8 +127,23 @@ module.exports = class ApiFunctions {
     return await Api.followTime(this.bot.clientId, userId, roomId)
   }
 
+  /**
+   * Send a "Short Answer" request to the Wolfram Alpha API
+   * @param input query import
+   * @returns {Promise<string>} Answer
+   */
   async wolframAlphaRequest (input) {
     return await Api.wolframAlphaRequest(input)
+  }
+
+  /**
+   * Pings the Supinic api bot active endpoint.
+   * Return true if sucessful or "If you authorize correctly, but you're not being tracked as a channel bot".
+   * Else returns false
+   * @returns {Promise<boolean>} Was ping successful
+   */
+  async supinicApiPing () {
+    return await Api.supinicApiPing(this.bot.supinicApiUser, this.bot.supinicApiKey)
   }
 
   /**

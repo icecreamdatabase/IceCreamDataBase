@@ -29,12 +29,13 @@ module.exports = class ApiFunctions {
   /**
    * Creates a basic https request which follows redirects
    * @param request https requestObj or new URL(url)
+   * @param raw returns full AxiosResponse object instead of only the data
    * @returns {Promise<string|*>}
    */
-  static request (request) {
+  static request (request, raw = false) {
     return new Promise((resolve, reject) => {
       axios(request).then((res) => {
-        resolve(res.data)
+        resolve(raw ? res : res.data)
       }).catch((err) => {
         reject(err)
       })
@@ -298,7 +299,7 @@ module.exports = class ApiFunctions {
   }
 
   /**
-   * Check if uesr is in chatters list
+   * Check if user is in chatters list
    * @param loginToCheck
    * @param channelName
    * @returns {Promise<boolean>}
@@ -350,6 +351,11 @@ module.exports = class ApiFunctions {
     return returnObj
   }
 
+  /**
+   * Send a "Short Answer" request to the Wolfram Alpha API
+   * @param input query import
+   * @returns {Promise<string>} Answer
+   */
   static async wolframAlphaRequest (input) {
     let waAppid = configOption.waoptions.appid
     if (waAppid) {
@@ -358,5 +364,32 @@ module.exports = class ApiFunctions {
     } else {
       return "No Wolfram Alpha AppID set."
     }
+  }
+
+  /**
+   * Pings the Supinic api bot active endpoint.
+   * Return true if sucessful or "If you authorize correctly, but you're not being tracked as a channel bot".
+   * Else returns false
+   * @param user supiniicApiUser
+   * @param key supinicApiKey
+   * @returns {Promise<boolean>} Was ping successful
+   */
+  static async supinicApiPing (user, key) {
+    if (user && key) {
+      let request = {
+        method: 'put',
+        url: 'https://supinic.com/api/bot/active',
+        headers: {
+          Authorization: "Basic " + user + ":" + key
+        }
+      }
+      try {
+        await this.request(request, true)
+        return true
+      } catch (e) {
+        return e.response.status === 400
+      }
+    }
+    return false
   }
 }

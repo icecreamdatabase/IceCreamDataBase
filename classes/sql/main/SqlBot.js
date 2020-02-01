@@ -20,10 +20,10 @@ module.exports = class SqlBot {
       let token = row.password || ""
       let clientId = row.krakenClientId || ""
       let enabled = row.enabled || false
-      let supinicAPIuser = row.supinicAPIuser || null
-      let supinicAPIkey = row.supinicAPIkey || null
+      let supinicApiUser = row.supinicApiUser || null
+      let supinicApiKey = row.supinicApiKey || null
 
-      return {userId, username, token, clientId, enabled, supinicAPIuser, supinicAPIkey}
+      return {userId, username, token, clientId, enabled, supinicApiUser, supinicApiKey}
     })
   }
 }

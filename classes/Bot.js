@@ -97,6 +97,22 @@ module.exports = class Bot {
   }
 
   /**
+   * Supinic user id of the current bot
+   * @returns {string} userName
+   */
+  get supinicApiUser () {
+    return this.TwitchIRCConnection.botData.supinicApiUser
+  }
+
+  /**
+   * Supinic API key of the current bot
+   * @returns {string} key
+   */
+  get supinicApiKey () {
+    return this.TwitchIRCConnection.botData.supinicApiKey
+  }
+
+  /**
    * Update and sync this.channels object from database
    * @returns {Promise<void>} "All channels updated promise"
    */
