@@ -9,7 +9,7 @@ create table bots
     krakenClientId varchar(45) null,
     enabled bit default b'0' not null,
     supinicAPiuser int(11) unsigned null,
-    supinicAPIkey varchar(45) null
+    supinicAPIkey varchar(128) null
 );
 
 create table channels
