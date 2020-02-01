@@ -36,6 +36,14 @@ module.exports = class Hardcoded {
       return true
     }
 
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+      && messageObj.message.startsWith("< ")) {
+      this.bot.apiFunctions.supinicApiPing().then(r => {
+        console.log(r)
+      })
+      return true
+    }
+
     if (messageObj.userLevel >= UserLevels.BROADCASTER
       && messageObj.message.startsWith("<tags ")) {
 

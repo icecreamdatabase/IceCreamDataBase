@@ -8,8 +8,8 @@ create table bots
     password varchar(45) not null,
     krakenClientId varchar(45) null,
     enabled bit default b'0' not null,
-    supinicAPiuser int(11) unsigned null,
-    supinicAPIkey varchar(128) null
+    supinicApiUser int(11) unsigned null,
+    supinicApiKey varchar(128) null
 );
 
 create table channels
