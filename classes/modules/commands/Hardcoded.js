@@ -55,6 +55,18 @@ module.exports = class Hardcoded {
       return true
     }
 
+    /* Wolfram Alpha API */
+    if (messageObj.userLevel === UserLevels.BOTADMIN
+        && (messageObj.message.startsWith("<query ")
+            || messageObj.message.startsWith("<q ")
+           )
+       ) {
+      this.bot.apiFunctions.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
+        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "Query returned: " + message)
+      })
+      return true
+    }
+
     /* eval */
     if (messageObj.userLevel === UserLevels.BOTADMIN
         && messageObj.message.startsWith("<eval ")) {

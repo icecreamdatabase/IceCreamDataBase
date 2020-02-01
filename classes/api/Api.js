@@ -1,6 +1,7 @@
 "use strict"
 const axios = require('axios')
 const util = require('util')
+const configOption = require('../../config')
 const TimeConversion = require("../../ENUMS/TimeConversion")
 
 const TWITCH_API_KRAKEN = {
@@ -347,5 +348,15 @@ module.exports = class ApiFunctions {
       returnObj.followtimeY = Math.floor(returnObj.followTimeS / TimeConversion.YEARTOSECONDS)
     }
     return returnObj
+  }
+
+  static async wolframAlphaRequest (input) {
+    let waAppid = configOption.waoptions.appid
+    if (waAppid) {
+      let apiUrl = "https://api.wolframalpha.com/v1/result?i=" + encodeURIComponent(input) + "&appid=" + waAppid + "&units=metric"
+      return await this.request(apiUrl)
+    } else {
+      return "No Wolfram Alpha AppID set."
+    }
   }
 }
