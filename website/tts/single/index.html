@@ -15,16 +15,18 @@
   <meta name="theme-color" content="#ffffff">
 
   <title>Text to Speech</title>
-
+</head>
 <body>
   <!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
   <iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
   <audio id="player" controls="" style="display:none">
     <source id="source" type="audio/wav">
   </audio>
+</body>
+<footer>
   <script>
     const eventify = (arr, callback) => {
-      arr.push = function(e) {
+      arr.push = e => {
         Array.prototype.push.call(arr, e)
         callback(arr)
       }
@@ -76,7 +78,7 @@
       location.search
         .substr(1)
         .split("&")
-        .forEach(function (item) {
+        .forEach(item => {
           tmp = item.split("=")
           if (tmp[0].toLowerCase() === parameterName.toLowerCase()) {
             result = decodeURIComponent(tmp[1])
@@ -107,15 +109,15 @@
     }
 
     function connect () {
-      let socket = new WebSocket(!!findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
+      let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
       // Connection opened
-      socket.addEventListener('open', function (event) {
+      socket.addEventListener('open', event => {
         console.log("Connected")
         socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase()}))
       })
 
       // Listen for messages
-      socket.addEventListener('message', async function (event) {
+      socket.addEventListener('message', async event => {
         let obj = JSON.parse(event.data)
         console.log(obj)
         if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
@@ -136,3 +138,5 @@
     connect()
 
   </script>
+</footer>
+</html>
