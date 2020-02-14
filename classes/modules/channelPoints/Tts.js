@@ -31,8 +31,9 @@ const ttsCommandSettings = "settings"
 const ttsCommandSettingsConversation = "conversation"
 const ttsCommandSettingsSubscriber = "sub"
 const ttsCommandSettingsQueue = "queue"
+const ttsCommandSettingsVolume = "volume"
 const ttsResponseSettings = "Updating successful."
-const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Available options are: \"" + ttsCommandSettingsConversation + "\", \"" + ttsCommandSettingsSubscriber + "\" and \"" + ttsCommandSettingsQueue + "\". Values are \"true\" and \"false\"."
+const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Avaiable combinations: \"" + ttsCommandSettingsConversation + "\": true / false, \"" + ttsCommandSettingsSubscriber + "\": true / false, \"" + ttsCommandSettingsQueue + "\": true / false, \"" + ttsCommandSettingsVolume + "\": 0 - 100."
 const ttsResponseSettingsFail = "Updating failed."
 
 const ttsCommandCooldownMs = 3000
@@ -143,6 +144,20 @@ module.exports = class Tts {
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
           }
+        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsVolume)) {
+          /* ---------- volume ---------- */
+          try {
+            let volume = parseInt(setting.substr(ttsCommandSettingsVolume.length + 1))
+            if (0 <= volume && volume <= 100) {
+              await SqlChannelPoints.setSettingVolume(this.bot.userId, privMsgObj.roomId, volume)
+              this.updateChannelPointSettings()
+              responseMessage = ttsResponseSettings
+            } else {
+              responseMessage = ttsResponseSettingsFail
+            }
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
         } else {
           /* ---------- fail ---------- */
           if (setting.trim()) {
@@ -194,7 +209,7 @@ module.exports = class Tts {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsVolume, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
             //console.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept

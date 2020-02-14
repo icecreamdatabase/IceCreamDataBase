@@ -36,11 +36,14 @@
 
     let useQueue = false
     let audioPlaying = false
+    let volume = 100
     let msgQueue = []
     let currentMessage = []
 
     eventify(msgQueue, async (arr) => {
-      if (audioPlaying && useQueue) return
+      if (audioPlaying && useQueue) {
+        return
+      }
 
       currentMessage = arr.shift()
       let msgObj = currentMessage.shift()
@@ -72,7 +75,7 @@
       audioPlaying = false
     })
 
-    function findGetParameter(parameterName) {
+    function findGetParameter (parameterName) {
       let result = null
       let tmp = []
       location.search
@@ -103,6 +106,7 @@
       let blobUrl = URL.createObjectURL(mp3)
       document.getElementById("source").setAttribute("src", blobUrl)
       let player = document.getElementById("player")
+      player.volume = volume / 100
       player.pause()
       player.load()
       player.play()
@@ -121,6 +125,7 @@
         let obj = JSON.parse(event.data)
         console.log(obj)
         if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
+          volume = obj.volume || volume
           msgQueue.push(obj.data)
           useQueue = !!obj.queue
         }

@@ -10,7 +10,6 @@ const ClearChat = require("../ClearChat")
 const WebSocket = require('ws')
 const voices = require('../../../json/se-voices.json')
 const fallbackVoice = "Brian"
-const conversationVoice = "CONVERSATION"
 const useCaseSensitiveVoiceMatching = false
 
 module.exports = class TtsWebSocket {
@@ -113,13 +112,14 @@ module.exports = class TtsWebSocket {
    * @param privMsgObj
    * @param conversation
    * @param queue
+   * @param volume 0 - 100
    * @param voice
    * @param waitForTimeoutLength
    * @returns {Promise<unknown>}
    */
-  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, voice = defaultVoice, waitForTimeoutLength = 5) {
+  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5) {
     return new Promise((resolve)=> {
-      setTimeout(async (channel, username, message, conversation, queue, voice, color) => {
+      setTimeout(async (channel, username, message, conversation, queue, volume, voice, color) => {
         // * 2 so we are also checking a bit before "now"
         if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
           let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
@@ -133,10 +133,10 @@ module.exports = class TtsWebSocket {
                                         )
           resolve(false)
         } else {
-          this.sendTts(channel, message, conversation, queue, voice)
+          this.sendTts(channel, message, conversation, queue, volume, voice)
           resolve(true)
         }
-      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, voice, privMsgObj.raw.tags.color)
+      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, volume, voice, privMsgObj.raw.tags.color)
     })
   }
 
@@ -146,17 +146,17 @@ module.exports = class TtsWebSocket {
    * @param message
    * @param conversation
    * @param queue
+   * @param volume 0 - 100
    * @param voice
    */
-  sendTts (channel, message, conversation = false, queue = false, voice = fallbackVoice) {
+  sendTts (channel, message, conversation = false, queue = false, volume = 100, voice = fallbackVoice) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    let data = {channel: channel, data: [], queue: queue}
-    let useCase = useCaseSensitiveVoiceMatching
+    let data = {channel: channel, data: [], queue: queue, volume: volume}
 
     if (conversation) {
-      data.data = this.createTTSArray(message, useCase, voice)
+      data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, voice)
     } else {
       data.data[0] = {voice: voice, message: message}
     }

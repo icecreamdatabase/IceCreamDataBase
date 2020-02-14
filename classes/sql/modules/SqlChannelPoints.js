@@ -7,6 +7,21 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Update the ttsConversation setting for a volume
+   * @param botID
+   * @param channelID
+   * @param volume
+   * @returns {Promise<void>}
+   */
+  static async setSettingVolume (botID, channelID, volume = 100) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsVolume = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [volume, botID, channelID])
+  }
+
+  /**
    * Update the ttsQueueMessages setting for a connection
    * @param botID
    * @param channelID
@@ -89,10 +104,10 @@ module.exports = class SqlChannelPoints {
   /**
    * Return all channelPointsSettings for a bot
    * @param botId
-   * @returns {Promise<{channelID, ttsConversation, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
+   * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
    */
   static async getChannelPointsSettings (botId) {
-    let results = await sqlPool.query(`SELECT channelID, ttsConversation, ttsCustomRewardId, ttsDefaultVoiceName, ttsQueueMessages, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
+    let results = await sqlPool.query(`SELECT channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsQueueMessages, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
     FROM channelPointsSettings
     WHERE enabled = B'1'
     AND botID = ?
