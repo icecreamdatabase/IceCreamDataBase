@@ -53,7 +53,7 @@ module.exports = class Tts {
         || privMsgObj.userLevel >= UserLevels.MODERATOR)
     ) {
       this.ttsCommandLastUsage = Date.now()
-      let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1)
+      let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1).trim()
       let responseMessage = ""
 
       if (command.toLowerCase().startsWith(ttsStrings.register.command) && this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled) {
@@ -206,7 +206,6 @@ module.exports = class Tts {
             responseMessage = ttsStrings.settings.response.help
           }
         }
-
       } else if (command.toLowerCase().startsWith(ttsStrings.link.command) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
         /* ---------- !tts link ---------- */
         if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
@@ -222,10 +221,16 @@ module.exports = class Tts {
             responseMessage = ttsStrings.link.response.notLinked
           }
         }
-
-      } else if (command.toLowerCase().startsWith(ttsStrings.voices.command) && this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+      } else if (command.toLowerCase().startsWith(ttsStrings.voices.command)) {
         /* ---------- !tts voices ---------- */
-        responseMessage = ttsStrings.voices.response
+        if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+          responseMessage = ttsStrings.voices.response.general
+        } else {
+          responseMessage = ttsStrings.voices.response.noConversation
+        }
+      } else if (!command.toLowerCase()) {
+        /* ---------- !tts (with nothing behind it) ---------- */
+        responseMessage = ttsStrings.response
       }
       if (responseMessage) {
         this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, "@" + privMsgObj.username + ", " + responseMessage)

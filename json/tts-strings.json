@@ -1,6 +1,6 @@
 {
   "prefix": "!tts",
-  "response": "",
+  "response": "This is a channelpoint based TTS system made by icdb. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available subcommands are: \"help\", \"voices\", \"settings\" (mod only), \"link\" (mod only), \"unregister\" (broadcaster only)",
   "register": {
     "command": "register",
     "response": "Successfully registered. Please use \"!tts help\" command in your own channel."
@@ -19,7 +19,10 @@
   },
   "voices": {
     "command": "voices",
-    "response": "Check available voices here: https://supinic.com/stream/tts"
+    "response": {
+      "general": "Check available voices here: https://supinic.com/stream/tts",
+      "noConversation": "Conversation mode is disabled. Only the default voice is available! You can still check the list of voices here: https://supinic.com/stream/tts"
+    }
   },
   "help": {
     "command": "help",
