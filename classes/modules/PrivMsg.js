@@ -65,7 +65,10 @@ module.exports = class PrivMsg {
    * @param messageObj Object to set userLevel in
    */
   static findAndSetUserLevel (messageObj) {
-    if (options.hasOwnProperty("botadmins")
+    if (options.hasOwnProperty("botowners")
+      && options.botowners.includes(messageObj.userId)) {
+      messageObj.userLevel = UserLevels.BOTOWNER
+    } else if (options.hasOwnProperty("botadmins")
         && options.botadmins.includes(messageObj.userId)) {
       messageObj.userLevel = UserLevels.BOTADMIN
     } else if (messageObj.raw.tags.hasOwnProperty("badges")) {

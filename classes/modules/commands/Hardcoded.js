@@ -28,18 +28,10 @@ module.exports = class Hardcoded {
       return true
     }
 
-    if (messageObj.userLevel === UserLevels.BOTADMIN
+    if (messageObj.userLevel === UserLevels.BOTOWNER
       && messageObj.message.startsWith("<y ")) {
       this.bot.apiFunctions.followTime(38949074, 57019243).then(x => {
         this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))
-      })
-      return true
-    }
-
-    if (messageObj.userLevel === UserLevels.BOTADMIN
-      && messageObj.message.startsWith("< ")) {
-      this.bot.apiFunctions.supinicApiPing().then(r => {
-        console.log(r)
       })
       return true
     }
@@ -53,7 +45,7 @@ module.exports = class Hardcoded {
     }
 
     /* Shutting down the bot */
-    if (messageObj.userLevel === UserLevels.BOTADMIN
+    if (messageObj.userLevel === UserLevels.BOTOWNER
       && messageObj.message.startsWith("<s ")) {
 
       this.bot.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
@@ -64,7 +56,7 @@ module.exports = class Hardcoded {
     }
 
     /* Wolfram Alpha API */
-    if (messageObj.userLevel === UserLevels.BOTADMIN
+    if (messageObj.userLevel === UserLevels.BOTOWNER
         && (messageObj.message.startsWith("<query ")
             || messageObj.message.startsWith("<q ")
            )
@@ -76,7 +68,7 @@ module.exports = class Hardcoded {
     }
 
     /* eval */
-    if (messageObj.userLevel === UserLevels.BOTADMIN
+    if (messageObj.userLevel === UserLevels.BOTOWNER
         && messageObj.message.startsWith("<eval ")) {
 
       let msg

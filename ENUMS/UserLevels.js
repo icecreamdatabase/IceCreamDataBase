@@ -10,5 +10,6 @@ module.exports = Object.freeze({
                   "MOD": 3,
                   "MODERATOR": 3,
                   "BROADCASTER": 4,
-                  "BOTADMIN": 5
+                  "BOTADMIN": 5,
+                  "BOTOWNER": 6
                 })
