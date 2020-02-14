@@ -22,6 +22,11 @@
     "password": "root",
     "database": "example"
   },
+  "botowners": [
+    "XXXXXXXX",
+    "YYYYYYYY",
+    "ZZZZZZZZ"
+  ],
   "botadmins": [
     "XXXXXXXX",
     "YYYYYYYY",
