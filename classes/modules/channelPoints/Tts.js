@@ -8,37 +8,9 @@ const DiscordLog = require('../DiscordLog')
 const Helper = require('../commands/Helper')
 const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
 const UserLevels = require("../../../ENUMS/UserLevels")
+const ttsStrings = require("../../../json/tts-strings")
 
 const UPDATE_INTERVAL = 30000//ms
-
-//TODO: put this as json into a file
-const ttsCommandPrefix = "!tts"
-const ttsCommandRegister = "register"
-const ttsResponseRegister = "Successfully registered. Please use \"!tts help\" command in your own channel."
-const ttsCommandUnregister = "unregister"
-const ttsResponseUnregister = "Successfully unregistered. The bot is leaving the channel in 5 seconds."
-const ttsCommandLink = "link"
-const ttsResponseLink = "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
-const ttsResponseLinkUnlinked = "Please link a reward by using this command inside the TTS textfield."
-const ttsResponseLinkCustomReward = "Sucessfully linked reward. " + ttsResponseLink
-const ttsCommandVoices = "voices"
-const ttsResponseVoices = "Check available voices here: https://supinic.com/stream/tts"
-const ttsCommandHelp = "help"
-const ttsResponseHelp = "Use your channel points to play a TTS message."
-const ttsResponseHelpConversation = "Use your channel points to play a TTS message. You can use multiple voices in your message by prefixing their text like this: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\". To check available voices: \"" + ttsCommandPrefix + " " + ttsCommandVoices + "\""
-const ttsResponseHelpUnlinked = "The broadcaster has to create a custom reward with \"Require Viewer to Enter Text\" checked and use the reward with the command \"" + ttsCommandPrefix + " " + ttsCommandLink + "\" to enable TTS."
-const ttsCommandSettings = "settings"
-const ttsCommandSettingsConversation = "conversation"
-const ttsCommandSettingsSubscriber = "sub"
-const ttsCommandSettingsQueue = "queue"
-const ttsCommandSettingsVoice = "voice"
-const ttsCommandSettingsVolume = "volume"
-const ttsCommandSettingsCooldown = "cooldown"
-const ttsCommandSettingsTimeoutCheckTime = "timeoutcheck"
-const ttsResponseSettings = "Updating successful."
-const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Avaiable combinations: \"" + ttsCommandSettingsConversation + "\": true / false, \"" + ttsCommandSettingsSubscriber + "\": true / false, \"" + ttsCommandSettingsQueue + "\": true / false, \"" + ttsCommandSettingsVolume + "\": 0 - 100, \"" + ttsCommandSettingsCooldown + "\": 0 - 300, \"" + ttsCommandSettingsTimeoutCheckTime + "\": 0 - 30."
-const ttsResponseSettingsFail = "Updating failed."
-
 const ttsCommandCooldownMs = 3000
 
 module.exports = class Tts {
@@ -74,24 +46,24 @@ module.exports = class Tts {
    * @returns {Promise<boolean>}
    */
   async handleTtsRegiser (privMsgObj) {
-    if (privMsgObj.message.toLowerCase().startsWith(ttsCommandPrefix)
+    if (privMsgObj.message.toLowerCase().startsWith(ttsStrings.prefix)
       && (this.bot.channels[privMsgObj.roomId].useChannelPoints
         || this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled)
       && (this.ttsCommandLastUsage + ttsCommandCooldownMs < Date.now()
         || privMsgObj.userLevel >= UserLevels.MODERATOR)
     ) {
       this.ttsCommandLastUsage = Date.now()
-      let command = privMsgObj.message.substr(ttsCommandPrefix.length + 1)
+      let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1)
       let responseMessage = ""
 
-      if (command.toLowerCase().startsWith(ttsCommandRegister) && this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled) {
+      if (command.toLowerCase().startsWith(ttsStrings.register.command) && this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled) {
         /* ---------- !tts register ---------- */
         //channel and connection creating
         let userId = privMsgObj.userId
         let username = privMsgObj.username
         //botadmins can register for other users
         if (privMsgObj.userLevel === UserLevels.BOTADMIN) {
-          let p1User = command.substr(ttsCommandRegister.length + 1).toLowerCase().trim()
+          let p1User = command.substr(ttsStrings.register.command.length + 1).toLowerCase().trim()
           if (p1User) {
             let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
             if (p1Id !== '-1') {
@@ -103,16 +75,16 @@ module.exports = class Tts {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.trace("ChannelPoints_TTS added to channel: " + username)
         await this.bot.updateBotChannels()
-        responseMessage = ttsResponseRegister
+        responseMessage = ttsStrings.register.response
 
-      } else if (command.toLowerCase().startsWith(ttsCommandUnregister) && privMsgObj.userLevel >= UserLevels.BROADCASTER) {
+      } else if (command.toLowerCase().startsWith(ttsStrings.unregister.command) && privMsgObj.userLevel >= UserLevels.BROADCASTER) {
         /* ---------- !tts unregister ---------- */
         //channel and connection creating
         let userId = privMsgObj.userId
         let username = privMsgObj.username
         //botadmins can register for other users
         if (privMsgObj.userLevel === UserLevels.BOTADMIN) {
-          let p1User = command.substr(ttsCommandUnregister.length + 1).toLowerCase().trim()
+          let p1User = command.substr(ttsStrings.unregister.command.length + 1).toLowerCase().trim()
           if (p1User) {
             let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
             if (p1Id !== '-1') {
@@ -125,135 +97,135 @@ module.exports = class Tts {
         DiscordLog.trace("ChannelPoints_TTS removed from channel: " + username)
         setTimeout(this.bot.updateBotChannels.bind(this.bot), 3000)
         //await this.bot.updateBotChannels()
-        responseMessage = ttsResponseUnregister
+        responseMessage = ttsStrings.unregister.response
 
-      } else if (command.toLowerCase().startsWith(ttsCommandHelp)) {
+      } else if (command.toLowerCase().startsWith(ttsStrings.help.command)) {
         /* ---------- !tts help ---------- */
         if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
           if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
-            responseMessage = ttsResponseHelpConversation
+            responseMessage = ttsStrings.help.response.conversation
           } else {
-            responseMessage = ttsResponseHelp
+            responseMessage = ttsStrings.help.response.general
           }
         } else {
-          responseMessage = ttsResponseHelpUnlinked
+          responseMessage = ttsStrings.help.response.unlinked
         }
 
-      } else if (command.toLowerCase().startsWith(ttsCommandSettings) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
+      } else if (command.toLowerCase().startsWith(ttsStrings.settings.command) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
         /* ---------- !tts settings ---------- */
-        let setting = command.substr(ttsCommandSettings.length + 1)
-        if (setting.toLowerCase().startsWith(ttsCommandSettingsSubscriber)) {
+        let setting = command.substr(ttsStrings.settings.command.length + 1)
+        if (setting.toLowerCase().startsWith(ttsStrings.settings.options.subscriber)) {
           /* ---------- sub ---------- */
           try {
-            await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsSubscriber.length + 1).toLowerCase()))
+            await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsStrings.settings.options.subscriber.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
-            responseMessage = ttsResponseSettings
+            responseMessage = ttsStrings.settings.response.successful
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
-        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsConversation)) {
+        } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.conversation)) {
           /* ---------- conversation ---------- */
           try {
-            await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsConversation.length + 1).toLowerCase()))
+            await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsStrings.settings.options.conversation.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
-            responseMessage = ttsResponseSettings
+            responseMessage = ttsStrings.settings.response.successful
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
-        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsVoice)) {
+        } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.voice)) {
           /* ---------- voice ---------- */
           try {
             let voice
-            if ((voice = TtsWebSocket.getVoiceID(setting.substr(ttsCommandSettingsVoice.length + 1), false))) {
+            if ((voice = TtsWebSocket.getVoiceID(setting.substr(ttsStrings.settings.options.voice.length + 1), false))) {
               await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, privMsgObj.roomId, voice)
               this.updateChannelPointSettings()
-              responseMessage = ttsResponseSettings
+              responseMessage = ttsStrings.settings.response.successful
             } else {
-              responseMessage = ttsResponseSettingsFail
+              responseMessage = ttsStrings.settings.response.fail
             }
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
-        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsQueue)) {
+        } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.queue)) {
           /* ---------- queue ---------- */
           try {
-            await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsCommandSettingsQueue.length + 1).toLowerCase()))
+            await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsStrings.settings.options.queue.length + 1).toLowerCase()))
             this.updateChannelPointSettings()
-            responseMessage = ttsResponseSettings
+            responseMessage = ttsStrings.settings.response.successful
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
-        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsVolume)) {
+        } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.volume)) {
           /* ---------- volume ---------- */
           try {
-            let volume = parseInt(setting.substr(ttsCommandSettingsVolume.length + 1))
+            let volume = parseInt(setting.substr(ttsStrings.settings.options.volume.length + 1))
             if (0 <= volume && volume <= 100) {
               await SqlChannelPoints.setSettingVolume(this.bot.userId, privMsgObj.roomId, volume)
               this.updateChannelPointSettings()
-              responseMessage = ttsResponseSettings
+              responseMessage = ttsStrings.settings.response.successful
             } else {
-              responseMessage = ttsResponseSettingsFail
+              responseMessage = ttsStrings.settings.response.fail
             }
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
-        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsCooldown)) {
+        } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.cooldown)) {
           /* ---------- cooldown ---------- */
           try {
-            let cooldown = parseInt(setting.substr(ttsCommandSettingsCooldown.length + 1))
+            let cooldown = parseInt(setting.substr(ttsStrings.settings.options.cooldown.length + 1))
             if (0 <= cooldown && cooldown <= 300) {
               await SqlChannelPoints.setSettingCooldown(this.bot.userId, privMsgObj.roomId, cooldown)
               this.updateChannelPointSettings()
-              responseMessage = ttsResponseSettings
+              responseMessage = ttsStrings.settings.response.successful
             } else {
-              responseMessage = ttsResponseSettingsFail
+              responseMessage = ttsStrings.settings.response.fail
             }
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
-        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsTimeoutCheckTime)) {
+        } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.timeoutCheckTime)) {
           /* ---------- timeoutcheck ---------- */
           try {
-            let timeoutCheckTime = parseInt(setting.substr(ttsCommandSettingsTimeoutCheckTime.length + 1))
+            let timeoutCheckTime = parseInt(setting.substr(ttsStrings.settings.options.timeoutCheckTime.length + 1))
             if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
               await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, privMsgObj.roomId, timeoutCheckTime)
               this.updateChannelPointSettings()
-              responseMessage = ttsResponseSettings
+              responseMessage = ttsStrings.settings.response.successful
             } else {
-              responseMessage = ttsResponseSettingsFail
+              responseMessage = ttsStrings.settings.response.fail
             }
           } catch (e) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           }
 
         } else {
           /* ---------- fail ---------- */
           if (setting.trim()) {
-            responseMessage = ttsResponseSettingsFail
+            responseMessage = ttsStrings.settings.response.fail
           } else {
-            responseMessage = ttsResponseSettingsHelp
+            responseMessage = ttsStrings.settings.response.help
           }
         }
 
-      } else if (command.toLowerCase().startsWith(ttsCommandLink) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
+      } else if (command.toLowerCase().startsWith(ttsStrings.link.command) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
         /* ---------- !tts link ---------- */
         if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
           //channelPointSettings creating / updating
           await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, privMsgObj.raw.tags["custom-reward-id"], true, true)
           this.updateChannelPointSettings()
           DiscordLog.trace("ChannelPoints_TTS linked in channel: " + privMsgObj.channel)
-          responseMessage = ttsResponseLinkCustomReward + privMsgObj.channel.substr(1)
+          responseMessage = ttsStrings.link.response.justLinked + privMsgObj.channel.substr(1)
         } else {
           if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {
-            responseMessage = ttsResponseLink + privMsgObj.channel.substr(1)
+            responseMessage = ttsStrings.link.response.alreadyLinked + privMsgObj.channel.substr(1)
           } else {
-            responseMessage = ttsResponseLinkUnlinked
+            responseMessage = ttsStrings.link.response.notLinked
           }
         }
 
-      } else if (command.toLowerCase().startsWith(ttsCommandVoices) && this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+      } else if (command.toLowerCase().startsWith(ttsStrings.voices.command) && this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
         /* ---------- !tts voices ---------- */
-        responseMessage = ttsResponseVoices
+        responseMessage = ttsStrings.voices.response
       }
       if (responseMessage) {
         this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, "@" + privMsgObj.username + ", " + responseMessage)
