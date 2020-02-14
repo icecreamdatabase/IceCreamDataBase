@@ -31,6 +31,7 @@ const ttsCommandSettings = "settings"
 const ttsCommandSettingsConversation = "conversation"
 const ttsCommandSettingsSubscriber = "sub"
 const ttsCommandSettingsQueue = "queue"
+const ttsCommandSettingsVoice = "voice"
 const ttsCommandSettingsVolume = "volume"
 const ttsResponseSettings = "Updating successful."
 const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Avaiable combinations: \"" + ttsCommandSettingsConversation + "\": true / false, \"" + ttsCommandSettingsSubscriber + "\": true / false, \"" + ttsCommandSettingsQueue + "\": true / false, \"" + ttsCommandSettingsVolume + "\": 0 - 100."
@@ -157,6 +158,22 @@ module.exports = class Tts {
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
           }
+        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsVoice)) {
+          /* ---------- voice ---------- */
+          try {
+            let voice
+            if ((voice = TtsWebSocket.getVoiceID(setting.substr(ttsCommandSettingsVoice.length + 1), false))) {
+              await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, privMsgObj.roomId, voice)
+              this.updateChannelPointSettings()
+              responseMessage = ttsResponseSettings
+            } else {
+              responseMessage = ttsResponseSettingsFail
+            }
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
+
+
         } else if (setting.toLowerCase().startsWith(ttsCommandSettingsQueue)) {
           /* ---------- queue ---------- */
           try {
@@ -195,7 +212,7 @@ module.exports = class Tts {
           //channelPointSettings creating / updating
           await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, privMsgObj.raw.tags["custom-reward-id"], true, true)
           this.updateChannelPointSettings()
-          DiscordLog.trace("ChannelPoints_TTS linked in channel: " + privMsgObj.channelName)
+          DiscordLog.trace("ChannelPoints_TTS linked in channel: " + privMsgObj.channel)
           responseMessage = ttsResponseLinkCustomReward + privMsgObj.channel.substr(1)
         } else {
           if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {

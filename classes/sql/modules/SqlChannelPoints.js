@@ -63,7 +63,7 @@ module.exports = class SqlChannelPoints {
     SET ttsDefaultVoiceName = ?
     WHERE botID = ?
     AND channelID = ?
-    ;`, [conversation, botID, channelID])
+    ;`, [voice, botID, channelID])
   }
 
   /**

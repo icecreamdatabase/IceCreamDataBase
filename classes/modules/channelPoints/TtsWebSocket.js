@@ -62,6 +62,7 @@ module.exports = class TtsWebSocket {
    */
   getVoiceID (voice, useCase = false) {
     let voiceID = null
+    voice = voice.trim()
 
     voices.some(langElem => {
       return langElem.voices.some(voiceElem => {
@@ -173,6 +174,7 @@ module.exports = class TtsWebSocket {
    * Split the message like the forsen TTS syntax:
    * Brian: message 1 Justin: message 2 Brian: message 3
    * @param message
+   * @param useCase
    * @param defaultVoice
    * @returns {{voice: string, message: string}[]}
    */
