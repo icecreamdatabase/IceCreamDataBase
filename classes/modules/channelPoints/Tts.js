@@ -16,7 +16,7 @@ const ttsCommandPrefix = "!tts"
 const ttsCommandRegister = "register"
 const ttsResponseRegister = "Successfully registered. Please use \"!tts help\" command in your own channel."
 const ttsCommandUnregister = "unregister"
-const ttsResponseUnregister = "Successfully unregistered."
+const ttsResponseUnregister = "Successfully unregistered. The bot is leaving the channel in 5 seconds."
 const ttsCommandLink = "link"
 const ttsResponseLink = "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
 const ttsResponseLinkUnlinked = "Please link a reward by using this command inside the TTS textfield."
@@ -102,6 +102,28 @@ module.exports = class Tts {
         await this.bot.updateBotChannels()
         responseMessage = ttsResponseRegister
 
+      } else if (command.toLowerCase().startsWith(ttsCommandUnregister) && privMsgObj.userLevel >= UserLevels.BROADCASTER) {
+        /* ---------- !tts unregister ---------- */
+        //channel and connection creating
+        let userId = privMsgObj.userId
+        let username = privMsgObj.username
+        //botadmins can register for other users
+        if (privMsgObj.userLevel === UserLevels.BOTADMIN) {
+          let p1User = command.substr(ttsCommandUnregister.length + 1).toLowerCase().trim()
+          if (p1User) {
+            let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
+            if (p1Id !== '-1') {
+              userId = p1Id
+              username = p1User
+            }
+          }
+        }
+        await SqlChannelPoints.dropChannel(this.bot.userId, parseInt(userId))
+        DiscordLog.trace("ChannelPoints_TTS removed from channel: " + username)
+        setTimeout(this.bot.updateBotChannels.bind(this.bot), 3000)
+        //await this.bot.updateBotChannels()
+        responseMessage = ttsResponseUnregister
+
       } else if (command.toLowerCase().startsWith(ttsCommandHelp)) {
         /* ---------- !tts help ---------- */
         if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
@@ -171,8 +193,9 @@ module.exports = class Tts {
         /* ---------- !tts link ---------- */
         if (privMsgObj.raw.tags.hasOwnProperty("custom-reward-id")) {
           //channelPointSettings creating / updating
-          await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, false, privMsgObj.raw.tags["custom-reward-id"])
+          await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, privMsgObj.raw.tags["custom-reward-id"], true, true)
           this.updateChannelPointSettings()
+          DiscordLog.trace("ChannelPoints_TTS linked in channel: " + privMsgObj.channelName)
           responseMessage = ttsResponseLinkCustomReward + privMsgObj.channel.substr(1)
         } else {
           if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {

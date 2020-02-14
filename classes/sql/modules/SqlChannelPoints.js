@@ -87,18 +87,20 @@ module.exports = class SqlChannelPoints {
    * Add or update channelPointsSettings for a connection
    * @param botID
    * @param channelID
-   * @param ttsConversation
    * @param ttsCustomRewardId
+   * @param ttsConversation
+   * @param ttsQueueMessages
    * @returns {Promise<void>}
    */
-  static async addChannel (botID, channelID, ttsConversation = false, ttsCustomRewardId) {
-    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsCustomRewardId) 
-    VALUES (?,?,b'1',?,?) 
+  static async addChannel (botID, channelID, ttsCustomRewardId, ttsConversation = true, ttsQueueMessages = true) {
+    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsQueueMessages, ttsCustomRewardId) 
+    VALUES (?,?,b'1',?,?,?) 
     ON DUPLICATE KEY UPDATE 
     enabled = enabled,
     ttsConversation = ttsConversation,
+    ttsQueueMessages = ttsQueueMessages,
     ttsCustomRewardId = ttsCustomRewardId`,
-      [botID, channelID, ttsConversation, ttsCustomRewardId])
+      [botID, channelID, ttsConversation, ttsQueueMessages, ttsCustomRewardId])
   }
 
   /**
@@ -118,5 +120,22 @@ module.exports = class SqlChannelPoints {
       returnObj[x.channelID] = x
     })
     return returnObj
+  }
+
+  /**
+   * Completely remove a bot from a channel.
+   * @param botID
+   * @param channelID
+   * @returns {Promise<void>}
+   */
+  static async dropChannel (botID, channelID) {
+    await sqlPool.query(`DELETE FROM channelPointsSettings
+    WHERE botID = ?
+    AND channelID = ?;
+    ;`, [botID, channelID])
+    await sqlPool.query(`DELETE FROM connections
+    WHERE botId = ?
+    AND channelID = ?
+    ;`, [botID, channelID])
   }
 }
