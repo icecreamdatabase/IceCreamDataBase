@@ -7,7 +7,7 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
-   * Update the ttsConversation setting for a volume
+   * Update the ttsConversation setting for a connection
    * @param botID
    * @param channelID
    * @param volume
