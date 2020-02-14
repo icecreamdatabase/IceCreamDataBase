@@ -71,6 +71,7 @@ create table channelPointsSettings
     enabled bit default b'0' not null,
     ttsConversation bit default b'0' not null,
     ttsQueueMessages bit default b'0' not null,
+    ttsVolume int default 100 not null,
     ttsCustomRewardId varchar(45) null,
     ttsDefaultVoiceName varchar(45) default 'Brian' null,
     ttsCooldown int(11) unsigned default 0 null,

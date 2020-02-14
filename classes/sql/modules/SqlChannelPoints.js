@@ -7,6 +7,51 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Update the ttsCooldown setting for a connection
+   * @param botID
+   * @param channelID
+   * @param ttsCooldown default 0
+   * @returns {Promise<void>}
+   */
+  static async setSettingCooldown (botID, channelID, ttsCooldown = 0) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsCooldown = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [ttsCooldown, botID, channelID])
+  }
+
+  /**
+   * Update the ttsTimeoutCheckTime setting for a connection
+   * @param botID
+   * @param channelID
+   * @param ttsTimeoutCheckTime default 2 seconds
+   * @returns {Promise<void>}
+   */
+  static async setSettingTimeoutcheckTime (botID, channelID, ttsTimeoutCheckTime = 2) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsTimeoutCheckTime = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [ttsTimeoutCheckTime, botID, channelID])
+  }
+
+  /**
+   * Update the ttsConversation setting for a connection
+   * @param botID
+   * @param channelID
+   * @param volume
+   * @returns {Promise<void>}
+   */
+  static async setSettingVolume (botID, channelID, volume = 100) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsVolume = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [volume, botID, channelID])
+  }
+
+  /**
    * Update the ttsQueueMessages setting for a connection
    * @param botID
    * @param channelID
@@ -37,6 +82,21 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Update the ttsDefaultVoiceName setting for a connection
+   * @param botID
+   * @param channelID
+   * @param voice
+   * @returns {Promise<void>}
+   */
+  static async setSettingDefaultVoice (botID, channelID, voice = "Brian") {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsDefaultVoiceName = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [voice, botID, channelID])
+  }
+
+  /**
    * Update the ttsUserLevel setting for a connection
    * subonly === true: ttsUserLevel = 1
    * subonly === false: ttsUserLevel = 0
@@ -57,27 +117,29 @@ module.exports = class SqlChannelPoints {
    * Add or update channelPointsSettings for a connection
    * @param botID
    * @param channelID
-   * @param ttsConversation
    * @param ttsCustomRewardId
+   * @param ttsConversation
+   * @param ttsQueueMessages
    * @returns {Promise<void>}
    */
-  static async addChannel (botID, channelID, ttsConversation = false, ttsCustomRewardId) {
-    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsCustomRewardId) 
-    VALUES (?,?,b'1',?,?) 
+  static async addChannel (botID, channelID, ttsCustomRewardId, ttsConversation = true, ttsQueueMessages = true) {
+    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsQueueMessages, ttsCustomRewardId) 
+    VALUES (?,?,b'1',?,?,?) 
     ON DUPLICATE KEY UPDATE 
     enabled = enabled,
     ttsConversation = ttsConversation,
+    ttsQueueMessages = ttsQueueMessages,
     ttsCustomRewardId = ttsCustomRewardId`,
-      [botID, channelID, ttsConversation, ttsCustomRewardId])
+      [botID, channelID, ttsConversation, ttsQueueMessages, ttsCustomRewardId])
   }
 
   /**
    * Return all channelPointsSettings for a bot
    * @param botId
-   * @returns {Promise<{channelID, ttsConversation, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
+   * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
    */
   static async getChannelPointsSettings (botId) {
-    let results = await sqlPool.query(`SELECT channelID, ttsConversation, ttsCustomRewardId, ttsDefaultVoiceName, ttsQueueMessages, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
+    let results = await sqlPool.query(`SELECT channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsQueueMessages, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
     FROM channelPointsSettings
     WHERE enabled = B'1'
     AND botID = ?
@@ -88,5 +150,22 @@ module.exports = class SqlChannelPoints {
       returnObj[x.channelID] = x
     })
     return returnObj
+  }
+
+  /**
+   * Completely remove a bot from a channel.
+   * @param botID
+   * @param channelID
+   * @returns {Promise<void>}
+   */
+  static async dropChannel (botID, channelID) {
+    await sqlPool.query(`DELETE FROM channelPointsSettings
+    WHERE botID = ?
+    AND channelID = ?;
+    ;`, [botID, channelID])
+    await sqlPool.query(`DELETE FROM connections
+    WHERE botId = ?
+    AND channelID = ?
+    ;`, [botID, channelID])
   }
 }

@@ -1,0 +1,52 @@
+{
+  "prefix": "!tts",
+  "response": "This is a channelpoint based TTS system made by icdb. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available subcommands are: \"help\", \"voices\", \"settings\" (mod only), \"link\" (mod only), \"unregister\" (broadcaster only)",
+  "register": {
+    "command": "register",
+    "response": "Successfully registered. Please use \"!tts help\" command in your own channel."
+  },
+  "unregister": {
+    "command": "unregister",
+    "response": "Successfully unregistered. The bot is leaving the channel in 5 seconds."
+  },
+  "link": {
+    "command": "link",
+    "response": {
+      "alreadyLinked": "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel=",
+      "notLinked": "Please link a reward by using this command inside the TTS textfield. (Make the TTS say the message \"!tts link\")",
+      "justLinked": "Successfully linked reward. Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
+    }
+  },
+  "voices": {
+    "command": "voices",
+    "response": {
+      "general": "Check available voices here: https://supinic.com/stream/tts",
+      "noConversation": "Conversation mode is disabled. Only the default voice is available! You can still check the list of voices here: https://supinic.com/stream/tts"
+    }
+  },
+  "help": {
+    "command": "help",
+    "response": {
+      "general": "Use your channel points to play a TTS message.",
+      "conversation": "Use your channel points to play a TTS message. You can use multiple voices in your message by prefixing their text like this: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\". To check available voices: \"!tts voices\"",
+      "unlinked": "The broadcaster has to create a custom reward with \"Require Viewer to Enter Text\" checked and use the TTS with the message \"!tts link\" to enable TTS."
+    }
+  },
+  "settings": {
+    "command": "settings",
+    "response": {
+      "successful": "Updating successful.",
+      "fail": "Updating failed.",
+      "help": "Use \"!tts settings [OPTION] [VALUE]\". Avaiable combinations: \"conversation\": true / false, \"sub\": true / false, \"queue\": true / false, \"volume\": 0 - 100, \"cooldown\": 0 - 300, \"timeoutcheck\": 0 - 30."
+    },
+    "options": {
+      "conversation": "conversation",
+      "subscriber": "sub",
+      "queue": "queue",
+      "voice": "voice",
+      "volume": "volume",
+      "cooldown": "cooldown",
+      "timeoutCheckTime": "timeoutcheck"
+    }
+  }
+}

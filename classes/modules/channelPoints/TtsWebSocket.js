@@ -9,8 +9,8 @@ const ClearChat = require("../ClearChat")
 
 const WebSocket = require('ws')
 const voices = require('../../../json/se-voices.json')
-const defaultVoice = "Brian"
-const conversationVoice = "CONVERSATION"
+const fallbackVoice = "Brian"
+const useCaseSensitiveVoiceMatching = false
 
 module.exports = class TtsWebSocket {
   constructor () {
@@ -28,18 +28,18 @@ module.exports = class TtsWebSocket {
   /**
    * Get voice language in ISO code by voice name or id.
    * @param voice voice or id
-   * @param noCase is not case sensitive
+   * @param useCase is case sensitivity
    * @returns {string} voice language
    */
-  getVoiceLang (voice, noCase = false) {
+  getVoiceLang (voice, useCase = false) {
     let voiceLang = null
 
     voices.some(langElem => {
       let hasElem = langElem.voices.some(voiceElem => {
-        if (noCase) {
-          return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
-        } else {
+        if (useCase) {
           return (voiceElem.id === voice || voiceElem.name === voice)
+        } else {
+          return (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase())
         }
       })
 
@@ -57,17 +57,18 @@ module.exports = class TtsWebSocket {
    * Get voice ID by voice name.
    * Voice ID can be the same as voice name.
    * @param voice voice name
-   * @param noCase is not case sensitive
+   * @param useCase use case sensitivity
    * @returns {string} voice ID
    */
-  getVoiceID (voice, noCase = false) {
+  getVoiceID (voice, useCase = false) {
     let voiceID = null
+    voice = voice.trim()
 
     voices.some(langElem => {
       return langElem.voices.some(voiceElem => {
-        let match = ( noCase ?
-            (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) :
-            (voiceElem.id === voice || voiceElem.name === voice) )
+        let match = ( useCase ?
+            (voiceElem.id === voice || voiceElem.name === voice) :
+            (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) )
 
         if (match) {
           voiceID = voiceElem.id
@@ -112,13 +113,14 @@ module.exports = class TtsWebSocket {
    * @param privMsgObj
    * @param conversation
    * @param queue
+   * @param volume 0 - 100
    * @param voice
    * @param waitForTimeoutLength
    * @returns {Promise<unknown>}
    */
-  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, voice = defaultVoice, waitForTimeoutLength = 5) {
+  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5) {
     return new Promise((resolve)=> {
-      setTimeout(async (channel, username, message, conversation, queue, voice, color) => {
+      setTimeout(async (channel, username, message, conversation, queue, volume, voice, color) => {
         // * 2 so we are also checking a bit before "now"
         if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
           let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
@@ -132,10 +134,10 @@ module.exports = class TtsWebSocket {
                                         )
           resolve(false)
         } else {
-          this.sendTts(channel, message, conversation, queue, voice)
+          this.sendTts(channel, message, conversation, queue, volume, voice)
           resolve(true)
         }
-      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, voice, privMsgObj.raw.tags.color)
+      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, volume, voice, privMsgObj.raw.tags.color)
     })
   }
 
@@ -145,16 +147,17 @@ module.exports = class TtsWebSocket {
    * @param message
    * @param conversation
    * @param queue
+   * @param volume 0 - 100
    * @param voice
    */
-  sendTts (channel, message, conversation = false, queue = false, voice = defaultVoice) {
+  sendTts (channel, message, conversation = false, queue = false, volume = 100, voice = fallbackVoice) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    let data = {channel: channel, data: [], queue: queue}
+    let data = {channel: channel, data: [], queue: queue, volume: volume}
 
     if (conversation) {
-      data.data = this.createTTSArray(message, voice)
+      data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, voice)
     } else {
       data.data[0] = {voice: voice, message: message}
     }
@@ -171,15 +174,16 @@ module.exports = class TtsWebSocket {
    * Split the message like the forsen TTS syntax:
    * Brian: message 1 Justin: message 2 Brian: message 3
    * @param message
+   * @param useCase
    * @param defaultVoice
    * @returns {{voice: string, message: string}[]}
    */
-  createTTSArray (message, defaultVoice = "Brian") {
+  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice) {
     let output = [{voice: defaultVoice, message: ""}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
       let voice
-      if (word.endsWith(":") && (voice = this.getVoiceID(word.substr(0, word.length - 1), true))) {
+      if (word.endsWith(":") && (voice = this.getVoiceID(word.substr(0, word.length - 1), useCase))) {
         output[++outputIndex] = {}
         output[outputIndex]["voice"] = voice
         output[outputIndex]["message"] = ""
