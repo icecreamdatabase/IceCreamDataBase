@@ -33,8 +33,10 @@ const ttsCommandSettingsSubscriber = "sub"
 const ttsCommandSettingsQueue = "queue"
 const ttsCommandSettingsVoice = "voice"
 const ttsCommandSettingsVolume = "volume"
+const ttsCommandSettingsCooldown = "cooldown"
+const ttsCommandSettingsTimeoutCheckTime = "timeoutcheck"
 const ttsResponseSettings = "Updating successful."
-const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Avaiable combinations: \"" + ttsCommandSettingsConversation + "\": true / false, \"" + ttsCommandSettingsSubscriber + "\": true / false, \"" + ttsCommandSettingsQueue + "\": true / false, \"" + ttsCommandSettingsVolume + "\": 0 - 100."
+const ttsResponseSettingsHelp = "Use \"" + ttsCommandPrefix + " " + ttsCommandSettings + " [OPTION] [VALUE]\". Avaiable combinations: \"" + ttsCommandSettingsConversation + "\": true / false, \"" + ttsCommandSettingsSubscriber + "\": true / false, \"" + ttsCommandSettingsQueue + "\": true / false, \"" + ttsCommandSettingsVolume + "\": 0 - 100, \"" + ttsCommandSettingsCooldown + "\": 0 - 300, \"" + ttsCommandSettingsTimeoutCheckTime + "\": 0 - 30."
 const ttsResponseSettingsFail = "Updating failed."
 
 const ttsCommandCooldownMs = 3000
@@ -172,8 +174,6 @@ module.exports = class Tts {
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
           }
-
-
         } else if (setting.toLowerCase().startsWith(ttsCommandSettingsQueue)) {
           /* ---------- queue ---------- */
           try {
@@ -197,6 +197,35 @@ module.exports = class Tts {
           } catch (e) {
             responseMessage = ttsResponseSettingsFail
           }
+        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsCooldown)) {
+          /* ---------- cooldown ---------- */
+          try {
+            let cooldown = parseInt(setting.substr(ttsCommandSettingsCooldown.length + 1))
+            if (0 <= cooldown && cooldown <= 300) {
+              await SqlChannelPoints.setSettingCooldown(this.bot.userId, privMsgObj.roomId, cooldown)
+              this.updateChannelPointSettings()
+              responseMessage = ttsResponseSettings
+            } else {
+              responseMessage = ttsResponseSettingsFail
+            }
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
+        } else if (setting.toLowerCase().startsWith(ttsCommandSettingsTimeoutCheckTime)) {
+          /* ---------- timeoutcheck ---------- */
+          try {
+            let timeoutCheckTime = parseInt(setting.substr(ttsCommandSettingsTimeoutCheckTime.length + 1))
+            if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
+              await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, privMsgObj.roomId, timeoutCheckTime)
+              this.updateChannelPointSettings()
+              responseMessage = ttsResponseSettings
+            } else {
+              responseMessage = ttsResponseSettingsFail
+            }
+          } catch (e) {
+            responseMessage = ttsResponseSettingsFail
+          }
+
         } else {
           /* ---------- fail ---------- */
           if (setting.trim()) {

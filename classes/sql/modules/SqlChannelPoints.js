@@ -7,6 +7,36 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Update the ttsCooldown setting for a connection
+   * @param botID
+   * @param channelID
+   * @param ttsCooldown default 0
+   * @returns {Promise<void>}
+   */
+  static async setSettingCooldown (botID, channelID, ttsCooldown = 0) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsCooldown = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [ttsCooldown, botID, channelID])
+  }
+
+  /**
+   * Update the ttsTimeoutCheckTime setting for a connection
+   * @param botID
+   * @param channelID
+   * @param ttsTimeoutCheckTime default 2 seconds
+   * @returns {Promise<void>}
+   */
+  static async setSettingTimeoutcheckTime (botID, channelID, ttsTimeoutCheckTime = 2) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+    SET ttsTimeoutCheckTime = ?
+    WHERE botID = ?
+    AND channelID = ?
+    ;`, [ttsTimeoutCheckTime, botID, channelID])
+  }
+
+  /**
    * Update the ttsConversation setting for a connection
    * @param botID
    * @param channelID
