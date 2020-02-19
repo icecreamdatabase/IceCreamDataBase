@@ -1,6 +1,6 @@
 //default parameter
 const defaultVoice = "Brian"
-const defaultTtsRateLimit = 1000
+const defaultTtsDelay = 1000
 const seVoiceFile = '../se-voices.json'
 let seVoiceData = null
 
@@ -10,25 +10,32 @@ let singleChannel = findGetParameter("channel")
 if (singleChannel) {
   channels.push(singleChannel)
 }
+let enabledCheckbox = document.getElementById("tts-enabled-checkbox")
 let sayNames = !!findGetParameter("names")
 let voice = findGetParameter("voice") || defaultVoice
-let ttsRatelimit = parseInt(findGetParameter("ttsRateLimit")) || defaultTtsRateLimit
+let ttsDelay = parseInt(findGetParameter("ttsDelay")) || defaultTtsDelay
 let alwaysFullPlayback = !!findGetParameter("alwaysFullPlayback")
 let volume = parseFloat(findGetParameter("volume") || "1")
-let interactive = !!findGetParameter("interactive")
+let enabled = enabledCheckbox.checked = !!findGetParameter("enabled")
 
 //needed variables
-let shouldSend = true
 let audioPlaying = false
+let msgQueue = []
+let currentMessage = []
+
+//let rlLimit = 30
+let rlRemaining = 30 // Default value of StreamElements
+let rlReset = Date.now()
+let rateLimited = false
+
 buttonApplyVoice(voice)
 fillVoiceDropDown(getVoices())
 
 //apply values
 document.getElementById("player").volume = volume
-document.getElementById("interactive").style.display = interactive ? "block" : "none"
 document.getElementById("tts-saynames-checkbox").checked = sayNames
 document.getElementById("tts-alwaysfullplayback-checkbox").checked = alwaysFullPlayback
-document.getElementById("tts-ratelimit-numberfield").value = ttsRatelimit
+document.getElementById("tts-delay-numberfield").value = ttsDelay
 
 //Eventlistener for TTS audio done playing
 document.getElementById("player").addEventListener("ended", () => audioPlaying = false)
@@ -37,39 +44,104 @@ document.getElementById("player").addEventListener("ended", () => audioPlaying =
 /* twitch-js part */
 // noinspection JSUnresolvedFunction
 const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47", log: {level: "warn"}})
+const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
+const eventify = (arr, callback) => {
+  arr.push = e => {
+    Array.prototype.push.call(arr, e)
+    callback(arr)
+  }
+}
 
 chat.connect().then(() => {
   channels.forEach(channel => chat.join(channel))
+  console.log("connected")
 })
-
 chat.on("PRIVMSG", (msgObj) => {
-  if (shouldSend && (!interactive || document.getElementById("tts-enabled-checkbox").checked)) {
-    shouldSend = false
+  if (!!enabledCheckbox.checked) {
     let ttsMessage = msgObj.message
     if (sayNames) {
       ttsMessage = msgObj.username + " says " + ttsMessage
     }
     console.log("TTS: " + msgObj.username + ": " + msgObj.message)
-    setTimeout(() => shouldSend = true, ttsRatelimit)
-    speak(ttsMessage, voice)
+    let arr = []
+    arr.push(ttsMessage)
+    msgQueue.push(arr)
   }
 })
 
+eventify(msgQueue, async (arr) => {
+  if (audioPlaying && alwaysFullPlayback || rateLimited) {
+    return
+  }
+
+  currentMessage = arr.shift()
+  let ttsMessage = currentMessage.shift()
+  if (ttsMessage) {
+    audioPlaying = true
+    await speak(ttsMessage, voice)
+  }
+})
+
+document.getElementById("player").addEventListener("ended", async () => {
+  if (currentMessage.length > 0) {
+    let ttsMessage = currentMessage.shift()
+    await speak(ttsMessage, voice)
+    return
+  }
+
+  // Delay between messages
+  await sleep(parseInt(ttsDelay))
+
+  if (msgQueue.length > 0) {
+    currentMessage = msgQueue.shift()
+    let ttsMessage = currentMessage.shift()
+    if (ttsMessage) {
+      await speak(ttsMessage, voice)
+      return
+    }
+  }
+
+  audioPlaying = false
+})
+
 async function speak (text, voice = "Brian") {
-  if (audioPlaying && alwaysFullPlayback) {
+  if (rlRemaining <= 1) {
+    if (rlReset >= Date.now()) {
+      rateLimited = true
+      console.log("Rate limited - waiting!")
+      await sleep(Math.max(10, rlReset - Date.now()))
+      rateLimited = false
+    }
+  }
+
+  let response = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
+      voice +
+      "&text=" +
+      encodeURIComponent(text.trim()))
+
+  // Rate limiting headers
+  //rlLimit = response.headers.get('x-ratelimit-limit')
+  let newRlReset = response.headers.get('x-ratelimit-reset')
+  if (newRlReset > rlReset) {
+    rlReset = newRlReset
+    rlRemaining = 30
+  } else {
+    rlRemaining = response.headers.get('x-ratelimit-remaining')
+  }
+  console.log(rlRemaining, rlReset, Date.now(), rlReset - Date.now())
+
+  if (response.status === 429) {
+    console.warn(await response.text())
+    await speak(text, voice)
+    return
+  } else if (response.status !== 200) {
+    console.warn(await response.text())
+    audioPlaying = false
     return
   }
-  audioPlaying = true
-  setVoice(voice, true)
-  let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
-    voice +
-    "&text=" +
-    encodeURIComponent(text.trim()))
-  if (speak.status !== 200) {
-    console.warn(await speak.text())
-    return
-  }
-  let mp3 = await speak.blob()
+
+  let mp3 = await response.blob()
+
   let blobUrl = URL.createObjectURL(mp3)
   document.getElementById("source").setAttribute("src", blobUrl)
   let player = document.getElementById("player")
