@@ -78,7 +78,7 @@
     <tr>
       <td><label for="tts-delay-numberfield">Time between messages:</label></td>
       <td>
-        <input class="numberfield" type="number" min="1000" max="86400000" step="100" id="tts-delay-numberfield" onchange="onRatelimitChange(this.value)">
+        <input class="numberfield" type="number" min="100" max="86400000" step="100" id="tts-delay-numberfield" onchange="onRatelimitChange(this.value)">
         <label>ms</label>
       </td>
     </tr>
@@ -89,4 +89,3 @@
   <script src="https://unpkg.com/twitch-js@2.0.0-beta.33/dist/twitch.js"></script>
   <script src="interactive.js"></script>
   <script src="tts.js"></script>
-
