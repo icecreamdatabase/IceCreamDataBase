@@ -9,7 +9,7 @@ function onVolumechange (value) {
 }
 
 function onRatelimitChange (value) {
-  ttsRatelimit = value
+  ttsDelay = value
 }
 
 function onSayNamesChange (value) {
@@ -19,6 +19,13 @@ function onSayNamesChange (value) {
 function onAlwaysFullPlaybackChange (value) {
   alwaysFullPlayback = value
 }
+
+// Will be replaced with a button on the page
+window.addEventListener('load', function () {
+  if (!!findGetParameter("lightmode")) {
+    document.body.classList.add("light")
+  }
+})
 
 function fillVoiceDropDown (voices) {
   // clone to not manipulate original
@@ -73,10 +80,11 @@ function toggleVoiceDropdown () {
   document.getElementById("tts-voice-dropdowndiv").classList.toggle("show")
 }
 
-function filterFunction (dropDownSearch, dropDownDiv, asterisk = false) {
-  let input = document.getElementById(dropDownSearch)
+function filterFunction () {
+  let input = document.getElementById('tts-voice-dropdownsearch')
   let filter = input.value && input.value.toLowerCase() || ""
-  let div = document.getElementById(dropDownDiv)
+  let div = document.getElementById('tts-voice-dropdowncontent')
+  let checkbox = document.getElementById('tts-voice-prioritycheckbox')
   let langDivs = div.children
   for (let i = 0; i < langDivs.length; i++) {
     if (langDivs[i].tagName.toLowerCase() !== "div") {
@@ -91,7 +99,7 @@ function filterFunction (dropDownSearch, dropDownDiv, asterisk = false) {
         continue
       }
 
-      if (asterisk === true) {
+      if (checkbox.checked === true) {
         if (!a[j].classList.contains("preferred-voice")) {
           a[j].classList.add("hidden")
           continue

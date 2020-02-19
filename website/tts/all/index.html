@@ -16,7 +16,7 @@
 
   <title>Text to Speech</title>
   <link rel="stylesheet" type="text/css" href="style.css">
-</head>
+
 <body>
 <!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
 <iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio"
@@ -24,7 +24,7 @@
 <audio id="player" controls="" style="display:none">
   <source id="source" type="audio/wav">
 </audio>
-<div id="interactive" style="display:none">
+<div>
   <table class="tts-main-table">
     <tr>
       <td><label for="tts-enabled-checkbox">TTS enabled:</label></td>
@@ -44,13 +44,13 @@
     <tr>
       <td><label for="tts-voice-dropdownbutton">Voice:</label></td>
       <td>
-        <button id="tts-voice-dropdownbutton" onclick="toggleVoiceDropdown()" class="dropdown-button">Dropdown</button>
+        <button id="tts-voice-dropdownbutton" onclick="toggleVoiceDropdown()" class="dropdown-button">&nbsp;</button>
         <div id="tts-voice-dropdowndiv" class="dropdown">
           <!--suppress HtmlFormInputWithoutLabel -->
           <div class="search-bar">
-            <input type="text" placeholder="Search..." id="tts-voice-dropdownsearch" onkeyup="filterFunction('tts-voice-dropdownsearch', 'tts-voice-dropdowncontent')">
-            <label class="checkbox-container" for="tts-voice-prioritycheckbox" tooltip="* = preferred voices" flow="left">*
-              <input type="checkbox" id="tts-voice-prioritycheckbox" onchange="filterFunction('tts-voice-dropdownsearch', 'tts-voice-dropdowncontent', this.checked)" checked><span class="checkmark"></span>
+            <input type="text" placeholder="Search..." id="tts-voice-dropdownsearch" onkeyup="filterFunction()">
+            <label class="checkbox-container" for="tts-voice-prioritycheckbox" tooltip="preferred voices" flow="right">*
+              <input type="checkbox" id="tts-voice-prioritycheckbox" onchange="filterFunction()" checked><span class="checkmark"></span>
             </label>
           </div>
           <div id="tts-voice-dropdowncontent"></div>
@@ -76,19 +76,17 @@
       </td>
     </tr>
     <tr>
-      <td><label for="tts-ratelimit-numberfield">Time between messages:</label></td>
+      <td><label for="tts-delay-numberfield">Time between messages:</label></td>
       <td>
-        <input class="numberfield" type="number" min="1000" max="86400000" step="100" id="tts-ratelimit-numberfield" onchange="onRatelimitChange(this.value)">
+        <input class="numberfield" type="number" min="1000" max="86400000" step="100" id="tts-delay-numberfield" onchange="onRatelimitChange(this.value)">
         <label>ms</label>
       </td>
     </tr>
   </table>
 </div>
-</body>
-<footer>
+
   <!--suppress JSUnresolvedLibraryURL -->
   <script src="https://unpkg.com/twitch-js@2.0.0-beta.33/dist/twitch.js"></script>
   <script src="interactive.js"></script>
   <script src="tts.js"></script>
-</footer>
-</html>
+

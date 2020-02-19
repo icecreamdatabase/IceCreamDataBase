@@ -15,16 +15,16 @@
   <meta name="theme-color" content="#ffffff">
 
   <title>Text to Speech</title>
-</head>
+
 <body>
   <!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
   <iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
   <audio id="player" controls="" style="display:none">
     <source id="source" type="audio/wav">
   </audio>
-</body>
-<footer>
+
   <script>
+    const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
     const eventify = (arr, callback) => {
       arr.push = e => {
         Array.prototype.push.call(arr, e)
@@ -32,16 +32,19 @@
       }
     }
 
-    const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
-
-    let useQueue = false
+    let useQueue = true
     let audioPlaying = false
     let volume = 100
     let msgQueue = []
     let currentMessage = []
 
+    //let rlLimit = 30
+    let rlRemaining = 30 // Default value of StreamElements
+    let rlReset = Date.now()
+    let rateLimited = false
+
     eventify(msgQueue, async (arr) => {
-      if (audioPlaying && useQueue) {
+      if (audioPlaying && useQueue || rateLimited) {
         return
       }
 
@@ -61,7 +64,7 @@
       }
 
       // Delay between messages
-      await sleep(parseInt(findGetParameter("cooldown")) || 1000)
+      await sleep(1000)
 
       if (msgQueue.length > 0) {
         currentMessage = msgQueue.shift()
@@ -91,17 +94,42 @@
     }
 
     async function speak (text, voice = "Brian") {
-      let speak = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
+      if (rlRemaining <= 1) {
+        if (rlReset >= Date.now()) {
+          rateLimited = true
+          console.log("Rate limited - waiting!")
+          await sleep(Math.max(10, rlReset - Date.now()))
+          rateLimited = false
+        }
+      }
+
+      let response = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
         voice +
         "&text=" +
         encodeURIComponent(text.trim()))
 
-      if (speak.status !== 200) {
-        console.warn(await speak.text())
+      // Rate limiting headers
+      //rlLimit = response.headers.get('x-ratelimit-limit')
+      let newRlReset = response.headers.get('x-ratelimit-reset')
+      if (newRlReset > rlReset) {
+        rlReset = newRlReset
+        rlRemaining = 30
+      } else {
+        rlRemaining = response.headers.get('x-ratelimit-remaining')
+      }
+      //console.log(rlRemaining, rlReset, Date.now(), rlReset - Date.now())
+
+      if (response.status === 429) {
+        console.warn(await response.text())
+        await speak(text, voice)
+        return
+      } else if (response.status !== 200) {
+        console.warn(await response.text())
+        audioPlaying = false
         return
       }
 
-      let mp3 = await speak.blob()
+      let mp3 = await response.blob()
 
       let blobUrl = URL.createObjectURL(mp3)
       document.getElementById("source").setAttribute("src", blobUrl)
@@ -143,5 +171,3 @@
     connect()
 
   </script>
-</footer>
-</html>
