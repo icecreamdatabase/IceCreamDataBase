@@ -26,7 +26,7 @@ module.exports = class Commands {
    * @returns {boolean} don't allow further commands
    */
   handle (messageObj) {
-    if (messageObj.userLevel === UserLevels.BOTADMIN
+    if (messageObj.userLevel >= UserLevels.BOTADMIN
       && messageObj.message.startsWith("<r ")) {
 
       this.updateCommandData.bind(this)()

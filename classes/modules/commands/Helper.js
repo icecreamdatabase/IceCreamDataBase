@@ -197,7 +197,7 @@ module.exports = class Helper {
         lastUsage = lastCommandUsageObject[roomId][commandMatch.ID]
       }
       let cooldownPassed = Math.max(commandMatch.cooldown, minCooldown) * 1000 + lastUsage < Date.now()
-        cooldownPassed = cooldownPassed || userLevel === UserLevels.BOTADMIN
+        cooldownPassed = cooldownPassed || userLevel >= UserLevels.BOTADMIN
       if (cooldownPassed) {
         lastCommandUsageObject[roomId][commandMatch.ID] = Date.now()
       }
