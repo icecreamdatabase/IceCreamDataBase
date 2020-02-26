@@ -207,9 +207,14 @@ module.exports = class Tts {
    */
   async ttsHandleSettingsSubscriber (privMsgObj, setting) {
     try {
-      await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsStrings.settings.options.subscriber.length + 1).toLowerCase()))
-      this.updateChannelPointSettings()
-      return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.subscriber.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
+        this.updateChannelPointSettings()
+        return ttsStrings.settings.response.successful
+      } else {
+        return ttsStrings.settings.response.get + " \"" + !!this.channelPointsSettings[privMsgObj.roomId].ttsUserLevel + "\""
+      }
     } catch (e) {
       return ttsStrings.settings.response.fail
     }
@@ -223,9 +228,14 @@ module.exports = class Tts {
    */
   async ttsHandleSettingsConversation (privMsgObj, setting) {
     try {
-      await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsStrings.settings.options.conversation.length + 1).toLowerCase()))
-      this.updateChannelPointSettings()
-      return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.conversation.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
+        this.updateChannelPointSettings()
+        return ttsStrings.settings.response.successful
+      } else {
+        return ttsStrings.settings.response.get + " \"" + !!this.channelPointsSettings[privMsgObj.roomId].ttsConversation + "\""
+      }
     } catch (e) {
       return ttsStrings.settings.response.fail
     }
@@ -239,13 +249,18 @@ module.exports = class Tts {
    */
   async ttsHandleSettingsVoice (setting, privMsgObj) {
     try {
-      let voice
-      if ((voice = TtsWebSocket.getVoiceID(setting.substr(ttsStrings.settings.options.voice.length + 1), false))) {
-        await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, privMsgObj.roomId, voice)
-        this.updateChannelPointSettings()
-        return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.voice.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        let voice
+        if ((voice = TtsWebSocket.getVoiceID(parameter, false))) {
+          await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, privMsgObj.roomId, voice)
+          this.updateChannelPointSettings()
+          return ttsStrings.settings.response.successful
+        } else {
+          return ttsStrings.settings.response.fail
+        }
       } else {
-        return ttsStrings.settings.response.fail
+        return ttsStrings.settings.response.get + " \"" + this.channelPointsSettings[privMsgObj.roomId].ttsDefaultVoiceName + "\""
       }
     } catch (e) {
       return ttsStrings.settings.response.fail
@@ -260,9 +275,14 @@ module.exports = class Tts {
    */
   async ttsHandleSettingsQueue (privMsgObj, setting) {
     try {
-      await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(setting.substr(ttsStrings.settings.options.queue.length + 1).toLowerCase()))
-      this.updateChannelPointSettings()
-      return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.queue.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
+        this.updateChannelPointSettings()
+        return ttsStrings.settings.response.successful
+      } else {
+        return ttsStrings.settings.response.get + " \"" + !!this.channelPointsSettings[privMsgObj.roomId].ttsQueueMessages + "\""
+      }
     } catch (e) {
       return ttsStrings.settings.response.fail
     }
@@ -276,13 +296,18 @@ module.exports = class Tts {
    */
   async ttsHandleSettingsVolume (setting, privMsgObj) {
     try {
-      let volume = parseInt(setting.substr(ttsStrings.settings.options.volume.length + 1))
-      if (0 <= volume && volume <= 100) {
-        await SqlChannelPoints.setSettingVolume(this.bot.userId, privMsgObj.roomId, volume)
-        this.updateChannelPointSettings()
-        return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.volume.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        let volume = parseInt(parameter)
+        if (0 <= volume && volume <= 100) {
+          await SqlChannelPoints.setSettingVolume(this.bot.userId, privMsgObj.roomId, volume)
+          this.updateChannelPointSettings()
+          return ttsStrings.settings.response.successful
+        } else {
+          return ttsStrings.settings.response.fail
+        }
       } else {
-        return ttsStrings.settings.response.fail
+        return ttsStrings.settings.response.get + " \"" + this.channelPointsSettings[privMsgObj.roomId].ttsVolume + "\""
       }
     } catch (e) {
       return ttsStrings.settings.response.fail
@@ -297,13 +322,18 @@ module.exports = class Tts {
    */
   async ttsHandleSettingsCooldown (setting, privMsgObj) {
     try {
-      let cooldown = parseInt(setting.substr(ttsStrings.settings.options.cooldown.length + 1))
-      if (0 <= cooldown && cooldown <= 300) {
-        await SqlChannelPoints.setSettingCooldown(this.bot.userId, privMsgObj.roomId, cooldown)
-        this.updateChannelPointSettings()
-        return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.cooldown.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        let cooldown = parseInt(parameter)
+        if (0 <= cooldown && cooldown <= 300) {
+          await SqlChannelPoints.setSettingCooldown(this.bot.userId, privMsgObj.roomId, cooldown)
+          this.updateChannelPointSettings()
+          return ttsStrings.settings.response.successful
+        } else {
+          return ttsStrings.settings.response.fail
+        }
       } else {
-        return ttsStrings.settings.response.fail
+        return ttsStrings.settings.response.get + " \"" + this.channelPointsSettings[privMsgObj.roomId].ttsCooldown + "\""
       }
     } catch (e) {
       return ttsStrings.settings.response.fail
@@ -318,13 +348,18 @@ module.exports = class Tts {
    */
   async tssHandleSettingsTimeoutcheck (setting, privMsgObj) {
     try {
-      let timeoutCheckTime = parseInt(setting.substr(ttsStrings.settings.options.timeoutCheckTime.length + 1))
-      if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
-        await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, privMsgObj.roomId, timeoutCheckTime)
-        this.updateChannelPointSettings()
-        return ttsStrings.settings.response.successful
+      let parameter = (setting.substr(ttsStrings.settings.options.timeoutCheckTime.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        let timeoutCheckTime = parseInt(parameter)
+        if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
+          await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, privMsgObj.roomId, timeoutCheckTime)
+          this.updateChannelPointSettings()
+          return ttsStrings.settings.response.successful
+        } else {
+          return ttsStrings.settings.response.fail
+        }
       } else {
-        return ttsStrings.settings.response.fail
+        return ttsStrings.settings.response.get + " \"" + this.channelPointsSettings[privMsgObj.roomId].ttsTimeoutCheckTime + "\""
       }
     } catch (e) {
       return ttsStrings.settings.response.fail
