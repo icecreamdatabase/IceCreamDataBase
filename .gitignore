@@ -13,9 +13,6 @@ devicecredentials.json
 #config
 config.json
 
-#linter
-.eslintrc.json
-
 # Logs
 logs
 *.log
