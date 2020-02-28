@@ -40,8 +40,8 @@ module.exports = class ClearChat {
     }
     userName = userName.toLowerCase()
     return lastTimeoutObj.hasOwnProperty(channelName)
-        && lastTimeoutObj[channelName].hasOwnProperty(userName)
-        && (secondsAgo * 1000 + (lastTimeoutObj[channelName][userName] || 0)) > Date.now()
+      && lastTimeoutObj[channelName].hasOwnProperty(userName)
+      && (secondsAgo * 1000 + (lastTimeoutObj[channelName][userName] || 0)) > Date.now()
   }
 }
 

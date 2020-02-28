@@ -45,7 +45,7 @@ module.exports = class Firehose {
         url: "https://tmi.twitch.tv/firehose?oauth_token="
           + verifiedBot.TwitchIRCConnection.botData.token.substring(6),
         responseType: 'stream'
-        }
+      }
 
       console.log("Starting firehose")
       this.req = axios(request, {cancelToken: this.source.token}).then((res) => {

@@ -15,9 +15,9 @@ module.exports = class SqlChannelPoints {
    */
   static async setSettingCooldown (botID, channelID, ttsCooldown = 0) {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-    SET ttsCooldown = ?
-    WHERE botID = ?
-    AND channelID = ?
+                         SET ttsCooldown = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [ttsCooldown, botID, channelID])
   }
 
@@ -30,9 +30,9 @@ module.exports = class SqlChannelPoints {
    */
   static async setSettingTimeoutcheckTime (botID, channelID, ttsTimeoutCheckTime = 2) {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-    SET ttsTimeoutCheckTime = ?
-    WHERE botID = ?
-    AND channelID = ?
+                         SET ttsTimeoutCheckTime = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [ttsTimeoutCheckTime, botID, channelID])
   }
 
@@ -45,9 +45,9 @@ module.exports = class SqlChannelPoints {
    */
   static async setSettingVolume (botID, channelID, volume = 100) {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-    SET ttsVolume = ?
-    WHERE botID = ?
-    AND channelID = ?
+                         SET ttsVolume = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [volume, botID, channelID])
   }
 
@@ -59,10 +59,10 @@ module.exports = class SqlChannelPoints {
    * @returns {Promise<void>}
    */
   static async setSettingQueueMessages (botID, channelID, queue = false) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings 
-    SET ttsQueueMessages = ?
-    WHERE botID = ?
-    AND channelID = ?
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+                         SET ttsQueueMessages = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [queue, botID, channelID])
   }
 
@@ -75,9 +75,9 @@ module.exports = class SqlChannelPoints {
    */
   static async setSettingConversation (botID, channelID, conversation = false) {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-    SET ttsConversation = ?
-    WHERE botID = ?
-    AND channelID = ?
+                         SET ttsConversation = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [conversation, botID, channelID])
   }
 
@@ -90,9 +90,9 @@ module.exports = class SqlChannelPoints {
    */
   static async setSettingDefaultVoice (botID, channelID, voice = "Brian") {
     await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-    SET ttsDefaultVoiceName = ?
-    WHERE botID = ?
-    AND channelID = ?
+                         SET ttsDefaultVoiceName = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [voice, botID, channelID])
   }
 
@@ -106,10 +106,10 @@ module.exports = class SqlChannelPoints {
    * @returns {Promise<void>}
    */
   static async setSettingUserLevelSubonly (botID, channelID, subonly = false) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings 
-    SET ttsUserLevel = ?
-    WHERE botID = ?
-    AND channelID = ?
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+                         SET ttsUserLevel = ?
+                         WHERE botID = ?
+                           AND channelID = ?
     ;`, [subonly ? 1 : 0, botID, channelID])
   }
 
@@ -123,13 +123,13 @@ module.exports = class SqlChannelPoints {
    * @returns {Promise<void>}
    */
   static async addChannel (botID, channelID, ttsCustomRewardId, ttsConversation = true, ttsQueueMessages = true) {
-    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsQueueMessages, ttsCustomRewardId) 
-    VALUES (?,?,b'1',?,?,?) 
-    ON DUPLICATE KEY UPDATE 
-    enabled = enabled,
-    ttsConversation = ttsConversation,
-    ttsQueueMessages = ttsQueueMessages,
-    ttsCustomRewardId = ttsCustomRewardId`,
+    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsQueueMessages,
+                                                           ttsCustomRewardId)
+                         VALUES (?, ?, b'1', ?, ?, ?)
+                         ON DUPLICATE KEY UPDATE enabled           = enabled,
+                                                 ttsConversation   = ttsConversation,
+                                                 ttsQueueMessages  = ttsQueueMessages,
+                                                 ttsCustomRewardId = ttsCustomRewardId`,
       [botID, channelID, ttsConversation, ttsQueueMessages, ttsCustomRewardId])
   }
 
@@ -139,10 +139,22 @@ module.exports = class SqlChannelPoints {
    * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
    */
   static async getChannelPointsSettings (botId) {
-    let results = await sqlPool.query(`SELECT channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsQueueMessages, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage
-    FROM channelPointsSettings
-    WHERE enabled = B'1'
-    AND botID = ?
+    let results = await sqlPool.query(`SELECT channelID,
+                                              ttsConversation,
+                                              ttsVolume,
+                                              ttsCustomRewardId,
+                                              ttsDefaultVoiceName,
+                                              ttsQueueMessages,
+                                              ttsCooldown,
+                                              ttsUserLevel,
+                                              ttsTimeoutCheckTime,
+                                              ttsAcceptMessage,
+                                              ttsRejectCooldownMessage,
+                                              ttsRejectUserLevelMessage,
+                                              ttsRejectTimeoutMessage
+                                       FROM channelPointsSettings
+                                       WHERE enabled = B'1'
+                                         AND botID = ?
     ;`, botId)
 
     let returnObj = {}
@@ -159,13 +171,15 @@ module.exports = class SqlChannelPoints {
    * @returns {Promise<void>}
    */
   static async dropChannel (botID, channelID) {
-    await sqlPool.query(`DELETE FROM channelPointsSettings
-    WHERE botID = ?
-    AND channelID = ?;
+    await sqlPool.query(`DELETE
+                         FROM channelPointsSettings
+                         WHERE botID = ?
+                           AND channelID = ?;
     ;`, [botID, channelID])
-    await sqlPool.query(`DELETE FROM connections
-    WHERE botId = ?
-    AND channelID = ?
+    await sqlPool.query(`DELETE
+                         FROM connections
+                         WHERE botId = ?
+                           AND channelID = ?
     ;`, [botID, channelID])
   }
 }

@@ -17,12 +17,12 @@ module.exports = class TimeConversionHelper {
   static secondsToYYMMDDHHMMSS (inputSeconds, fullUnit = false) {
     let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
     /* eslint-disable no-multi-spaces */
-    let years   = Math.floor( secNum /  TimeConversion.YEARTOSECONDS)
-    let months  = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS) / TimeConversion.MONTHTOSECONDS )
-    let days    = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS) / TimeConversion.DAYTOSECONDS)
-    let hours   = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS) / TimeConversion.HOURTOSECONDS)
+    let years = Math.floor(secNum / TimeConversion.YEARTOSECONDS)
+    let months = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS) / TimeConversion.MONTHTOSECONDS)
+    let days = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS) / TimeConversion.DAYTOSECONDS)
+    let hours = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS) / TimeConversion.HOURTOSECONDS)
     let minutes = Math.floor((secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS) / TimeConversion.MINUTETOSECONDS)
-    let seconds = Math.floor( secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
+    let seconds = Math.floor(secNum - years * TimeConversion.YEARTOSECONDS - months * TimeConversion.MONTHTOSECONDS - days * TimeConversion.DAYTOSECONDS - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
     /* eslint-enable no-multi-spaces */
 
     return this.valuesToString(fullUnit, seconds, minutes, hours, days, months, years)
@@ -37,9 +37,9 @@ module.exports = class TimeConversionHelper {
   static secondsToHHMMSS (inputSeconds, fullUnit = false) {
     let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
     /* eslint-disable no-multi-spaces */
-    let hours   = Math.floor(secNum / TimeConversion.HOURTOSECONDS)
+    let hours = Math.floor(secNum / TimeConversion.HOURTOSECONDS)
     let minutes = Math.floor((secNum - hours * TimeConversion.HOURTOSECONDS) / TimeConversion.MINUTETOSECONDS)
-    let seconds = Math.floor( secNum - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
+    let seconds = Math.floor(secNum - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
     /* eslint-enable no-multi-spaces */
 
     return this.valuesToString(fullUnit, seconds, minutes, hours)
@@ -54,9 +54,9 @@ module.exports = class TimeConversionHelper {
   static secondsToHHMM (inputSeconds, fullUnit = false) {
     let secNum = parseInt(inputSeconds + "", 10) // don't forget the second param
     /* eslint-disable no-multi-spaces */
-    let hours   = Math.floor(secNum / TimeConversion.HOURTOSECONDS)
+    let hours = Math.floor(secNum / TimeConversion.HOURTOSECONDS)
     let minutes = Math.floor((secNum - hours * TimeConversion.HOURTOSECONDS) / TimeConversion.MINUTETOSECONDS)
-    let seconds = Math.floor( secNum - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
+    let seconds = Math.floor(secNum - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
     /* eslint-enable no-multi-spaces */
 
     return this.valuesToString(fullUnit, 0, minutes, hours)
@@ -99,18 +99,23 @@ module.exports = class TimeConversionHelper {
   static unitSecond (fullUnit = false, plural = false) {
     return fullUnit ? " second" + (plural ? "s" : "") : "s"
   }
+
   static unitMinute (fullUnit = false, plural = false) {
     return fullUnit ? " minute" + (plural ? "s" : "") : "m"
   }
+
   static unitHour (fullUnit = false, plural = false) {
     return fullUnit ? " hour" + (plural ? "s" : "") : "h"
   }
+
   static unitDay (fullUnit = false, plural = false) {
     return fullUnit ? " day" + (plural ? "s" : "") : "d"
   }
+
   static unitMonth (fullUnit = false, plural = false) {
     return fullUnit ? " month" + (plural ? "s" : "") : "m"
   }
+
   static unitYear (fullUnit = false, plural = false) {
     return fullUnit ? " year" + (plural ? "s" : "") : "y"
   }

@@ -1,4 +1,4 @@
-  "use strict"
+"use strict"
 const sqlPool = require('../Sql').pool
 
 
@@ -14,27 +14,26 @@ module.exports = class SqlSubNotifications {
    */
   static async getNotificationData (botID) {
     let results = await sqlPool.query(`
-      SELECT 
-        botID,
-        channelID,
-        SUB,
-        SUB_T2,
-        SUB_T3,
-        SUB_PRIME,
-        RESUB,
-        RESUB_T2,
-        RESUB_T3,
-        RESUB_PRIME,
-        SUBGIFT,
-        ANONSUBGIFT,
-        SUBMYSTERGIFT,
-        GIFTPAIDUPGRADE,
-        ANONGIFTPAIDUPGRADE,
-        REWARDGIFT,
-        RAID,
-        RITUAL
-      FROM notifications
-      WHERE botID = ?;
+        SELECT botID,
+               channelID,
+               SUB,
+               SUB_T2,
+               SUB_T3,
+               SUB_PRIME,
+               RESUB,
+               RESUB_T2,
+               RESUB_T3,
+               RESUB_PRIME,
+               SUBGIFT,
+               ANONSUBGIFT,
+               SUBMYSTERGIFT,
+               GIFTPAIDUPGRADE,
+               ANONGIFTPAIDUPGRADE,
+               REWARDGIFT,
+               RAID,
+               RITUAL
+        FROM notifications
+        WHERE botID = ?;
     `, botID)
 
 
@@ -60,12 +59,14 @@ module.exports = class SqlSubNotifications {
       let RAID = row.RAID || ""
       let RITUAL = row.RITUAL || ""
 
-      return {channelID,
-              SUB, SUB_T2, SUB_T3, SUB_PRIME,
-              RESUB, RESUB_T2, RESUB_T3, RESUB_PRIME,
-              SUBGIFT, ANONSUBGIFT, SUBMYSTERYGIFT,
-              GIFTPAIDUPGRADE, ANONGIFTPAIDUPGRADE, REWARDGIFT,
-              RITUAL, RAID}
+      return {
+        channelID,
+        SUB, SUB_T2, SUB_T3, SUB_PRIME,
+        RESUB, RESUB_T2, RESUB_T3, RESUB_PRIME,
+        SUBGIFT, ANONSUBGIFT, SUBMYSTERYGIFT,
+        GIFTPAIDUPGRADE, ANONGIFTPAIDUPGRADE, REWARDGIFT,
+        RITUAL, RAID
+      }
     })
 
     //make sure the index is the channelID

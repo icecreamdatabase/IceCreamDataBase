@@ -123,8 +123,8 @@ module.exports = class Queue {
         indexOfLastSpace = maxMessageLength
       }
       return message.substring(0, indexOfLastSpace).trim()
-              + NEWLINE_SEPERATOR
-              + this.splitRecursively(message.substring(indexOfLastSpace).trim(), channelId)
+        + NEWLINE_SEPERATOR
+        + this.splitRecursively(message.substring(indexOfLastSpace).trim(), channelId)
     }
     return message
   }

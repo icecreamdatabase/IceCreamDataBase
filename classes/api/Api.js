@@ -282,7 +282,6 @@ module.exports = class ApiFunctions {
     return await this.apiRequestKraken(clientID, 'users/' + userId + '/chat/channels/' + roomId)
   }
 
-
   /**
    * Accesses the kraken/channels/:roomID
    * Example: https://api.twitch.tv/kraken/channels/38949074?api_version=5
@@ -375,7 +374,16 @@ module.exports = class ApiFunctions {
   static async followTime (clientID, userId, roomId) {
     let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + roomId).catch(e => console.log(e))
     console.log(response)
-    let returnObj = {followDate: undefined, followTimeMs: -1, followTimeS: -1, followtimeMin: -1, followtimeH: -1, followtimeD: -1, followtimeMon: -1, followtimeY: -1}
+    let returnObj = {
+      followDate: undefined,
+      followTimeMs: -1,
+      followTimeS: -1,
+      followtimeMin: -1,
+      followtimeH: -1,
+      followtimeD: -1,
+      followtimeMon: -1,
+      followtimeY: -1
+    }
     if (response && response.hasOwnProperty("created_at")) {
       returnObj.followDate = new Date(response.created_at)
       returnObj.followTimeMs = Date.now() - returnObj.followDate

@@ -50,7 +50,7 @@ module.exports = class Commands {
   async handleNormal (messageObj) {
     let commandMatchIndices = Object.keys(this.commandDataNormal).filter(key => {
       return messageObj.roomId === this.commandDataNormal[key].channelID.toString()
-          && messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command + " ")
+        && messageObj.message.toLowerCase().startsWith(this.commandDataNormal[key].command + " ")
     })
     return this.handleMatch(messageObj, commandMatchIndices.map(x => this.commandDataNormal[x]))
   }
@@ -63,7 +63,7 @@ module.exports = class Commands {
   async handleRegex (messageObj) {
     let commandRegexMatchIndices = Object.keys(this.commandDataRegex).filter(key => {
       return messageObj.roomId === this.commandDataRegex[key].channelID.toString()
-          && this.commandDataRegex[key].regExp.test(messageObj.message)
+        && this.commandDataRegex[key].regExp.test(messageObj.message)
     })
     return this.handleMatch(messageObj, commandRegexMatchIndices.map(x => this.commandDataRegex[x]))
   }

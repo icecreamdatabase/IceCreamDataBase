@@ -17,166 +17,170 @@
   <title>Text to Speech</title>
 
 <body>
-  <!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
-  <iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio" style="display:none"></iframe>
-  <audio id="player" controls="" style="display:none">
-    <source id="source" type="audio/wav">
-  </audio>
+<!--<iframe src="silence.mp3" allow="autoplay" id="audio" style="display:none"></iframe>-->
+<iframe src="https://olafwempe.com/mp3/silence/silence.mp3" type="audio/mp3" allow="autoplay" id="audio"
+        style="display:none"></iframe>
+<audio id="player" controls="" style="display:none">
+  <source id="source" type="audio/wav">
+</audio>
 
-  <script>
-    const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
-    const eventify = (arr, callback) => {
-      arr.push = e => {
-        Array.prototype.push.call(arr, e)
-        callback(arr)
-      }
+<script>
+  const sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+  const eventify = (arr, callback) => {
+    arr.push = e => {
+      Array.prototype.push.call(arr, e)
+      callback(arr)
+    }
+  }
+
+  let useQueue = true
+  let audioPlaying = false
+  let volume = 100
+  let msgQueue = []
+  let currentMessage = []
+
+  //let rlLimit = 30
+  let rlRemaining = 30 // Default value of StreamElements
+  let rlReset = Date.now()
+  let rateLimited = false
+
+  eventify(msgQueue, async (arr) => {
+    if (audioPlaying && useQueue || rateLimited) {
+      return
     }
 
-    let useQueue = true
-    let audioPlaying = false
-    let volume = 100
-    let msgQueue = []
-    let currentMessage = []
+    currentMessage = arr.shift()
+    let msgObj = currentMessage.shift()
+    if (msgObj) {
+      audioPlaying = true
+      await speak(msgObj.message, msgObj.voice)
+    }
+  })
 
-    //let rlLimit = 30
-    let rlRemaining = 30 // Default value of StreamElements
-    let rlReset = Date.now()
-    let rateLimited = false
+  document.getElementById("player").addEventListener("ended", async () => {
+    if (currentMessage.length > 0) {
+      let msgObj = currentMessage.shift()
+      await speak(msgObj.message, msgObj.voice)
+      return
+    }
 
-    eventify(msgQueue, async (arr) => {
-      if (audioPlaying && useQueue || rateLimited) {
-        return
-      }
+    // Delay between messages
+    await sleep(1000)
 
-      currentMessage = arr.shift()
+    if (msgQueue.length > 0) {
+      currentMessage = msgQueue.shift()
       let msgObj = currentMessage.shift()
       if (msgObj) {
-        audioPlaying = true
-        await speak(msgObj.message, msgObj.voice)
-      }
-    })
-
-    document.getElementById("player").addEventListener("ended", async () => {
-      if (currentMessage.length > 0) {
-        let msgObj = currentMessage.shift()
         await speak(msgObj.message, msgObj.voice)
         return
       }
+    }
 
-      // Delay between messages
-      await sleep(1000)
+    audioPlaying = false
+  })
 
-      if (msgQueue.length > 0) {
-        currentMessage = msgQueue.shift()
-        let msgObj = currentMessage.shift()
-        if (msgObj) {
-          await speak(msgObj.message, msgObj.voice)
-          return
+  function findGetParameter (parameterName) {
+    let result = null
+    let tmp = []
+    location.search
+      .substr(1)
+      .split("&")
+      .forEach(item => {
+        tmp = item.split("=")
+        if (tmp[0].toLowerCase() === parameterName.toLowerCase()) {
+          result = decodeURIComponent(tmp[1])
         }
-      }
+      })
+    return result
+  }
 
+  async function speak (text, voice = "Brian") {
+    if (rlRemaining <= 1) {
+      if (rlReset >= Date.now()) {
+        rateLimited = true
+        console.log("Rate limited - waiting!")
+        await sleep(Math.max(10, rlReset - Date.now()))
+        rateLimited = false
+      }
+    }
+
+    let response = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
+      voice +
+      "&text=" +
+      encodeURIComponent(text.trim()))
+
+    // Rate limiting headers
+    //rlLimit = response.headers.get('x-ratelimit-limit')
+    let newRlReset = response.headers.get('x-ratelimit-reset')
+    if (newRlReset > rlReset) {
+      rlReset = newRlReset
+      rlRemaining = 30
+    } else {
+      rlRemaining = response.headers.get('x-ratelimit-remaining')
+    }
+    //console.log(rlRemaining, rlReset, Date.now(), rlReset - Date.now())
+
+    if (response.status === 429) {
+      console.warn(await response.text())
+      await speak(text, voice)
+      return
+    } else if (response.status !== 200) {
+      console.warn(await response.text())
       audioPlaying = false
+      return
+    }
+
+    let mp3 = await response.blob()
+
+    let blobUrl = URL.createObjectURL(mp3)
+    document.getElementById("source").setAttribute("src", blobUrl)
+    let player = document.getElementById("player")
+    player.volume = volume / 100
+    player.pause()
+    player.load()
+    player.play()
+  }
+
+  function connect () {
+    let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
+    // Connection opened
+    socket.addEventListener('open', event => {
+      console.log("Connected")
+      socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase()}))
     })
 
-    function findGetParameter (parameterName) {
-      let result = null
-      let tmp = []
-      location.search
-        .substr(1)
-        .split("&")
-        .forEach(item => {
-          tmp = item.split("=")
-          if (tmp[0].toLowerCase() === parameterName.toLowerCase()) {
-            result = decodeURIComponent(tmp[1])
-          }
-        })
-      return result
-    }
-
-    async function speak (text, voice = "Brian") {
-      if (rlRemaining <= 1) {
-        if (rlReset >= Date.now()) {
-          rateLimited = true
-          console.log("Rate limited - waiting!")
-          await sleep(Math.max(10, rlReset - Date.now()))
-          rateLimited = false
+    // Listen for messages
+    socket.addEventListener('message', async event => {
+      let obj = JSON.parse(event.data)
+      console.log(obj)
+      if (obj.cmd) {
+        if (obj.cmd === "reload") {
+          location.reload()
+        } else if (obj.cmd === "skip") {
+          currentMessage = []
+          let player = document.getElementById("player")
+          player.pause()
+          player.dispatchEvent(new Event("ended"))
+        } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
+          volume = obj.data.volume || volume
+          msgQueue.push(obj.data.data)
+          useQueue = !!obj.data.queue
         }
       }
+    })
 
-      let response = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
-        voice +
-        "&text=" +
-        encodeURIComponent(text.trim()))
+    socket.addEventListener('close', event => {
+      socket = null
+      connect()
+    })
+    socket.addEventListener('error', event => {
+      //socket = null
+      //connect()
+    })
+  }
 
-      // Rate limiting headers
-      //rlLimit = response.headers.get('x-ratelimit-limit')
-      let newRlReset = response.headers.get('x-ratelimit-reset')
-      if (newRlReset > rlReset) {
-        rlReset = newRlReset
-        rlRemaining = 30
-      } else {
-        rlRemaining = response.headers.get('x-ratelimit-remaining')
-      }
-      //console.log(rlRemaining, rlReset, Date.now(), rlReset - Date.now())
+  connect()
 
-      if (response.status === 429) {
-        console.warn(await response.text())
-        await speak(text, voice)
-        return
-      } else if (response.status !== 200) {
-        console.warn(await response.text())
-        audioPlaying = false
-        return
-      }
-
-      let mp3 = await response.blob()
-
-      let blobUrl = URL.createObjectURL(mp3)
-      document.getElementById("source").setAttribute("src", blobUrl)
-      let player = document.getElementById("player")
-      player.volume = volume / 100
-      player.pause()
-      player.load()
-      player.play()
-    }
-
-    function connect () {
-      let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
-      // Connection opened
-      socket.addEventListener('open', event => {
-        console.log("Connected")
-        socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase()}))
-      })
-
-      // Listen for messages
-      socket.addEventListener('message', async event => {
-        let obj = JSON.parse(event.data)
-        console.log(obj)
-        if (obj.cmd) {
-          if (obj.cmd === "reload") {
-            location.reload()
-          } else if (obj.cmd === "skip") {
-            currentMessage = []
-            let player = document.getElementById("player")
-            player.pause()
-            player.dispatchEvent(new Event("ended"))
-          } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
-            volume = obj.data.volume || volume
-            msgQueue.push(obj.data.data)
-            useQueue = !!obj.data.queue
-          }
-        }
-      })
-
-      socket.addEventListener('close', event => {
-        socket = null
-        connect()
-      })
-      socket.addEventListener('error', event => {
-        //socket = null
-        //connect()
-      })
-    }
-    connect()
-
-  </script>
+</script>

@@ -17,7 +17,7 @@ module.exports = class SqlCounters {
         SELECT count
         FROM counters
         WHERE counterID = ?
-      ;`, [counterID])
+        ;`, [counterID])
 
     return results.length > 0 ? results[0].count : 0
   }
@@ -29,10 +29,9 @@ module.exports = class SqlCounters {
    */
   static increaseCounter (counterID, amount = 1) {
     sqlPool.query(`
-      INSERT INTO counters (counterID, count)
-      VALUES (?, ?)
-      ON DUPLICATE KEY UPDATE
-          count = count + VALUES(count);
-      ;`, [counterID, amount])
+        INSERT INTO counters (counterID, count)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE count = count + VALUES(count);
+        ;`, [counterID, amount])
   }
 }

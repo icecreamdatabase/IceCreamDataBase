@@ -38,7 +38,8 @@
     <tr>
       <td><label for="tts-volume-slider">Volume:</label></td>
       <td>
-        <input class="volume-slider" type="range" id="tts-volume-slider" min="0" max="1" step="0.01" value="1" onchange="onVolumechange(this.value)">
+        <input class="volume-slider" type="range" id="tts-volume-slider" min="0" max="1" step="0.01" value="1"
+               onchange="onVolumechange(this.value)">
       </td>
     </tr>
     <tr>
@@ -50,7 +51,8 @@
           <div class="search-bar">
             <input type="text" placeholder="Search..." id="tts-voice-dropdownsearch" onkeyup="filterFunction()">
             <label class="checkbox-container" for="tts-voice-prioritycheckbox" tooltip="preferred voices" flow="right">*
-              <input type="checkbox" id="tts-voice-prioritycheckbox" onchange="filterFunction()" checked><span class="checkmark"></span>
+              <input type="checkbox" id="tts-voice-prioritycheckbox" onchange="filterFunction()" checked><span
+                  class="checkmark"></span>
             </label>
           </div>
           <div id="tts-voice-dropdowncontent"></div>
@@ -70,7 +72,8 @@
       <td><label for="tts-alwaysfullplayback-checkbox">Always full playback:</label></td>
       <td>
         <label class="switch">
-          <input type="checkbox" id="tts-alwaysfullplayback-checkbox" onchange="onAlwaysFullPlaybackChange(this.checked)">
+          <input type="checkbox" id="tts-alwaysfullplayback-checkbox"
+                 onchange="onAlwaysFullPlaybackChange(this.checked)">
           <span class="slider round"></span>
         </label>
       </td>
@@ -78,14 +81,15 @@
     <tr>
       <td><label for="tts-delay-numberfield">Time between messages:</label></td>
       <td>
-        <input class="numberfield" type="number" min="100" max="86400000" step="100" id="tts-delay-numberfield" onchange="onRatelimitChange(this.value)">
+        <input class="numberfield" type="number" min="100" max="86400000" step="100" id="tts-delay-numberfield"
+               onchange="onRatelimitChange(this.value)">
         <label>ms</label>
       </td>
     </tr>
   </table>
 </div>
 
-  <!--suppress JSUnresolvedLibraryURL -->
-  <script src="https://unpkg.com/twitch-js@2.0.0-beta.33/dist/twitch.js"></script>
-  <script src="interactive.js"></script>
-  <script src="tts.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://unpkg.com/twitch-js@2.0.0-beta.33/dist/twitch.js"></script>
+<script src="interactive.js"></script>
+<script src="tts.js"></script>

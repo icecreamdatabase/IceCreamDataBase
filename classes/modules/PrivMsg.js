@@ -45,7 +45,9 @@ module.exports = class PrivMsg {
 
     //hardcoded always first
     if (channelObj.useHardcodedCommands) {
-      if (this.hardcoded.handle(messageObj)) { return true }
+      if (this.hardcoded.handle(messageObj)) {
+        return true
+      }
     }
 
     if (channelObj.useChannelPoints) {
@@ -54,7 +56,9 @@ module.exports = class PrivMsg {
     }
 
     if (channelObj.useCommands) {
-      if (this.commands.handle(messageObj)) { return true }
+      if (this.commands.handle(messageObj)) {
+        return true
+      }
     }
 
     return false
@@ -69,7 +73,7 @@ module.exports = class PrivMsg {
       && options.botowners.includes(messageObj.userId)) {
       messageObj.userLevel = UserLevels.BOTOWNER
     } else if (options.hasOwnProperty("botadmins")
-        && options.botadmins.includes(messageObj.userId)) {
+      && options.botadmins.includes(messageObj.userId)) {
       messageObj.userLevel = UserLevels.BOTADMIN
     } else if (messageObj.raw.tags.hasOwnProperty("badges")) {
       let badges = messageObj.raw.tags.badges

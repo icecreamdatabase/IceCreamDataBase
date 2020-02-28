@@ -34,6 +34,7 @@ module.exports = class DiscordLog {
     MESSAGE_QUEUE.push(getMessageQueueObj("bot-log", "Error", message, "16009031"))
     LOG_QUEUE_EMITTER.emit("event")
   }
+
   /**
    * Logs a message in bot-log discord channel.
    * Type: Warn
@@ -44,6 +45,7 @@ module.exports = class DiscordLog {
     MESSAGE_QUEUE.push(getMessageQueueObj("bot-log", "Warn", message, "16009031"))
     LOG_QUEUE_EMITTER.emit("event")
   }
+
   /**
    * Logs a message in bot-log discord channel.
    * Type: Info
@@ -54,6 +56,7 @@ module.exports = class DiscordLog {
     MESSAGE_QUEUE.push(getMessageQueueObj("bot-log", "Info", message, "15653937"))
     LOG_QUEUE_EMITTER.emit("event")
   }
+
   /**
    * Logs a message in bot-log discord channel.
    * Type: Debug
@@ -64,6 +67,7 @@ module.exports = class DiscordLog {
     MESSAGE_QUEUE.push(getMessageQueueObj("bot-log", "Debug", message, "8379242"))
     LOG_QUEUE_EMITTER.emit("event")
   }
+
   /**
    * Logs a message in bot-log discord channel.
    * Type: Trace
@@ -123,10 +127,18 @@ module.exports = class DiscordLog {
         }]
       }
     }
-    if (title) { messageQueueObj.postContent.embeds[0].title = title }
-    if (footerText || footerIconUrl) { messageQueueObj.postContent.embeds[0].footer = {} }
-    if (footerText) { messageQueueObj.postContent.embeds[0].footer.text = footerText }
-    if (footerIconUrl) { messageQueueObj.postContent.embeds[0].footer["icon_url"] = footerIconUrl }
+    if (title) {
+      messageQueueObj.postContent.embeds[0].title = title
+    }
+    if (footerText || footerIconUrl) {
+      messageQueueObj.postContent.embeds[0].footer = {}
+    }
+    if (footerText) {
+      messageQueueObj.postContent.embeds[0].footer.text = footerText
+    }
+    if (footerIconUrl) {
+      messageQueueObj.postContent.embeds[0].footer["icon_url"] = footerIconUrl
+    }
 
     MESSAGE_QUEUE.push(messageQueueObj)
     LOG_QUEUE_EMITTER.emit(("event"))
@@ -198,7 +210,7 @@ function getMessageQueueObj (webhookName, title, message, decimalColour) {
 function queueRunner () {
   if (MESSAGE_QUEUE.length > 0 && !QUEUE_BEING_CHECKED) {
     QUEUE_BEING_CHECKED = true
-    sendToWebhook(MESSAGE_QUEUE.shift()).then(()=>{
+    sendToWebhook(MESSAGE_QUEUE.shift()).then(() => {
       QUEUE_BEING_CHECKED = false
       LOG_QUEUE_EMITTER.emit("event")
     }, () => {

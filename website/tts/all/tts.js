@@ -44,7 +44,9 @@ document.getElementById("player").addEventListener("ended", () => audioPlaying =
 /* twitch-js part */
 // noinspection JSUnresolvedFunction
 const {api, chat} = new TwitchJs({token: "randomstring", username: "justinfan47", log: {level: "warn"}})
-const sleep = (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
+const sleep = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 const eventify = (arr, callback) => {
   arr.push = e => {
     Array.prototype.push.call(arr, e)
@@ -115,9 +117,9 @@ async function speak (text, voice = "Brian") {
   }
 
   let response = await fetch("https://api.streamelements.com/kappa/v2/speech?voice=" +
-      voice +
-      "&text=" +
-      encodeURIComponent(text.trim()))
+    voice +
+    "&text=" +
+    encodeURIComponent(text.trim()))
 
   // Rate limiting headers
   //rlLimit = response.headers.get('x-ratelimit-limit')

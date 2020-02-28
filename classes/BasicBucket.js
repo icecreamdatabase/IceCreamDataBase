@@ -8,10 +8,6 @@ module.exports = class BasicBucket {
     this._limit = limit || 20
   }
 
-  //set limit (limit) {
-  //  this._limit = limit
-  //}
-
   /**
    * Get limit of the current bucket
    * @returns {number}

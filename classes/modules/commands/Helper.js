@@ -55,10 +55,14 @@ module.exports = class Helper {
       let openIndex = 0
       for (let i = message.indexOf("${") + 1; i < message.length; ++i) {
         if (message.charAt(i) === "{") {
-          if (depth === 0) { openIndex = i }
+          if (depth === 0) {
+            openIndex = i
+          }
           depth++
         }
-        if (message.charAt(i) === "}") { depth-- }
+        if (message.charAt(i) === "}") {
+          depth--
+        }
         if (lastDepth !== depth && depth === 0) {
           let match = message.substring(openIndex + 1, i)
           if (match.includes("||")) {
@@ -88,7 +92,7 @@ module.exports = class Helper {
         if (firstParameter.startsWith("@")) {
           firstParameter = firstParameter.substring(1)
         }
-        return msgPart.split("||")[ await this.checkUserWasInChannel(msgObj.channel, firstParameter) ? 0 : 1]
+        return msgPart.split("||")[await this.checkUserWasInChannel(msgObj.channel, firstParameter) ? 0 : 1]
       }
     } else {
       return msgPart
@@ -164,13 +168,13 @@ module.exports = class Helper {
     if (message.includes("${createNote=")) {
       let match = message.match(discordWebhookRegExp)
       let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [msgObj.username])
-      DiscordLog.twitchMessageManual( match[1], match[2], "",
-                                      msgObj.message.slice(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
-                                      new Date().toISOString(),
-                                      msgObj.raw.tags["color"],
-                                      msgObj.username,
-                                      userInfo[0].logo
-                                    )
+      DiscordLog.twitchMessageManual(match[1], match[2], "",
+        msgObj.message.slice(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
+        new Date().toISOString(),
+        msgObj.raw.tags["color"],
+        msgObj.username,
+        userInfo[0].logo
+      )
       message = message.replace(discordWebhookRegExp, match[3])
     }
 
@@ -197,7 +201,7 @@ module.exports = class Helper {
         lastUsage = lastCommandUsageObject[roomId][commandMatch.ID]
       }
       let cooldownPassed = Math.max(commandMatch.cooldown, minCooldown) * 1000 + lastUsage < Date.now()
-        cooldownPassed = cooldownPassed || userLevel >= UserLevels.BOTADMIN
+      cooldownPassed = cooldownPassed || userLevel >= UserLevels.BOTADMIN
       if (cooldownPassed) {
         lastCommandUsageObject[roomId][commandMatch.ID] = Date.now()
       }

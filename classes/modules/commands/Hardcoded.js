@@ -8,8 +8,6 @@ const Helper = require('./Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
 const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
-
-
 module.exports = class Hardcoded {
   constructor (bot) {
     this.bot = bot
@@ -57,10 +55,10 @@ module.exports = class Hardcoded {
 
     /* Wolfram Alpha API */
     if (messageObj.userLevel >= UserLevels.BOTOWNER
-        && (messageObj.message.startsWith("<query ")
-            || messageObj.message.startsWith("<q ")
-           )
-       ) {
+      && (messageObj.message.startsWith("<query ")
+        || messageObj.message.startsWith("<q ")
+      )
+    ) {
       this.bot.apiFunctions.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
         this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "Query returned: " + message)
       })
@@ -69,7 +67,7 @@ module.exports = class Hardcoded {
 
     /* eval */
     if (messageObj.userLevel >= UserLevels.BOTOWNER
-        && messageObj.message.startsWith("<eval ")) {
+      && messageObj.message.startsWith("<eval ")) {
 
       let msg
       let evalString = messageObj.message.split(" ").slice(1).join(" ")

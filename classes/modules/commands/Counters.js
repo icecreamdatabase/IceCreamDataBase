@@ -2,9 +2,6 @@
 const util = require('util')
 //CLASSES
 const SqlCounters = require('../../sql/modules/SqlCounters')
-const DiscordLog = require('./../DiscordLog')
-const Helper = require('./Helper')
-const UserLevels = require('./../../../ENUMS/UserLevels')
 
 const counterRegExp = new RegExp(/\${counter(Inc|Get)?=([^}]+)}/, 'i')
 const counterInc = "Inc"

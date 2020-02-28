@@ -22,7 +22,7 @@ function onAlwaysFullPlaybackChange (value) {
 
 // Will be replaced with a button on the page
 window.addEventListener('load', function () {
-  if (!!findGetParameter("lightmode")) {
+  if (findGetParameter("lightmode")) {
     document.body.classList.add("light")
   }
 })
