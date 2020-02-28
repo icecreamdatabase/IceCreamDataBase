@@ -152,10 +152,19 @@
       socket.addEventListener('message', async event => {
         let obj = JSON.parse(event.data)
         console.log(obj)
-        if (obj.data && obj.channel && obj.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
-          volume = obj.volume || volume
-          msgQueue.push(obj.data)
-          useQueue = !!obj.queue
+        if (obj.cmd) {
+          if (obj.cmd === "reload") {
+            location.reload()
+          } else if (obj.cmd === "skip") {
+            currentMessage = []
+            let player = document.getElementById("player")
+            player.pause()
+            player.dispatchEvent(new Event("ended"))
+          } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
+            volume = obj.data.volume || volume
+            msgQueue.push(obj.data.data)
+            useQueue = !!obj.data.queue
+          }
         }
       })
 

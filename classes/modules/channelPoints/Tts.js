@@ -71,6 +71,12 @@ module.exports = class Tts {
       } else if (command.toLowerCase().startsWith(ttsStrings.link.command) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
         /* ---------- !tts link ---------- */
         responseMessage = await this.ttsHandleLink(privMsgObj)
+      } else if (command.toLowerCase().startsWith(ttsStrings.reload.command) && privMsgObj.userLevel >= UserLevels.BOTADMIN) {
+        /* ---------- !tts reload ---------- */
+        responseMessage = await this.ttsHandleReload()
+      } else if (command.toLowerCase().startsWith(ttsStrings.skip.command) && privMsgObj.userLevel >= UserLevels.MODERATOR) {
+        /* ---------- !tts skip ---------- */
+        responseMessage = await this.ttsHandleSkip(privMsgObj)
       } else if (command.toLowerCase().startsWith(ttsStrings.voices.command)) {
         /* ---------- !tts voices ---------- */
         responseMessage = this.ttsHandleVoices(privMsgObj)
@@ -108,7 +114,7 @@ module.exports = class Tts {
       }
     }
     await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
-    DiscordLog.trace("ChannelPoints_TTS added to channel: " + username)
+    DiscordLog.custom("tts-status-log", "Join:", username, DiscordLog.getDecimalFromHexString("#00FF00"))
     await this.bot.updateBotChannels()
     return ttsStrings.register.response
   }
@@ -135,7 +141,7 @@ module.exports = class Tts {
       }
     }
     await SqlChannelPoints.dropChannel(this.bot.userId, parseInt(userId))
-    DiscordLog.trace("ChannelPoints_TTS removed from channel: " + username)
+    DiscordLog.custom("tts-status-log", "Part:", username, DiscordLog.getDecimalFromHexString("#FF0000"))
     setTimeout(this.bot.updateBotChannels.bind(this.bot), 3000)
     //await this.bot.updateBotChannels()
     return ttsStrings.unregister.response
@@ -376,7 +382,7 @@ module.exports = class Tts {
       //channelPointSettings creating / updating
       await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, privMsgObj.raw.tags["custom-reward-id"], true, true)
       this.updateChannelPointSettings()
-      DiscordLog.trace("ChannelPoints_TTS linked in channel: " + privMsgObj.channel)
+      DiscordLog.custom("tts-status-log", "Link:", privMsgObj.channel.substr(1), DiscordLog.getDecimalFromHexString("#0000FF"))
       return ttsStrings.link.response.justLinked + privMsgObj.channel.substr(1)
     } else {
       if (this.channelPointsSettings.hasOwnProperty(privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {
@@ -385,6 +391,25 @@ module.exports = class Tts {
         return ttsStrings.link.response.notLinked
       }
     }
+  }
+
+  /**
+   * Handle the !tts skip command
+   * @param privMsgObj
+   * @returns {string}
+   */
+  ttsHandleSkip (privMsgObj) {
+    TtsWebSocket.skip(privMsgObj.channel)
+    return ttsStrings.skip.response
+  }
+
+  /**
+   * Handle the !tts reload command
+   * @returns {string}
+   */
+  ttsHandleReload () {
+    TtsWebSocket.reload()
+    return ttsStrings.reload.response
   }
 
   /**

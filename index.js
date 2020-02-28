@@ -2,6 +2,7 @@
 const Mysql = require('./classes/sql/main/SqlBot.js')
 const Bot = require('./classes/Bot.js')
 const Firehose = require('./classes/modules/Firehose')
+const DiscordLog = require('./classes/modules/DiscordLog')
 
 let bots = {}
 let firehose
@@ -12,6 +13,23 @@ global.VERSION.REVISION = require('child_process')
   .toString().trim()
 */
 
+function hookStderr (callback) {
+  let oldWrite = process.stderr.write
+
+  process.stderr.write = (write => function (string, encoding, fd) {
+    write.apply(process.stderr, arguments)
+    callback(string, encoding, fd)
+  })(process.stderr.write)
+
+  return function () {
+    process.stderr.write = oldWrite
+  }
+}
+
+// noinspection JSUnusedLocalSymbols
+const unhook = hookStderr((string, encoding, fd) => {
+  DiscordLog.error(string)
+})
 
 Mysql.getBotData().then(async (allBotData) => {
   for (let botData of allBotData) {

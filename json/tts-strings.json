@@ -1,6 +1,6 @@
 {
   "prefix": "!tts",
-  "response": "This is a channelpoint based TTS system made by icdb. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available commands are: \"!tts help\", \"!tts voices\", \"!tts settings\" (mod only), \"!tts link\" (mod only), \"!tts unregister\" (broadcaster only)",
+  "response": "This is a channelpoint based TTS system made by icdb. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available commands are: \"!tts help\", \"!tts skip\", \"!tts voices\", \"!tts settings\" (mod only), \"!tts link\" (mod only), \"!tts unregister\" (broadcaster only)",
   "register": {
     "command": "register",
     "response": "Successfully registered. Please use \"!tts help\" command in your own channel."
@@ -8,6 +8,14 @@
   "unregister": {
     "command": "unregister",
     "response": "Successfully unregistered. The bot is leaving the channel in 5 seconds."
+  },
+  "skip": {
+    "command": "skip",
+    "response": "Skipped the currently playing messages."
+  },
+  "reload": {
+    "command": "reload",
+    "response": "Reloaded all clients."
   },
   "link": {
     "command": "link",

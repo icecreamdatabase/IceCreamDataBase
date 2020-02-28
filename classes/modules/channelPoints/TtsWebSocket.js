@@ -19,7 +19,7 @@ module.exports = class TtsWebSocket {
     }
     TtsWebSocket.instance = this
 
-    this.wss = new WebSocket.Server({ port: 4700 })
+    this.wss = new WebSocket.Server({port: 4700})
     this.wss.on('connection', this.newConnection.bind(this))
 
     return this
@@ -66,9 +66,9 @@ module.exports = class TtsWebSocket {
 
     voices.some(langElem => {
       return langElem.voices.some(voiceElem => {
-        let match = ( useCase ?
-            (voiceElem.id === voice || voiceElem.name === voice) :
-            (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()) )
+        let match = (useCase ?
+          (voiceElem.id === voice || voiceElem.name === voice) :
+          (voiceElem.id.toLowerCase() === voice.toLowerCase() || voiceElem.name.toLowerCase() === voice.toLowerCase()))
 
         if (match) {
           voiceID = voiceElem.id
@@ -119,19 +119,19 @@ module.exports = class TtsWebSocket {
    * @returns {Promise<unknown>}
    */
   sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5) {
-    return new Promise((resolve)=> {
+    return new Promise((resolve) => {
       setTimeout(async (channel, username, message, conversation, queue, volume, voice, color) => {
         // * 2 so we are also checking a bit before "now"
         if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
           let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
-          DiscordLog.twitchMessageCustom("tts-log",
-                                                  "Failed in: " + channel,
-                                                        message,
-                                                        new Date().toISOString(),
-                                                        color,
-                                                        username,
-                                                        userInfo[0].logo
-                                        )
+          DiscordLog.twitchMessageCustom("tts-message-log",
+            "Failed in: " + channel,
+            message,
+            new Date().toISOString(),
+            color,
+            username,
+            userInfo[0].logo
+          )
           resolve(false)
         } else {
           this.sendTts(channel, message, conversation, queue, volume, voice)
@@ -161,11 +161,38 @@ module.exports = class TtsWebSocket {
     } else {
       data.data[0] = {voice: voice, message: message}
     }
+    this.sendToWebsocket("tts", channel, data)
+  }
 
+  /**
+   * Send the skip next message to a specific channel
+   * @param channel
+   */
+  skip (channel) {
+    if (channel.startsWith("#")) {
+      channel = channel.substring(1)
+    }
+    this.sendToWebsocket("skip", channel)
+  }
+
+  reload () {
+    this.sendToWebsocket("reload")
+  }
+
+  /**
+   * Send data to the websocket clients. if channel != null only send to that specific channel
+   * @param cmd
+   * @param channel
+   * @param data
+   */
+  sendToWebsocket (cmd, channel = null, data = null) {
     // save the channel you receive uppon connecting and only send to those
     this.wss.clients.forEach(function each (client) {
-      if (client.readyState === WebSocket.OPEN && channel.toLowerCase() === (client.channel || "").toLowerCase()) {
-        client.send(JSON.stringify(data))
+      if (client.readyState === WebSocket.OPEN
+        && (
+          channel === null || channel.toLowerCase() === (client.channel || "").toLowerCase()
+        )) {
+        client.send(JSON.stringify({cmd: cmd, data: data}))
       }
     })
   }
