@@ -103,7 +103,7 @@ module.exports = class Tts {
     let userId = privMsgObj.userId
     let username = privMsgObj.username
     //botadmins can register for other users
-    if (privMsgObj.userLevel === UserLevels.BOTADMIN) {
+    if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
       let p1User = command.substr(ttsStrings.register.command.length + 1).toLowerCase().trim()
       if (p1User) {
         let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
@@ -113,10 +113,15 @@ module.exports = class Tts {
         }
       }
     }
-    await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
-    DiscordLog.custom("tts-status-log", "Join:", username, DiscordLog.getDecimalFromHexString("#00FF00"))
-    await this.bot.updateBotChannels()
-    return ttsStrings.register.response
+    let channelInfo = await this.bot.apiFunctions.channelInfo(userId)
+    if (["partner", "affiliate"].includes(channelInfo["broadcaster_type"])) {
+      await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
+      DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
+      await this.bot.updateBotChannels()
+      return ttsStrings.register.response.success
+    } else {
+      return ttsStrings.register.response.fail
+    }
   }
 
   /**
@@ -130,7 +135,7 @@ module.exports = class Tts {
     let userId = privMsgObj.userId
     let username = privMsgObj.username
     //botadmins can register for other users
-    if (privMsgObj.userLevel === UserLevels.BOTADMIN) {
+    if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
       let p1User = command.substr(ttsStrings.unregister.command.length + 1).toLowerCase().trim()
       if (p1User) {
         let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
@@ -436,7 +441,7 @@ module.exports = class Tts {
       let returnMessage
       let settingObj = this.channelPointsSettings[privMsgObj.roomId]
       if (settingObj.ttsUserLevel <= privMsgObj.userLevel) {
-        if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel === UserLevels.BOTADMIN) {
+        if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {

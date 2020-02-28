@@ -3,7 +3,10 @@
   "response": "This is a channelpoint based TTS system made by icdb. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available commands are: \"!tts help\", \"!tts skip\", \"!tts voices\", \"!tts settings\" (mod only), \"!tts link\" (mod only), \"!tts unregister\" (broadcaster only)",
   "register": {
     "command": "register",
-    "response": "Successfully registered. Please use \"!tts help\" command in your own channel."
+    "response": {
+      "success": "Successfully registered. Please use \"!tts help\" command in your own channel.",
+      "fail": "You need to be a parter or an affiliate to use channelpoints."
+    }
   },
   "unregister": {
     "command": "unregister",

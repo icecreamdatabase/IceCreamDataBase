@@ -282,6 +282,44 @@ module.exports = class ApiFunctions {
     return await this.apiRequestKraken(clientID, 'users/' + userId + '/chat/channels/' + roomId)
   }
 
+
+  /**
+   * Accesses the kraken/channels/:roomID
+   * Example: https://api.twitch.tv/kraken/channels/38949074?api_version=5
+   * Example return:
+   * {
+   *   "mature":true,
+   *   "status":"—o—",
+   *   "broadcaster_language":"en",
+   *   "broadcaster_software":"unknown_rtmp",
+   *   "display_name":"icdb",
+   *   "game":"Travel \u0026 Outdoors",
+   *   "language":"en",
+   *   "_id":"38949074",
+   *   "name":"icdb",
+   *   "created_at":"2013-01-01T18:40:40Z",
+   *   "updated_at":"2020-02-28T17:11:55Z",
+   *   "partner":false,
+   *   "logo":"https://static-cdn.jtvnw.net/jtv_user_pictures/c328da4c-dfc8-490e-a02a-63473b023a2d-profile_image-300x300.png",
+   *   "video_banner":null,
+   *   "profile_banner":"https://static-cdn.jtvnw.net/jtv_user_pictures/4788ff0a-cae9-48cb-9028-effe6996f9b3-profile_banner-480.png",
+   *   "profile_banner_background_color":null,
+   *   "url":"https://www.twitch.tv/icdb",
+   *   "views":5149,
+   *   "followers":398,
+   *   "broadcaster_type":"affiliate",
+   *   "description":"The Ice Cream Database (abbreviated icdb) is an online database of information related to ice cream, cones, and scoops, including flavour and nutritional information. OpieOP",
+   *   "private_video":false,
+   *   "privacy_options_enabled":false
+   * }
+   * @param clientID
+   * @param  {String|int} roomId The roomID to check
+   * @return {Users} [description]
+   */
+  static async channelInfo (clientID, roomId) {
+    return await this.apiRequestKraken(clientID, 'channels/' + roomId)
+  }
+
   /**
    * Get a list of users in a channel
    * @param channelName channel to check
