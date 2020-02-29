@@ -85,10 +85,11 @@ module.exports = class TtsWebSocket {
    * Handle a new incoming Websocket connection
    * Use like this: this.wss.on('connection', this.newConnection.bind(this))
    * @param ws websocket
+   * @param req request object
    */
-  newConnection (ws) {
-    console.log("-------------------")
-    console.log("WS connected")
+  newConnection (ws, req) {
+    console.log("°° WS connected. Current connections: %d", ws._socket.server["_connections"])
+    // req.connection.remoteAddress
     ws.on('message', this.newMessage)
   }
 
@@ -98,7 +99,7 @@ module.exports = class TtsWebSocket {
    * @param message received message
    */
   newMessage (message) {
-    console.log('WS received: %s', message)
+    console.log('°° WS received: %s', message)
     try {
       this.channel = JSON.parse(message).channel.toLowerCase()
     } catch (e) {
