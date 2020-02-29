@@ -1,4 +1,5 @@
 "use strict"
+const util = require('util')
 const Mysql = require('./classes/sql/main/SqlBot.js')
 const Bot = require('./classes/Bot.js')
 const Firehose = require('./classes/modules/Firehose')
@@ -31,6 +32,12 @@ function hookStderr (callback) {
 const unhook = hookStderr((string, encoding, fd) => {
   DiscordLog.error(string)
 })
+
+
+process.on('unhandledRejection', (reason, p) => {
+  Logger.warn('Unhandled Rejection at promise:\n' + util.inspect(p) + '\nreason:\n' + util.inspect(reason))
+})
+
 
 Mysql.getBotData().then(async (allBotData) => {
   for (let botData of allBotData) {
