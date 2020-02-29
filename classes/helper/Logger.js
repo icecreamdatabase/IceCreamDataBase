@@ -30,7 +30,7 @@ module.exports = class Logger {
   }
 
   static getTimestamp () {
-    return `[${new Date().toLocaleTimeString("de-DE")}]`
+    return `[${new Date().toLocaleTimeString("de-DE", { hour12: false })}]`
   }
 }
 
