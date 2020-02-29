@@ -89,7 +89,7 @@ module.exports = class TtsWebSocket {
    * @param req request object
    */
   newConnection (ws, req) {
-    Logger.log("[%s]°° WS connected. Current connections: %d", (new Date()).toLocaleTimeString('de-DE'), ws._socket.server["_connections"])
+    Logger.log(`°° WS connected. Current connections: ${ws._socket.server["_connections"]}`)
     // req.connection.remoteAddress
     ws.on('message', this.newMessage)
   }
@@ -100,7 +100,7 @@ module.exports = class TtsWebSocket {
    * @param message received message
    */
   newMessage (message) {
-    Logger.log('[%s]°° WS received: %s', (new Date()).toLocaleTimeString('de-DE'), message)
+    Logger.log(`°° WS received: ${message}`)
     try {
       this.channel = JSON.parse(message).channel.toLowerCase()
     } catch (e) {
