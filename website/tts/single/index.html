@@ -35,6 +35,7 @@
     }
   }
 
+  let version = "2.0.0"
   let useQueue = true
   let audioPlaying = false
   let volume = 100
@@ -148,7 +149,7 @@
     // Connection opened
     socket.addEventListener('open', event => {
       console.log("Connected")
-      socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase()}))
+      socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase(), version: version}))
     })
 
     // Listen for messages
