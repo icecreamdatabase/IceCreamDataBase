@@ -13,7 +13,7 @@ const voices = require('../../../json/se-voices.json')
 const fallbackVoice = "Brian"
 const useCaseSensitiveVoiceMatching = false
 
-const WEBSOCKETPINGINTERVAL = 10000
+const WEBSOCKETPINGINTERVAL = 15000
 
 module.exports = class TtsWebSocket {
   constructor () {
@@ -27,7 +27,11 @@ module.exports = class TtsWebSocket {
     setInterval(()=>{
       this.wss.clients.forEach(function each (client) {
         if (client.readyState === WebSocket.OPEN) {
-          client.ping()
+          try {
+            client.ping()
+          } catch (e) {
+            Logger.error(__filename + "\nping failed\n" + e)
+          }
         }
       })
     }, WEBSOCKETPINGINTERVAL)
@@ -116,7 +120,6 @@ module.exports = class TtsWebSocket {
     } catch (e) {
       this.channel = ""
       Logger.error("Websocket bad json: " + message)
-      DiscordLog.error("Websocket bad json: " + message)
     }
   }
 
@@ -204,7 +207,11 @@ module.exports = class TtsWebSocket {
         && (
           channel === null || channel.toLowerCase() === (client.channel || "").toLowerCase()
         )) {
-        client.send(JSON.stringify({cmd: cmd, data: data}))
+        try {
+          client.send(JSON.stringify({cmd: cmd, data: data}))
+        } catch (e) {
+          Logger.error(__filename + "\nsend failed\n" + e)
+        }
       }
     })
   }
