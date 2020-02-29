@@ -1,6 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
+const Logger = require('../../helper/Logger')
 const SqlChannels = require('../../sql/main/SqlChannels')
 const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
 const Api = require('../../api/Api.js')
@@ -446,7 +447,7 @@ module.exports = class Tts {
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
             let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsVolume, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
-            //console.log("Was sent: " + wasSent)
+            //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept
               returnMessage = settingObj.ttsAcceptMessage

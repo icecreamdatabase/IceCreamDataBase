@@ -1,4 +1,5 @@
 "use strict"
+const Logger = require('../helper/Logger')
 const axios = require('axios')
 const util = require('util')
 const configOption = require('../../config')
@@ -372,8 +373,8 @@ module.exports = class ApiFunctions {
    * @returns {Promise<{followDate: Date, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number}>}
    */
   static async followTime (clientID, userId, roomId) {
-    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + roomId).catch(e => console.log(e))
-    console.log(response)
+    let response = await this.apiRequestKraken(clientID, 'users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
+    Logger.log(response)
     let returnObj = {
       followDate: undefined,
       followTimeMs: -1,

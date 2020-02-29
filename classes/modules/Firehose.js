@@ -3,6 +3,7 @@
 const axios = require('axios')
 const CancelToken = axios.CancelToken
 //CLASSES
+const Logger = require('../helper/Logger')
 const DiscordLog = require('./DiscordLog')
 //ENUMS
 const ChatLimit = require('./../../ENUMS/ChatLimit.js')
@@ -47,7 +48,7 @@ module.exports = class Firehose {
         responseType: 'stream'
       }
 
-      console.log("Starting firehose")
+      Logger.debug("Starting firehose")
       this.req = axios(request, {cancelToken: this.source.token}).then((res) => {
         res.data.on('data', (response) => {
           try {
@@ -80,7 +81,7 @@ module.exports = class Firehose {
         })
       }).catch((err) => {
         if (axios.isCancel(err)) {
-          console.log("Firehose canceled ...")
+          Logger.log("Firehose canceled ...")
         } else {
           this.source.cancel()
         }

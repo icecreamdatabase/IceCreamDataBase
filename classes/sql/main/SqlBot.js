@@ -1,5 +1,6 @@
 "use strict"
 const sqlPool = require('../Sql').pool
+const Logger = require('../../helper/Logger')
 
 module.exports = class SqlBot {
   constructor () {

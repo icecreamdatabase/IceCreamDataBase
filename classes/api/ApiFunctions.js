@@ -1,6 +1,7 @@
 "use strict"
 const Api = require('./Api.js')
 //ENUMS
+const Logger = require('../helper/Logger')
 const UserLevels = require('../../ENUMS/UserLevels.js')
 const ChatLimit = require('../../ENUMS/ChatLimit.js')
 

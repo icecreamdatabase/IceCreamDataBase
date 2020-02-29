@@ -2,6 +2,7 @@
 const util = require('util')
 const si = require('systeminformation')
 //CLASSES
+const Logger = require('../../helper/Logger')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
@@ -71,7 +72,7 @@ module.exports = class Hardcoded {
 
       let msg
       let evalString = messageObj.message.split(" ").slice(1).join(" ")
-      //console.log(evalString)
+      //Logger.log(evalString)
       if (evalString) {
         try {
           let ss = (x) => {
@@ -88,7 +89,7 @@ module.exports = class Hardcoded {
         if (["mysql", "identity", "oauth", "host", "password", "appid", "waAppid"].find(
           x => msg.toLowerCase().includes(x) || evalString.toLowerCase().includes(x)
         )) {
-          console.warn("Eval match: " + msg)
+          Logger.warn("Eval match: " + msg)
           msg = "***"
         }
 

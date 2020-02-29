@@ -1,6 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
+const Logger = require('./Logger')
 const TimeConversion = require("../../ENUMS/TimeConversion")
 
 module.exports = class TimeConversionHelper {

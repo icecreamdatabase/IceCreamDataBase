@@ -1,4 +1,5 @@
 "use strict"
+const Logger = require('../helper/Logger')
 
 /*
   This entire file is pretty much taken from here:

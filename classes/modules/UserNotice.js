@@ -1,6 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
+const Logger = require('../helper/Logger')
 const DiscordLog = require('./DiscordLog')
 const Sql = require('../sql/modules/SqlUserNotice.js')
 

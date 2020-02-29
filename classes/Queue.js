@@ -2,6 +2,7 @@
 const util = require('util')
 const EventEmitter = require('eventemitter3')
 //CLASSES
+const Logger = require('./helper/Logger')
 const DiscordLog = require('./modules/DiscordLog')
 const BasicBucket = require('../classes/BasicBucket.js')
 //ENUMS
@@ -76,7 +77,7 @@ module.exports = class Queue {
 
     //remove newline characters
     if (message.indexOf("\n") >= 0) {
-      console.info('Removed new line character')
+      Logger.info('Removed new line character')
       message = message.replace(/[\r\n]/g, '')
     }
 
@@ -162,7 +163,7 @@ module.exports = class Queue {
     if (botStatus < UserLevels.VIP) {
       if (!this.privsgUserBucket.takeTicket()) {
         DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied uzser ticket")
-        console.info("Denied user ticket")
+        Logger.info("Denied user ticket")
         await sleep(1500)
         msgObj.isBeingChecked = false
         this.queueEmitter.emit('event')
@@ -171,7 +172,7 @@ module.exports = class Queue {
     }
     if (!this.privmsgModeratorbucket.takeTicket()) {
       DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied moderator ticket")
-      console.info("Denied moderator ticket")
+      Logger.info("Denied moderator ticket")
       await sleep(1500)
       msgObj.isBeingChecked = false
       this.queueEmitter.emit('event')
@@ -185,7 +186,7 @@ module.exports = class Queue {
     this.bot.TwitchIRCConnection.say(msgObj.channelName, msgObj.message)
 
     this.messageQueue.shift()
-    //console.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
+    //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
     this.queueEmitter.emit('event')
   }
 }

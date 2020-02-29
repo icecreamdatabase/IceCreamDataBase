@@ -1,6 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
+const Logger = require('../helper/Logger')
 const ApiFunctions = require('../api/ApiFunctions')
 const DiscordLog = require('./DiscordLog')
 const HardCoded = require('./commands/Hardcoded')
@@ -40,7 +41,7 @@ module.exports = class PrivMsg {
     Helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
 
     if (channelObj.logMessages) {
-      console.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
+      Logger.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
     }
 
     //hardcoded always first

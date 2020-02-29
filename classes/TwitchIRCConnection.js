@@ -3,6 +3,7 @@ const net = require('net')
 const EventEmitter = require('eventemitter3')
 const ircMessage = require('irc-message')
 
+const Logger = require('./helper/Logger')
 const DiscordLog = require('./modules/DiscordLog')
 
 const host = 'irc.chat.twitch.tv'
@@ -77,7 +78,7 @@ class TwitchIRCConnection extends EventEmitter {
         try {
           this.emit(parsed.command, cleanObj)
         } catch (e) {
-          console.error(e)
+          Logger.error(e)
         }
       })
     this.client.on('close', (err) => {
@@ -122,7 +123,7 @@ class TwitchIRCConnection extends EventEmitter {
    * @returns {Promise<void>}
    */
   async connect () {
-    console.info(`Connecting to ${host}:${port}`)
+    Logger.info(`Connecting to ${host}:${port}`)
     return new Promise((resolve) => {
 
       this.client.connect(port, host, () => {
@@ -132,7 +133,7 @@ class TwitchIRCConnection extends EventEmitter {
         }
         this.reconnectionAttempts = 0
         this.connected = true
-        console.info(`Successfully connected to ${host}:${port}`)
+        Logger.info(`Successfully connected to ${host}:${port}`)
         this.send('CAP REQ :twitch.tv/tags twitch.tv/commands')// twitch.tv/membership')
         this.send(`PASS ${this.botData.token}`)
         this.send(`NICK ${this.botData.username}`)
@@ -166,12 +167,12 @@ class TwitchIRCConnection extends EventEmitter {
    */
   send (data) {
     if (data.indexOf("\n") >= 0) {
-      console.warn('Tried to send a newline character!')
+      Logger.warn('Tried to send a newline character!')
       DiscordLog.warn('Tried to send a newline character:\n' + data)
       return
     }
     if (data !== 'PONG' && data !== 'PING') {
-      console.debug(`--> ${data.startsWith('PASS ') ? 'PASS oauth:********' : data}`)
+      Logger.debug(`--> ${data.startsWith('PASS ') ? 'PASS oauth:********' : data}`)
     }
     ++this.commandsPer30
     this.client.write(`${data}\n`)
@@ -188,7 +189,7 @@ class TwitchIRCConnection extends EventEmitter {
     if (this.forceDisconnect || this.reconnectionAttempts > 0) {
       return // either deliberate or reconnection is already running.
     }
-    console.error('Disconnected from Twitch')
+    Logger.error('Disconnected from Twitch')
     let timeout = 150
     if (this.reconnectionAttempts > 0) {
       const randomJitter = Math.floor(Math.random() * (reconnectJitter + 1))

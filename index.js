@@ -3,6 +3,7 @@ const Mysql = require('./classes/sql/main/SqlBot.js')
 const Bot = require('./classes/Bot.js')
 const Firehose = require('./classes/modules/Firehose')
 const DiscordLog = require('./classes/modules/DiscordLog')
+const Logger = require('./classes/helper/Logger')
 
 let bots = {}
 let firehose

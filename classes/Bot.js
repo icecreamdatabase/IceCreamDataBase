@@ -1,5 +1,6 @@
 "use strict"
 //CLASSES
+const Logger = require('./helper/Logger')
 const Sql = require('./sql/main/SqlChannels.js')
 const TwitchIRCConnection = require('../classes/TwitchIRCConnection.js')
 const ApiFunctions = require('./api/ApiFunctions.js')
@@ -19,7 +20,7 @@ const UPDATE_ALL_CHANNELS_INTERVAL = 90000 //ms
 module.exports = class Bot {
   constructor (botData) {
     if (botData.enabled) {
-      console.info("Setting up bot: " + botData.userId + " (" + botData.username + ")")
+      Logger.info("Setting up bot: " + botData.userId + " (" + botData.username + ")")
 
       this.rateLimitUser = ChatLimit.NORMAL
       this.rateLimitModerator = ChatLimit.NORMAL_MOD
@@ -35,7 +36,7 @@ module.exports = class Bot {
       }
 
       //Connecting the bot to the twich servers
-      console.info("### Connecting: " + this.userId + " (" + this.userName + ")")
+      Logger.info("### Connecting: " + this.userId + " (" + this.userName + ")")
       this.TwitchIRCConnection.connect().then(this.onConnected.bind(this))
     }
   }
@@ -45,7 +46,7 @@ module.exports = class Bot {
    * Don't forget .bind(this)!
    */
   onConnected () {
-    console.info("### Connected: " + this.userId + " (" + this.userName + ")")
+    Logger.info("### Connected: " + this.userId + " (" + this.userName + ")")
     this.apiFunctions = new ApiFunctions(this)
     this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
   }
@@ -69,7 +70,7 @@ module.exports = class Bot {
     this.privMsg = new PrivMsg(this)
     this.userNotice = new UserNotice(this)
     this.clearChat = new ClearChat(this)
-    console.info("### Fully setup: " + this.userId + " (" + this.userName + ")")
+    Logger.info("### Fully setup: " + this.userId + " (" + this.userName + ")")
   }
 
   /**
@@ -135,7 +136,7 @@ module.exports = class Bot {
         if (!contains) {
           let channelName = await this.apiFunctions.loginFromUserId(channelId)
           this.TwitchIRCConnection.leave(channelName)
-          console.info(this.userName + " Parted: #" + channelName)
+          Logger.info(this.userName + " Parted: #" + channelName)
         }
       }
     }
@@ -158,9 +159,9 @@ module.exports = class Bot {
         //join
         if (!contains) {
           let channelName = await this.apiFunctions.loginFromUserId(channelId)
-          console.info(this.userName + " Joining: #" + channelName)
+          Logger.info(this.userName + " Joining: #" + channelName)
           this.TwitchIRCConnection.join(channelName)
-          console.info(this.userName + " Joined: #" + channelName)
+          Logger.info(this.userName + " Joined: #" + channelName)
           allChannelData[channelId].botStatus = null
           allChannelData[channelId].lastMessage = ""
           allChannelData[channelId].lastMessageTimeMillis = 0

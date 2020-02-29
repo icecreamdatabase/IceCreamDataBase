@@ -1,6 +1,7 @@
 "use strict"
 const util = require('util')
 //CLASSES
+const Logger = require('../../helper/Logger')
 const Api = require('../../api/Api.js')
 const DiscordLog = require('../DiscordLog')
 const Helper = require('../commands/Helper')
@@ -88,7 +89,7 @@ module.exports = class TtsWebSocket {
    * @param req request object
    */
   newConnection (ws, req) {
-    console.log("°° WS connected. Current connections: %d", ws._socket.server["_connections"])
+    Logger.log("[%s]°° WS connected. Current connections: %d", (new Date()).toLocaleTimeString('de-DE'), ws._socket.server["_connections"])
     // req.connection.remoteAddress
     ws.on('message', this.newMessage)
   }
@@ -99,12 +100,12 @@ module.exports = class TtsWebSocket {
    * @param message received message
    */
   newMessage (message) {
-    console.log('°° WS received: %s', message)
+    Logger.log('[%s]°° WS received: %s', (new Date()).toLocaleTimeString('de-DE'), message)
     try {
       this.channel = JSON.parse(message).channel.toLowerCase()
     } catch (e) {
       this.channel = ""
-      console.error("Websocket bad json: " + message)
+      Logger.error("Websocket bad json: " + message)
       DiscordLog.error("Websocket bad json: " + message)
     }
   }
