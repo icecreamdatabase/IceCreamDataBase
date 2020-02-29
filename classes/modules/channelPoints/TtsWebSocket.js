@@ -13,6 +13,8 @@ const voices = require('../../../json/se-voices.json')
 const fallbackVoice = "Brian"
 const useCaseSensitiveVoiceMatching = false
 
+const WEBSOCKETPINGINTERVAL = 10000
+
 module.exports = class TtsWebSocket {
   constructor () {
     if (TtsWebSocket.instance) {
@@ -22,6 +24,13 @@ module.exports = class TtsWebSocket {
 
     this.wss = new WebSocket.Server({port: 4700})
     this.wss.on('connection', this.newConnection.bind(this))
+    setInterval(()=>{
+      this.wss.clients.forEach(function each (client) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.ping()
+        }
+      })
+    }, WEBSOCKETPINGINTERVAL)
 
     return this
   }
@@ -92,6 +101,7 @@ module.exports = class TtsWebSocket {
     Logger.log(`°° WS connected. Current connections: ${ws._socket.server["_connections"]}`)
     // req.connection.remoteAddress
     ws.on('message', this.newMessage)
+    ws.ping()
   }
 
   /**
