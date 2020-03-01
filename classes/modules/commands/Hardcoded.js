@@ -55,7 +55,7 @@ module.exports = class Hardcoded {
     }
 
     /* Wolfram Alpha API */
-    if (messageObj.userLevel >= UserLevels.BOTOWNER
+    if (messageObj.userLevel >= UserLevels.BOTADMIN
       && (messageObj.message.startsWith("<query ")
         || messageObj.message.startsWith("<q ")
       )
