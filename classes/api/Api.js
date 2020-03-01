@@ -407,7 +407,11 @@ module.exports = class ApiFunctions {
     let waAppid = configOption.waoptions.appid
     if (waAppid) {
       let apiUrl = "https://api.wolframalpha.com/v1/result?i=" + encodeURIComponent(input) + "&appid=" + waAppid + "&units=metric"
-      return await this.request(apiUrl)
+      try {
+        return await this.request(apiUrl)
+      } catch (e) {
+        return e.response.data.toString()
+      }
     } else {
       return "No Wolfram Alpha AppID set."
     }
