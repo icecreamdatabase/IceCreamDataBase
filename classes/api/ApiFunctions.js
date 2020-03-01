@@ -67,8 +67,31 @@ module.exports = class ApiFunctions {
     return await Api.userIdFromLogin(this.bot.clientId, username)
   }
 
-  async userInfosFromLogins (usernames) {
-    return await Api.apiRequestKraken(this.bot.clientId, usernames)
+
+//TODO: cleanup of duplicated stuff
+  /**
+   * Returns the userInfo from an array of usernames
+   * directly returns the ["users"]
+   * automatically handles if more than 100 usernames are requested
+   *
+   * @param {Array<String>} ids The ids to check for
+   * @returns {Object} return from users api
+   */
+  async userDataFromIds (ids) {
+    return await Api.userDataFromIds(this.bot.clientId, ids)
+  }
+
+//TODO: cleanup of duplicated stuff
+  /**
+   * Returns the userInfo from an array of ids
+   * directly returns the ["users"]
+   * automatically handles if more than 100 usernames are requested
+   *
+   * @param {Array<String>} usernames The names to check for
+   * @returns {Object} return from users api
+   */
+  async userDataFromLogins (usernames) {
+    return await Api.userDataFromLogins(this.bot.clientId, usernames)
   }
 
   /**
