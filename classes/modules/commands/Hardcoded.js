@@ -49,7 +49,7 @@ module.exports = class Hardcoded {
 
       this.bot.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
-        process.exit(0)
+        process.abort()
       }, 1200)
       return true
     }
