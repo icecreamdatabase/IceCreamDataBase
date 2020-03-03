@@ -7,7 +7,8 @@ const ChatLimit = require('../../ENUMS/ChatLimit.js')
 
 //update bot status every 60 seconds (1 minute)
 const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
-const SUPINIC_API_PING_INTERVAL = 60000
+//ping supinic api once very 1800 seconds (30 minutes)
+const SUPINIC_API_PING_INTERVAL = 1800000
 
 module.exports = class ApiFunctions {
   constructor (bot) {
