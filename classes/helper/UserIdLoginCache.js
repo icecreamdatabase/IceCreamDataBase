@@ -18,7 +18,7 @@ module.exports = class UserIdLoginCache {
     }
   }
 
-  async idToName (id) {
+  async idToName (id, allowRecheck = true) {
     if (!userInfosById.hasOwnProperty(id)) {
       let users = await this.bot.apiFunctions.userDataFromIds([id])
       if (users.count > 0) {
@@ -26,7 +26,11 @@ module.exports = class UserIdLoginCache {
         userInfosById[user["_id"]] = user
         userInfosByName[user["name"].toLowerCase()] = user
       } else {
-        Logger.warn(`idToName failed with id: ${id}`)
+        Logger.warn(`idToName failed with id: ${id}\nRecheck: ${allowRecheck}`)
+        if (allowRecheck) {
+          //TODO: Don't make this recursive. It can only go in once ... but would be nice to do it elsewise!
+          return await this.idToName(id, false)
+        }
         return null
       }
     }
@@ -34,7 +38,7 @@ module.exports = class UserIdLoginCache {
     return userInfosById[id].name
   }
 
-  async nameToId (name) {
+  async nameToId (name, allowRecheck = true) {
     name = name.toLowerCase().trim()
     if (!userInfosByName.hasOwnProperty(name)) {
       let users = await this.bot.apiFunctions.userDataFromLogins([name])
@@ -43,7 +47,11 @@ module.exports = class UserIdLoginCache {
         userInfosById[user["_id"]] = user
         userInfosByName[user["name"].toLowerCase()] = user
       } else {
-        Logger.warn(`nameToId failed with name: ${name}`)
+        Logger.warn(`nameToId failed with name: ${name}\nRecheck: ${allowRecheck}`)
+        if (allowRecheck) {
+          //TODO: Don't make this recursive. It can only go in once ... but would be nice to do it elsewise!
+          return await this.nameToId(name, false)
+        }
         return null
       }
     }
