@@ -48,7 +48,7 @@ module.exports = class UserIdLoginCache {
       }
     }
 
-    return userInfosByName[name].name
+    return userInfosByName[name]["_id"]
   }
 
   clearMaps () {

@@ -54,6 +54,7 @@ module.exports = class ApiFunctions {
    * receive login name from a single userid
    * @param userId userid to check
    * @returns {Promise<string>} login name as string inside a promise
+   * @deprecated
    */
   async loginFromUserId (userId) {
     return await Api.loginFromUserId(this.bot.clientId, userId)
@@ -63,6 +64,7 @@ module.exports = class ApiFunctions {
    * Returns the userId from a single login
    * @param username login to check
    * @returns {Promise<string>} userId as string
+   * @deprecated
    */
   async userIdFromLogin (username) {
     return await Api.userIdFromLogin(this.bot.clientId, username)

@@ -107,7 +107,7 @@ module.exports = class Tts {
     if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
       let p1User = command.substr(ttsStrings.register.command.length + 1).toLowerCase().trim()
       if (p1User) {
-        let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
+        let p1Id = await this.bot.userIdLoginCache.nameToId(p1User)
         if (p1Id !== '-1') {
           userId = p1Id
           username = p1User
@@ -139,7 +139,7 @@ module.exports = class Tts {
     if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
       let p1User = command.substr(ttsStrings.unregister.command.length + 1).toLowerCase().trim()
       if (p1User) {
-        let p1Id = await this.bot.apiFunctions.userIdFromLogin(p1User)
+        let p1Id = await this.bot.userIdLoginCache.nameToId(p1User)
         if (p1Id !== '-1') {
           userId = p1Id
           username = p1User

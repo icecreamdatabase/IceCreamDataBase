@@ -34,7 +34,7 @@ module.exports = class Queue {
    * @returns {Promise<void>}
    */
   async sayWithChannelId (channelId, message, userId) {
-    this.sayWithBoth(channelId, await this.bot.apiFunctions.loginFromUserId(channelId), message, userId)
+    this.sayWithBoth(channelId, await this.bot.userIdLoginCache.idToName(channelId), message, userId)
   }
 
   /**
@@ -46,7 +46,7 @@ module.exports = class Queue {
    * @returns {Promise<void>}
    */
   async sayWithChannelName (channelName, message, userId) {
-    this.sayWithBoth(await this.bot.apiFunctions.userIdFromLogin(channelName), channelName, message, userId)
+    this.sayWithBoth(await this.bot.userIdLoginCache.nameToId(channelName), channelName, message, userId)
   }
 
   /**
