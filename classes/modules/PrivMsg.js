@@ -37,6 +37,11 @@ module.exports = class PrivMsg {
 
     let channelObj = this.bot.channels[messageObj.roomId]
 
+    if (!channelObj) {
+      DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}`)
+      return true
+    }
+
     // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
     Helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
 
