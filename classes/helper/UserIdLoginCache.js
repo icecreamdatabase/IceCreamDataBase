@@ -2,12 +2,16 @@
 const util = require('util')
 const Logger = require('./Logger')
 
+const CLEANUPINTERVAL = 10800000 //3 hours
+
 let userInfosById = {}
 let userInfosByName = {}
 
 module.exports = class UserIdLoginCache {
   constructor (bot) {
     this.bot = bot
+
+    setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
   }
 
   async prefetchListOfIds (ids) {
@@ -51,9 +55,11 @@ module.exports = class UserIdLoginCache {
     return userInfosByName[name]["_id"]
   }
 
-  clearMaps () {
+  updateMaps () {
+    let currentIds = Object.keys(userInfosById)
     userInfosById = {}
     userInfosByName = {}
+    this.prefetchListOfIds(currentIds).then(() => Logger.debug(`Refreshed UserIdLoginCache. Currently tracking ${Object.keys(userInfosById).length} ids.`))
   }
 }
 
