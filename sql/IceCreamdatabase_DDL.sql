@@ -74,6 +74,7 @@ create table channelPointsSettings
     ttsVolume int default 100 not null,
     ttsCustomRewardId varchar(45) null,
     ttsDefaultVoiceName varchar(45) default 'Brian' null,
+    ttsMaxMessageTime int default 0 null,
     ttsCooldown int(11) unsigned default 0 null,
     ttsUserLevel int(11) unsigned default 0 not null,
     ttsTimeoutCheckTime int(11) unsigned default 2 not null,
