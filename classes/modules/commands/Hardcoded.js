@@ -6,6 +6,7 @@ const Logger = require('../../helper/Logger')
 const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
+const TimeConversionHelper = require("../../helper/TimeConversionHelper")
 const UserLevels = require("../../../ENUMS/UserLevels")
 const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
