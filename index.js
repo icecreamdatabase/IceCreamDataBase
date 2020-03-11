@@ -46,5 +46,5 @@ Mysql.getBotData().then(async (allBotData) => {
       bots[newBot.userId] = newBot
     }
   }
-  firehose = new Firehose(bots)
+  //firehose = new Firehose(bots)
 })
