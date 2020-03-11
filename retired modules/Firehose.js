@@ -3,10 +3,10 @@
 const axios = require('axios')
 const CancelToken = axios.CancelToken
 //CLASSES
-const Logger = require('../helper/Logger')
-const DiscordLog = require('./DiscordLog')
+const Logger = require('../classes/helper/Logger')
+const DiscordLog = require('../classes/modules/DiscordLog')
 //ENUMS
-const ChatLimit = require('./../../ENUMS/ChatLimit.js')
+const ChatLimit = require('../ENUMS/ChatLimit.js')
 
 const nameRegex = /\bicdb\b/i
 
