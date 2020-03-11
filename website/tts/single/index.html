@@ -39,8 +39,10 @@
   let useQueue = true
   let audioPlaying = false
   let volume = 100
+  let maxMessageTime = 0
   let msgQueue = []
   let currentMessage = []
+  let currentMessageTimeoutId
 
   //let rlLimit = 30
   let rlRemaining = 30 // Default value of StreamElements
@@ -56,6 +58,12 @@
     let msgObj = currentMessage.shift()
     if (msgObj) {
       audioPlaying = true
+      clearTimeout(currentMessageTimeoutId)
+      if (maxMessageTime > 0) {
+        currentMessageTimeoutId = setTimeout(() => {
+          skip()
+        }, 1000 * maxMessageTime)
+      }
       await speak(msgObj.message, msgObj.voice)
     }
   })
@@ -144,6 +152,14 @@
     player.play()
   }
 
+  function skip () {
+    console.log("Skipping current message ...")
+    currentMessage = []
+    let player = document.getElementById("player")
+    player.pause()
+    player.dispatchEvent(new Event("ended"))
+  }
+
   function connect () {
     let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
     // Connection opened
@@ -160,12 +176,10 @@
         if (obj.cmd === "reload") {
           location.reload()
         } else if (obj.cmd === "skip") {
-          currentMessage = []
-          let player = document.getElementById("player")
-          player.pause()
-          player.dispatchEvent(new Event("ended"))
+          skip()
         } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
           volume = obj.data.volume || volume
+          maxMessageTime = obj.data.maxMessageTime || maxMessageTime
           msgQueue.push(obj.data.data)
           useQueue = !!obj.data.queue
         }

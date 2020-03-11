@@ -11,6 +11,21 @@ module.exports = class SqlChannelPoints {
    * Update the ttsCooldown setting for a connection
    * @param botID
    * @param channelID
+   * @param ttsMaxMessageTime default 0
+   * @returns {Promise<void>}
+   */
+  static async setSettingMaxMessageTime (botID, channelID, ttsMaxMessageTime = 0) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+                         SET ttsMaxMessageTime = ?
+                         WHERE botID = ?
+                           AND channelID = ?
+    ;`, [ttsMaxMessageTime, botID, channelID])
+  }
+
+  /**
+   * Update the ttsCooldown setting for a connection
+   * @param botID
+   * @param channelID
    * @param ttsCooldown default 0
    * @returns {Promise<void>}
    */
@@ -146,6 +161,7 @@ module.exports = class SqlChannelPoints {
                                               ttsCustomRewardId,
                                               ttsDefaultVoiceName,
                                               ttsQueueMessages,
+                                              ttsMaxMessageTime,
                                               ttsCooldown,
                                               ttsUserLevel,
                                               ttsTimeoutCheckTime,

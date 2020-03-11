@@ -194,6 +194,9 @@ module.exports = class Tts {
     } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.volume)) {
       /* ---------- volume ---------- */
       responseMessage = await this.ttsHandleSettingsVolume(setting, privMsgObj)
+    } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.maxMessageTime)) {
+      /* ---------- maxMessageTime ---------- */
+      responseMessage = await this.ttsHandleSettingsMaxMessageTime(setting, privMsgObj)
     } else if (setting.toLowerCase().startsWith(ttsStrings.settings.options.cooldown)) {
       /* ---------- cooldown ---------- */
       responseMessage = await this.ttsHandleSettingsCooldown(setting, privMsgObj)
@@ -327,6 +330,33 @@ module.exports = class Tts {
   }
 
   /**
+   * Handle the !tts settings maxmessagetime command
+   * @param setting
+   * @param privMsgObj
+   * @returns {Promise<string>}
+   */
+  async ttsHandleSettingsMaxMessageTime (setting, privMsgObj) {
+    try {
+      let parameter = (setting.substr(ttsStrings.settings.options.maxMessageTime.length + 1)).trim().toLowerCase()
+      if (parameter) {
+        let maxMessageTime = parseInt(parameter)
+        if (0 <= maxMessageTime && maxMessageTime <= 300) {
+          await SqlChannelPoints.setSettingMaxMessageTime(this.bot.userId, privMsgObj.roomId, maxMessageTime)
+          this.updateChannelPointSettings()
+          return ttsStrings.settings.response.successful
+        } else {
+          return ttsStrings.settings.response.fail
+        }
+      } else {
+        return ttsStrings.settings.response.get + " \"" + this.channelPointsSettings[privMsgObj.roomId].ttsMaxMessageTime + "\""
+      }
+    } catch (e) {
+      return ttsStrings.settings.response.fail
+    }
+  }
+
+
+  /**
    * Handle the !tts settings cooldown command
    * @param setting
    * @param privMsgObj
@@ -446,7 +476,7 @@ module.exports = class Tts {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsVolume, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime)
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsVolume, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime, settingObj.ttsMaxMessageTime)
             //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept

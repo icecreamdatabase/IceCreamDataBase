@@ -131,11 +131,12 @@ module.exports = class TtsWebSocket {
    * @param volume 0 - 100
    * @param voice
    * @param waitForTimeoutLength
+   * @param maxMessageTime
    * @returns {Promise<unknown>}
    */
-  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5) {
+  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5, maxMessageTime = 0) {
     return new Promise((resolve) => {
-      setTimeout(async (channel, username, message, conversation, queue, volume, voice, color) => {
+      setTimeout(async (channel, username, message, conversation, queue, volume, voice, maxMessageTime, color) => {
         // * 2 so we are also checking a bit before "now"
         if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
           let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
@@ -149,10 +150,10 @@ module.exports = class TtsWebSocket {
           )
           resolve(false)
         } else {
-          this.sendTts(channel, message, conversation, queue, volume, voice)
+          this.sendTts(channel, message, conversation, queue, volume, voice, maxMessageTime)
           resolve(true)
         }
-      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, volume, voice, privMsgObj.raw.tags.color)
+      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, volume, voice, maxMessageTime, privMsgObj.raw.tags.color)
     })
   }
 
@@ -164,12 +165,13 @@ module.exports = class TtsWebSocket {
    * @param queue
    * @param volume 0 - 100
    * @param voice
+   * @param maxMessageTime
    */
-  sendTts (channel, message, conversation = false, queue = false, volume = 100, voice = fallbackVoice) {
+  sendTts (channel, message, conversation = false, queue = false, volume = 100, voice = fallbackVoice, maxMessageTime = 0) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    let data = {channel: channel, data: [], queue: queue, volume: volume}
+    let data = {channel: channel, data: [], queue: queue, volume: volume, maxMessageTime: maxMessageTime}
 
     if (conversation) {
       data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, voice)
