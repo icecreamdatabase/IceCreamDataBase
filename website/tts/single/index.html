@@ -39,6 +39,7 @@
   let useQueue = true
   let audioPlaying = false
   let volume = 100
+  let maxMessageTime = 0
   let msgQueue = []
   let currentMessage = []
   let currentMessageTimeoutId
@@ -57,6 +58,12 @@
     let msgObj = currentMessage.shift()
     if (msgObj) {
       audioPlaying = true
+      clearTimeout(currentMessageTimeoutId)
+      if (maxMessageTime > 0) {
+        currentMessageTimeoutId = setTimeout(() => {
+          skip()
+        }, 1000 * maxMessageTime)
+      }
       await speak(msgObj.message, msgObj.voice)
     }
   })
@@ -145,7 +152,8 @@
     player.play()
   }
 
-  function skip() {
+  function skip () {
+    console.log("Skipping current message ...")
     currentMessage = []
     let player = document.getElementById("player")
     player.pause()
@@ -171,14 +179,9 @@
           skip()
         } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
           volume = obj.data.volume || volume
+          maxMessageTime = obj.data.maxMessageTime || maxMessageTime
           msgQueue.push(obj.data.data)
           useQueue = !!obj.data.queue
-          if (obj.data.maxMessageTime > 0) {
-            clearTimeout(currentMessageTimeoutId)
-            currentMessageTimeoutId = setTimeout(() => {
-              skip()
-            }, 1000 * obj.data.maxMessageTime)
-          }
         }
       }
     })
