@@ -41,6 +41,7 @@
   let volume = 100
   let msgQueue = []
   let currentMessage = []
+  let currentMessageTimeoutId
 
   //let rlLimit = 30
   let rlRemaining = 30 // Default value of StreamElements
@@ -144,6 +145,13 @@
     player.play()
   }
 
+  function skip() {
+    currentMessage = []
+    let player = document.getElementById("player")
+    player.pause()
+    player.dispatchEvent(new Event("ended"))
+  }
+
   function connect () {
     let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
     // Connection opened
@@ -160,14 +168,17 @@
         if (obj.cmd === "reload") {
           location.reload()
         } else if (obj.cmd === "skip") {
-          currentMessage = []
-          let player = document.getElementById("player")
-          player.pause()
-          player.dispatchEvent(new Event("ended"))
+          skip()
         } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
           volume = obj.data.volume || volume
           msgQueue.push(obj.data.data)
           useQueue = !!obj.data.queue
+          if (obj.data.maxMessageTime > 0) {
+            clearTimeout(currentMessageTimeoutId)
+            currentMessageTimeoutId = setTimeout(() => {
+              skip()
+            }, 1000 * obj.data.maxMessageTime)
+          }
         }
       }
     })
