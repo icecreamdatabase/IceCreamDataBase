@@ -35,7 +35,7 @@
     }
   }
 
-  let version = "2.1.0"
+  let version = "2.2.0"
   let useQueue = true
   let audioPlaying = false
   let volume = 100
@@ -64,14 +64,14 @@
           skip()
         }, 1000 * maxMessageTime)
       }
-      await speak(msgObj.message, msgObj.voice)
+      await speak(msgObj.message, msgObj.voice, msgObj.playbackRate)
     }
   })
 
   document.getElementById("player").addEventListener("ended", async () => {
     if (currentMessage.length > 0) {
       let msgObj = currentMessage.shift()
-      await speak(msgObj.message, msgObj.voice)
+      await speak(msgObj.message, msgObj.voice, msgObj.playbackRate)
       return
     }
 
@@ -82,7 +82,7 @@
       currentMessage = msgQueue.shift()
       let msgObj = currentMessage.shift()
       if (msgObj) {
-        await speak(msgObj.message, msgObj.voice)
+        await speak(msgObj.message, msgObj.voice, msgObj.playbackRate)
         return
       }
     }
@@ -105,7 +105,7 @@
     return result
   }
 
-  async function speak (text, voice = "Brian") {
+  async function speak (text, voice = "Brian", playbackRate = 1.0) {
     if (rlRemaining <= 1) {
       if (rlReset >= Date.now()) {
         rateLimited = true
@@ -133,7 +133,7 @@
 
     if (response.status === 429) {
       console.warn(await response.text())
-      await speak(text, voice)
+      await speak(text, voice, playbackRate)
       return
     } else if (response.status !== 200) {
       console.warn(await response.text())
@@ -150,6 +150,7 @@
     player.pause()
     player.load()
     player.play()
+    player.playbackRate = playbackRate
   }
 
   function skip () {

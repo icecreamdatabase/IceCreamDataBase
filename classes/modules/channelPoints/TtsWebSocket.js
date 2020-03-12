@@ -24,7 +24,7 @@ module.exports = class TtsWebSocket {
 
     this.wss = new WebSocket.Server({port: 4700})
     this.wss.on('connection', this.newConnection.bind(this))
-    setInterval(()=>{
+    setInterval(() => {
       this.wss.clients.forEach(function each (client) {
         if (client.readyState === WebSocket.OPEN) {
           try {
@@ -224,10 +224,11 @@ module.exports = class TtsWebSocket {
    * @param message
    * @param useCase
    * @param defaultVoice
-   * @returns {{voice: string, message: string}[]}
+   * @param defaultPlayBackRate
+   * @returns {{voice: string, message: string, playbackRate: number}[]}
    */
-  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice) {
-    let output = [{voice: defaultVoice, message: ""}]
+  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice, defaultPlayBackRate = 1.0) {
+    let output = [{voice: defaultVoice, message: "", playbackRate: defaultPlayBackRate}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
       let voice
