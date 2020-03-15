@@ -269,12 +269,12 @@ module.exports = class Tts {
             let settingParameter = (parameter.substr(optionObj.options[optionId].command.length + 1)).trim().toLowerCase()
             let newValue
             try {
-              newValue = await this[optionId](privMsgObj, settingParameter)
+              newValue = await this[optionId](privMsgObj.roomId, settingParameter)
               if (settingParameter) {
                 responseMessage += `${optionObj.response.successful} `
               }
             } catch (e) {
-              newValue = await this[optionId](privMsgObj, "")
+              newValue = await this[optionId](privMsgObj.roomId, "")
               responseMessage += `${optionObj.response.failRange} `
             }
             responseMessage += `${optionObj.response.get} "${newValue}" `

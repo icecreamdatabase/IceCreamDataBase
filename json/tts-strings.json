@@ -80,7 +80,7 @@
         },
         "handleSettingVolume": {
           "command": "volume",
-          "description": ">Volume of the TTS playback.",
+          "description": "Volume of the TTS playback.",
           "options": "0 . 100",
           "default": 100
         },
@@ -92,7 +92,7 @@
         },
         "handleSettingCooldown": {
           "command": "cooldown",
-          "description": "Time in seconds between TTS messages. It will still cost points!",
+          "description": "Time in seconds between TTS messages. It will still cost points! (0 = disabled)",
           "options": "0 - 300",
           "default": 0
         },
