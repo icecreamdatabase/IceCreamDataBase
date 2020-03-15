@@ -268,6 +268,7 @@ module.exports = class Tts {
             && optionId in this && typeof this[optionId] === "function") {
             let settingParameter = (parameter.substr(optionObj.options[optionId].command.length + 1)).trim().toLowerCase()
             try {
+              console.log(settingParameter)
               responseMessage = await this[optionId](privMsgObj, optionObj, optionObj[optionId], settingParameter)
             } catch (e) {
               return optionObj.response.fail
@@ -295,7 +296,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsSubscriber (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingSubscriber (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
       this.updateChannelPointSettings()
@@ -314,7 +315,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsConversation (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingConversation (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
       this.updateChannelPointSettings()
@@ -333,7 +334,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsVoice (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingVoice (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       let voice
       if ((voice = TtsWebSocket.getVoiceID(parameter, false))) {
@@ -357,7 +358,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsQueue (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingQueue (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
       this.updateChannelPointSettings()
@@ -376,7 +377,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsVolume (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingVolume (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       let volume = parseInt(parameter)
       if (0 <= volume && volume <= 100) {
@@ -400,7 +401,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsMaxMessageTime (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingMaxMessageTime (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       let maxMessageTime = parseInt(parameter)
       if (0 <= maxMessageTime && maxMessageTime <= 300) {
@@ -424,7 +425,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsCooldown (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingCooldown (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       let cooldown = parseInt(parameter)
       if (0 <= cooldown && cooldown <= 300) {
@@ -448,7 +449,7 @@ module.exports = class Tts {
    * @param parameter
    * @returns {Promise<string>}
    */
-  async handleSettingsTimeoutcheck (privMsgObj, optionObj, settingObj, parameter) {
+  async handleSettingTimeoutCheckTime (privMsgObj, optionObj, settingObj, parameter) {
     if (parameter) {
       let timeoutCheckTime = parseInt(parameter)
       if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
