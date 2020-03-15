@@ -98,6 +98,21 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Update the ttsAllowCustomPlaybackrate setting for a connection
+   * @param botID
+   * @param channelID
+   * @param allowCustomPlaybackrate
+   * @returns {Promise<void>}
+   */
+  static async setSettingAllowCustomPlaybackrate (botID, channelID, allowCustomPlaybackrate = false) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+                         SET ttsAllowCustomPlaybackrate = ?
+                         WHERE botID = ?
+                           AND channelID = ?
+    ;`, [allowCustomPlaybackrate, botID, channelID])
+  }
+
+  /**
    * Update the ttsDefaultVoiceName setting for a connection
    * @param botID
    * @param channelID
@@ -152,7 +167,7 @@ module.exports = class SqlChannelPoints {
   /**
    * Return all channelPointsSettings for a bot
    * @param botId
-   * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
+   * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAllowCustomPlaybackrate, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
    */
   static async getChannelPointsSettings (botId) {
     let results = await sqlPool.query(`SELECT channelID,
@@ -165,6 +180,7 @@ module.exports = class SqlChannelPoints {
                                               ttsCooldown,
                                               ttsUserLevel,
                                               ttsTimeoutCheckTime,
+                                              ttsAllowCustomPlaybackrate,
                                               ttsAcceptMessage,
                                               ttsRejectCooldownMessage,
                                               ttsRejectUserLevelMessage,

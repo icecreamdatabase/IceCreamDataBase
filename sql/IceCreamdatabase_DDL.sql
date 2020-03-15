@@ -78,6 +78,7 @@ create table channelPointsSettings
     ttsCooldown int(11) unsigned default 0 null,
     ttsUserLevel int(11) unsigned default 0 not null,
     ttsTimeoutCheckTime int(11) unsigned default 2 not null,
+    allowCustomPlaybackrate bit default b'0' not null,
     ttsAcceptMessage varchar(512) null,
     ttsRejectUserLevelMessage varchar(512) default '@${user}, Your TTS message has not been sent. You are not a subscriber.' null,
     ttsRejectCooldownMessage varchar(512) default '@${user}, Your TTS message has not been sent. The cooldown is not over.' null,
