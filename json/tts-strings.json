@@ -57,56 +57,48 @@
         "handleSettingConversation": {
           "command": "conversation",
           "description": "Allows users to use multiple voices in one message: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\"",
-          "type": "bool",
           "options": "true / false",
           "default": true
         },
         "handleSettingSubscriber": {
           "command": "sub",
           "description": "Make the TTS subscriber only. It will still cost points for none subs but no TTS is played",
-          "type": "bool",
           "options": "true / false",
           "default": false
         },
         "handleSettingQueue": {
           "command": "queue",
           "description": "If disabled new messages skip currently playing messages.",
-          "type": "bool",
           "options": "true / false",
           "default": true
         },
         "handleSettingVoice": {
           "command": "voice",
           "description": "Default voice name. Check available voices here: https://supinic.com/stream/tts",
-          "type": "string",
           "options": "any voice name",
           "default": "Brian"
         },
         "handleSettingVolume": {
           "command": "volume",
           "description": ">Volume of the TTS playback.",
-          "type": "number",
           "options": "0 . 100",
           "default": 100
         },
         "handleSettingMaxMessageTime": {
           "command": "maxmessagetime",
           "description": "Max duration of a single redemtion. Using multiple voices counts as one message for this setting. (0 = unlimted)",
-          "type": "number",
           "options": "0 - 300",
           "default": 0
         },
         "handleSettingCooldown": {
           "command": "cooldown",
           "description": "Time in seconds between TTS messages. It will still cost points!",
-          "type": "number",
           "options": "0 - 300",
           "default": 0
         },
         "handleSettingTimeoutCheckTime": {
           "command": "timeoutcheck",
           "description": "The bot doesn't play message which have been timed out in that timeframe. How long the bot should wait before playing the TTS message.",
-          "type": "number",
           "options": "0 - 30",
           "default": 2
         }
