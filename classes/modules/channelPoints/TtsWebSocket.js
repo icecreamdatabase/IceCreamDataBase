@@ -241,9 +241,7 @@ module.exports = class TtsWebSocket {
         let match = word.match(regExpTtsArray)
         if (match[1]) {
           let voice
-          console.log(voice, match[1], match[2])
           if ((voice = this.getVoiceID(match[1], useCase))) {
-            console.log(voice, match[1], match[2])
             output[++outputIndex] = {}
             output[outputIndex]["voice"] = voice
             let playbackrate = parseFloat(match[2]) || defaultPlaybackrate
