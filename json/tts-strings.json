@@ -51,7 +51,7 @@
         "failNotAnOption": "Updating failed. That is not an available option.",
         "failRange": "Updating failed. Value is outside of allowed range.",
         "get": "Current value is:",
-        "help": "Use \"!tts settings [OPTION] [VALUE]\". Avaiable options are: \"conversation\", \"sub\", \"queue\", \"volume\", \"cooldown\", \"maxmessagetime\", \"timeoutcheck\", \"voice\"."
+        "help": "Use \"!tts settings [OPTION] [VALUE]\". Avaiable options are: \"conversation\", \"sub\", \"queue\", \"volume\", \"cooldown\", \"maxmessagetime\", \"timeoutcheck\", \"voice\", \"allowcustomplaybackrate\"."
       },
       "options": {
         "handleSettingConversation": {
