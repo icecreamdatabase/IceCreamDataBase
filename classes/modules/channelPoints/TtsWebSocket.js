@@ -231,10 +231,10 @@ module.exports = class TtsWebSocket {
    * @param defaultVoice
    * @param allowCustomPlaybackrate
    * @param defaultPlaybackrate
-   * @returns {{voice: string, message: string, playbackRate: number}[]}
+   * @returns {{voice: string, message: string, playbackrate: number}[]}
    */
   createTTSArray (message, useCase = false, defaultVoice = fallbackVoice, allowCustomPlaybackrate = false, defaultPlaybackrate = 1.0) {
-    let output = [{voice: defaultVoice, message: "", playbackRate: defaultPlaybackrate}]
+    let output = [{voice: defaultVoice, message: "", playbackrate: defaultPlaybackrate}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
       if (word.endsWith(":")) {
