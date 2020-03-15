@@ -246,7 +246,7 @@ module.exports = class TtsWebSocket {
             output[outputIndex]["voice"] = voice
             let playbackrate = parseFloat(match[2]) || defaultPlaybackrate
             playbackrate = Math.min(PLAYBACKRATEMAX, Math.max(PLAYBACKRATEMIN, playbackrate))
-            output[outputIndex]["playbackrate"] = playbackrate
+            output[outputIndex]["playbackrate"] = allowCustomPlaybackrate ? playbackrate : defaultPlaybackrate
             output[outputIndex]["message"] = ""
           }
         }
