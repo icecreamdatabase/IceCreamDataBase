@@ -191,7 +191,7 @@ module.exports = class Tts {
         DiscordLog.custom("tts-status-log", "Link:", privMsgObj.channel.substr(1), DiscordLog.getDecimalFromHexString("#0000FF"))
         return optionObj.response.justLinked + privMsgObj.channel.substr(1)
       } else {
-        if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings.hasOwnProperty, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {
+        if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {
           return optionObj.response.alreadyLinked + privMsgObj.channel.substr(1)
         } else {
           return optionObj.response.notLinked
