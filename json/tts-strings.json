@@ -48,7 +48,7 @@
       "command": "settings",
       "response": {
         "successful": "Updating successful.",
-        "fail": "Updating failed.",
+        "failNotAnOption": "Updating failed. That is not an available option.",
         "failRange": "Updating failed. Value is outside of allowed range.",
         "get": "Current value is:",
         "help": "Use \"!tts settings [OPTION] [VALUE]\". Avaiable combinations: \"conversation\": true / false, \"sub\": true / false, \"queue\": true / false, \"volume\": 0 - 100, \"cooldown\": 0 - 300, \"maxmessagetime\": 0 - 300 (0 = unlimited), \"timeoutcheck\": 0 - 30, \"voice\": any voice name."
