@@ -239,7 +239,7 @@ module.exports = class TtsWebSocket {
     for (let word of message.split(" ")) {
       if (word.endsWith(":")) {
         let match = word.match(regExpTtsArray)
-        if (match[1]) {
+        if (match && match[1]) {
           let voice
           if ((voice = this.getVoiceID(match[1], useCase))) {
             output[++outputIndex] = {}
