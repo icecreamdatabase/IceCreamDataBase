@@ -269,12 +269,12 @@ module.exports = class Tts {
             let settingParameter = (parameter.substr(optionObj.options[optionId].command.length + 1)).trim().toLowerCase()
             let newValue
             try {
-              newValue = await this[optionId](privMsgObj, settingParameter, optionObj, optionObj[optionId])
+              newValue = await this[optionId](privMsgObj, settingParameter)
               if (settingParameter) {
                 responseMessage += `${optionObj.response.successful} `
               }
             } catch (e) {
-              newValue = await this[optionId](privMsgObj, "", optionObj, optionObj[optionId])
+              newValue = await this[optionId](privMsgObj, "")
               responseMessage += `${optionObj.response.failRange} `
             }
             responseMessage += `${optionObj.response.get} "${newValue}" `
@@ -298,162 +298,146 @@ module.exports = class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings sub command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingSubscriber (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingSubscriber (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
+      await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, roomId, JSON.parse(parameter))
       await this.updateChannelPointSettings()
     }
-    return !!this.channelPointsSettings[privMsgObj.roomId].ttsUserLevel
+    return !!this.channelPointsSettings[roomId].ttsUserLevel
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings conversation command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingConversation (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingConversation (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingConversation(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
+      await SqlChannelPoints.setSettingConversation(this.bot.userId, roomId, JSON.parse(parameter))
       await this.updateChannelPointSettings()
     }
-    return !!this.channelPointsSettings[privMsgObj.roomId].ttsConversation
+    return !!this.channelPointsSettings[roomId].ttsConversation
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings voice command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingVoice (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingVoice (roomId, parameter) {
     if (parameter) {
       let voice
       if ((voice = TtsWebSocket.getVoiceID(parameter, false))) {
-        await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, privMsgObj.roomId, voice)
+        await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, roomId, voice)
         await this.updateChannelPointSettings()
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[privMsgObj.roomId].ttsDefaultVoiceName
+    return this.channelPointsSettings[roomId].ttsDefaultVoiceName
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings queue command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingQueue (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingQueue (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, privMsgObj.roomId, JSON.parse(parameter))
+      await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, roomId, JSON.parse(parameter))
       await this.updateChannelPointSettings()
     }
-    return !!this.channelPointsSettings[privMsgObj.roomId].ttsQueueMessages
+    return !!this.channelPointsSettings[roomId].ttsQueueMessages
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings volume command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingVolume (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingVolume (roomId, parameter) {
     if (parameter) {
       let volume = parseInt(parameter)
       if (0 <= volume && volume <= 100) {
-        await SqlChannelPoints.setSettingVolume(this.bot.userId, privMsgObj.roomId, volume)
+        await SqlChannelPoints.setSettingVolume(this.bot.userId, roomId, volume)
         await this.updateChannelPointSettings()
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[privMsgObj.roomId].ttsVolume
+    return this.channelPointsSettings[roomId].ttsVolume
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings maxmessagetime command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingMaxMessageTime (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingMaxMessageTime (roomId, parameter) {
     if (parameter) {
       let maxMessageTime = parseInt(parameter)
       if (0 <= maxMessageTime && maxMessageTime <= 300) {
-        await SqlChannelPoints.setSettingMaxMessageTime(this.bot.userId, privMsgObj.roomId, maxMessageTime)
+        await SqlChannelPoints.setSettingMaxMessageTime(this.bot.userId, roomId, maxMessageTime)
         await this.updateChannelPointSettings()
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[privMsgObj.roomId].ttsMaxMessageTime
+    return this.channelPointsSettings[roomId].ttsMaxMessageTime
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings cooldown command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingCooldown (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingCooldown (roomId, parameter) {
     if (parameter) {
       let cooldown = parseInt(parameter)
       if (0 <= cooldown && cooldown <= 300) {
-        await SqlChannelPoints.setSettingCooldown(this.bot.userId, privMsgObj.roomId, cooldown)
+        await SqlChannelPoints.setSettingCooldown(this.bot.userId, roomId, cooldown)
         await this.updateChannelPointSettings()
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[privMsgObj.roomId].ttsCooldown
+    return this.channelPointsSettings[roomId].ttsCooldown
   }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings timeoutcheck command
-   * @param privMsgObj
+   * @param roomId
    * @param parameter
-   * @param optionObj
-   * @param settingObj
    * @returns {Promise<string|number|boolean>}
    */
-  async handleSettingTimeoutCheckTime (privMsgObj, parameter, optionObj, settingObj) {
+  async handleSettingTimeoutCheckTime (roomId, parameter) {
     if (parameter) {
       let timeoutCheckTime = parseInt(parameter)
       if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
-        await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, privMsgObj.roomId, timeoutCheckTime)
+        await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, roomId, timeoutCheckTime)
         await this.updateChannelPointSettings()
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[privMsgObj.roomId].ttsTimeoutCheckTime
+    return this.channelPointsSettings[roomId].ttsTimeoutCheckTime
   }
 
   /**
