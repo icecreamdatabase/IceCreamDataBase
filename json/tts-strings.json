@@ -72,6 +72,12 @@
           "options": "true / false",
           "default": true
         },
+        "handleSettingAllowCustomPlaybackrate": {
+          "command": "allowcustomplaybackrate",
+          "description": "Allows viewers to set the TTS playbackrate for every message. Example: \"Brian(x2.0): I'm talking very fast Justin(x0.5): I'm talking very slowly\" (Requires conversation = true)",
+          "options": "true / false",
+          "default": false
+        },
         "handleSettingVoice": {
           "command": "voice",
           "description": "Default voice name. Check available voices here: https://supinic.com/stream/tts",

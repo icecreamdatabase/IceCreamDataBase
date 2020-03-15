@@ -14,6 +14,9 @@ const fallbackVoice = "Brian"
 const useCaseSensitiveVoiceMatching = false
 
 const WEBSOCKETPINGINTERVAL = 15000
+const regExpTtsArray = new RegExp(/(\w+)(?:\(x?(\d*\.?\d*)\))?:/)
+const PLAYBACKRATEMIN = 0.1
+const PLAYBACKRATEMAX = 10.0
 
 module.exports = class TtsWebSocket {
   constructor () {
@@ -128,15 +131,16 @@ module.exports = class TtsWebSocket {
    * @param privMsgObj
    * @param conversation
    * @param queue
+   * @param allowCustomPlaybackrate
    * @param volume 0 - 100
    * @param voice
    * @param waitForTimeoutLength
    * @param maxMessageTime
    * @returns {Promise<unknown>}
    */
-  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5, maxMessageTime = 0) {
+  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, allowCustomPlaybackrate = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5, maxMessageTime = 0) {
     return new Promise((resolve) => {
-      setTimeout(async (channel, username, message, conversation, queue, volume, voice, maxMessageTime, color) => {
+      setTimeout(async (channel, username, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, color) => {
         // * 2 so we are also checking a bit before "now"
         if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
           let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
@@ -150,10 +154,10 @@ module.exports = class TtsWebSocket {
           )
           resolve(false)
         } else {
-          this.sendTts(channel, message, conversation, queue, volume, voice, maxMessageTime)
+          this.sendTts(channel, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime)
           resolve(true)
         }
-      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, volume, voice, maxMessageTime, privMsgObj.raw.tags.color)
+      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, privMsgObj.raw.tags.color)
     })
   }
 
@@ -163,18 +167,19 @@ module.exports = class TtsWebSocket {
    * @param message
    * @param conversation
    * @param queue
+   * @param allowCustomPlaybackrate
    * @param volume 0 - 100
    * @param voice
    * @param maxMessageTime
    */
-  sendTts (channel, message, conversation = false, queue = false, volume = 100, voice = fallbackVoice, maxMessageTime = 0) {
+  sendTts (channel, message, conversation = false, queue = false, allowCustomPlaybackrate = false, volume = 100, voice = fallbackVoice, maxMessageTime = 0) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
     let data = {channel: channel, data: [], queue: queue, volume: volume, maxMessageTime: maxMessageTime}
 
     if (conversation) {
-      data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, voice)
+      data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, voice, allowCustomPlaybackrate)
     } else {
       data.data[0] = {voice: voice, message: message}
     }
@@ -224,18 +229,29 @@ module.exports = class TtsWebSocket {
    * @param message
    * @param useCase
    * @param defaultVoice
-   * @param defaultPlayBackRate
+   * @param allowCustomPlaybackrate
+   * @param defaultPlaybackrate
    * @returns {{voice: string, message: string, playbackRate: number}[]}
    */
-  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice, defaultPlayBackRate = 1.0) {
-    let output = [{voice: defaultVoice, message: "", playbackRate: defaultPlayBackRate}]
+  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice, allowCustomPlaybackrate = false, defaultPlaybackrate = 1.0) {
+    let output = [{voice: defaultVoice, message: "", playbackRate: defaultPlaybackrate}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
-      let voice
-      if (word.endsWith(":") && (voice = this.getVoiceID(word.substr(0, word.length - 1), useCase))) {
-        output[++outputIndex] = {}
-        output[outputIndex]["voice"] = voice
-        output[outputIndex]["message"] = ""
+      if (word.endsWith(":")) {
+        let match = word.match(regExpTtsArray)
+        if (match[1]) {
+          let voice
+          console.log(voice, match[1], match[2])
+          if ((voice = this.getVoiceID(match[1], useCase))) {
+            console.log(voice, match[1], match[2])
+            output[++outputIndex] = {}
+            output[outputIndex]["voice"] = voice
+            let playbackrate = parseFloat(match[2]) || defaultPlaybackrate
+            playbackrate = Math.min(PLAYBACKRATEMAX, Math.max(PLAYBACKRATEMIN, playbackrate))
+            output[outputIndex]["playbackrate"] = playbackrate
+            output[outputIndex]["message"] = ""
+          }
+        }
       } else {
         output[outputIndex]["message"] += " " + word
       }

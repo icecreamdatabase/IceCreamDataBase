@@ -295,6 +295,8 @@ module.exports = class Tts {
     return ""
   }
 
+  /* Setting sub commands START */
+
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings sub command
@@ -440,6 +442,23 @@ module.exports = class Tts {
     return this.channelPointsSettings[roomId].ttsTimeoutCheckTime
   }
 
+  // noinspection JSUnusedGlobalSymbols
+  /**
+   * Handle the !tts settings customPlaybackrate command
+   * @param roomId
+   * @param parameter
+   * @returns {Promise<string|number|boolean>}
+   */
+  async handleSettingAllowCustomPlaybackrate (roomId, parameter) {
+    if (parameter) {
+      await SqlChannelPoints.setSettingAllowCustomPlaybackrate(this.bot.userId, roomId, JSON.parse(parameter))
+      await this.updateChannelPointSettings()
+    }
+    return !!this.channelPointsSettings[roomId].ttsAllowCustomPlaybackrate
+  }
+
+  /* Setting sub commands END */
+
   /**
    * Handle the privMsgObj by checking for all TTS redemption related triggers.
    * @param privMsgObj created in PrivMsg.js
@@ -455,7 +474,16 @@ module.exports = class Tts {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj.ttsConversation, settingObj.ttsQueueMessages, settingObj.ttsVolume, settingObj.ttsDefaultVoiceName, settingObj.ttsTimeoutCheckTime, settingObj.ttsMaxMessageTime)
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(
+              privMsgObj,
+              settingObj.ttsConversation,
+              settingObj.ttsQueueMessages,
+              settingObj.ttsAllowCustomPlaybackrate,
+              settingObj.ttsVolume,
+              settingObj.ttsDefaultVoiceName,
+              settingObj.ttsTimeoutCheckTime,
+              settingObj.ttsMaxMessageTime
+            )
             //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept
