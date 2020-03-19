@@ -1,16 +1,17 @@
 body{
   margin:0;
-  background-color: #191919;
+  /*background-color: #191919;*/
+  background-color:white;
 }
+
 .navbar ul, .navbar li{
-  top:0%;
-  margin:0%;
+  top:0px;
+  margin:0px;
   list-style-type: none;
   background-color:#9147ff;
   background-size: 200px,auto, contain;
   font-family: "Segoe UI";
   letter-spacing: 1px;
-  font-size: 20px;
   overflow: hidden;
   z-index: 999;
 }
@@ -22,15 +23,16 @@ body{
   width:100%;  
 }
 .navbar li a{
-  transition: color .5s;
-  color:black;
+transition: color .5s;
+color:black;
+font-size: 20px;
 }
 .navbar li:hover a{
-  color:white !important;
+color:white !important;
 }
 .navbar ul{
-  padding:1;
-  color:black;
+padding:1;
+color:black;
 }
 .navbar li {
 float: left; 
@@ -39,8 +41,9 @@ color:black;
 .commands{
   Color:#9147ff;
   font-family: "Segoe UI";
-  margin-left: 25%;
-  font-size: 16px;
+  font-size: 18px;
+  margin-left: 1%;
+  margin-right: 1%;
 }
 .FuckingTable{
   font-family: "Segoe UI";

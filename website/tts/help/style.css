@@ -2,9 +2,7 @@ body{
     margin:0;
     background-color: #191919;
 }
-::selection{
 
-}
 .navbar ul, .navbar li{
     top:0px;
     margin:0px;
@@ -12,8 +10,8 @@ body{
     background-color:#9147ff;
     background-size: 200px,auto, contain;
     font-family: "Segoe UI";
-	letter-spacing: 1px;
-	font-size: 20px;
+	  letter-spacing: 1px;
+	  font-size: 20px;
     overflow: hidden;
     z-index: 999;
 }
