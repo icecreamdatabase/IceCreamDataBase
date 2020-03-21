@@ -284,7 +284,6 @@ module.exports = class ApiFunctions {
   }
 
   static async sleep (ms) {
-    Logger.debug(`Sleeping for ${ms / 1000} s`)
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
