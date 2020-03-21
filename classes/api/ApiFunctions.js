@@ -5,8 +5,10 @@ const Logger = require('../helper/Logger')
 const UserLevels = require('../../ENUMS/UserLevels.js')
 const ChatLimit = require('../../ENUMS/ChatLimit.js')
 
-//update bot status every 60 seconds (1 minute)
-const UPDATE_BOT_STATUS_INTERVAL = 60000 //ms
+//update bot status every 300 seconds (5 minutes)
+const UPDATE_BOT_STATUS_INTERVAL = 300000 //ms
+const UPDATE_BOT_STATUS_RANDOM_DELAY_FACTOR = 0.5
+const UPDATE_BOT_STATUS_RANDOM_MIN_DELAY = 100 //ms
 //ping supinic api once very 1800 seconds (30 minutes)
 const SUPINIC_API_PING_INTERVAL = 1800000
 
@@ -14,7 +16,7 @@ module.exports = class ApiFunctions {
   constructor (bot) {
     this.bot = bot
 
-    setInterval(this.updateBotStatus.bind(this), UPDATE_BOT_STATUS_INTERVAL)
+    setInterval(this.updateBotStatus.bind(this, true), UPDATE_BOT_STATUS_INTERVAL)
     setInterval(this.supinicApiPing.bind(this), SUPINIC_API_PING_INTERVAL)
     // noinspection JSIgnoredPromiseFromCall
     this.supinicApiPing()
@@ -246,7 +248,8 @@ module.exports = class ApiFunctions {
    * Update the UserLevel of the bot for every channel they are joined.
    * @returns {Promise<void>}
    */
-  async updateBotStatus () {
+  async updateBotStatus (slowFetch = false) {
+    let maxDelay = UPDATE_BOT_STATUS_INTERVAL * UPDATE_BOT_STATUS_RANDOM_DELAY_FACTOR / Object.keys(this.bot.channels).length
     for (let i in this.bot.channels) {
       let channel = this.bot.channels[i]
       let botStatus = await this.userStatus(this.bot.userId, channel.channelID)
@@ -274,6 +277,14 @@ module.exports = class ApiFunctions {
         this.bot.rateLimitUser = ChatLimit.NORMAL
         this.bot.rateLimitModerator = ChatLimit.NORMAL_MOD
       }
+      if (slowFetch) {
+        await ApiFunctions.sleep(Math.floor(Math.random() * maxDelay) + UPDATE_BOT_STATUS_RANDOM_MIN_DELAY)
+      }
     }
+  }
+
+  static async sleep (ms) {
+    Logger.debug(`Sleeping for ${ms / 1000} s`)
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }

@@ -31,7 +31,7 @@ module.exports = class Commands {
       && messageObj.message.startsWith("<r ")) {
 
       this.updateCommandData.bind(this)()
-      this.bot.TwitchIRCConnection.say(messageObj.channel, "Reloaded Commands FeelsGoodMan")
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
       return true
     }
 
