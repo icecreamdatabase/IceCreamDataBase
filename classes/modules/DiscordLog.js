@@ -172,7 +172,7 @@ module.exports = class DiscordLog {
    * @returns {number} converted decimal colour
    */
   static getDecimalFromHexString (hex) {
-    hex = hex.replace("#", "")
+    hex = hex.toString().replace("#", "")
     if (!hex.startsWith("0x")) {
       hex = "0x" + hex
     }
