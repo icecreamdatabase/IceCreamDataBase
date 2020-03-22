@@ -54,7 +54,7 @@ module.exports = class Tts {
         || privMsgObj.userLevel >= UserLevels.MODERATOR)
     ) {
       this.ttsCommandLastUsage = Date.now()
-      let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1).trim()
+      let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1).trim().toLowerCase()
       let responseMessage = ""
 
       if (command) {
