@@ -13,6 +13,7 @@ const TimeConversionHelper = require("../../helper/TimeConversionHelper")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
+const apiJsonRegExp = new RegExp(/\${apijson=(.*?);(.*?)}/, 'i')
 const discordWebhookRegExp = new RegExp(/\${createNote=(?:.*\/)?([^/]*)\/([^/;]*)(?:;([^}]*))*}/, 'i')
 const rndRegExp = new RegExp(/\${rnd=\(([^)]*)\)}/, 'i')
 
@@ -159,10 +160,22 @@ module.exports = class Helper {
     if (message.includes("${api") && apiRegExp.test(message)) {
       let apiUrl = message.match(apiRegExp)[1]
 
-      await Api.request(new URL(apiUrl)).then(response => {
+      await Api.request(apiUrl).then(response => {
         message = message.replace(new RegExp(apiRegExp, 'g'), response)
       }).catch(err => {
         message = message.replace(new RegExp(apiRegExp, 'g'), err)
+      })
+    }
+
+    if (message.includes("${apijson") && apiJsonRegExp.test(message)) {
+      let match = message.match(apiJsonRegExp)
+      let jsonKey = match[1]
+      let apiUrl = match[2]
+
+      await Api.request(apiUrl).then(response => {
+        message = message.replace(new RegExp(apiJsonRegExp, 'g'), response[jsonKey])
+      }).catch(err => {
+        message = message.replace(new RegExp(apiJsonRegExp, 'g'), err)
       })
     }
 
