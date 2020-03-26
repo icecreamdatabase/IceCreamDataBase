@@ -80,6 +80,7 @@ module.exports = class Commands {
     if (commandArray.length > 0) {
       commandArray = commandArray.filter(x => x.userLevel <= messageObj.userLevel)
       if (commandArray.length > 0) {
+        // noinspection LoopStatementThatDoesntLoopJS
         for (let commandMatch of commandArray) {
           if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
             Helper.handleParameter(messageObj, commandMatch).then((response) => {
@@ -93,6 +94,7 @@ module.exports = class Commands {
             })
             return true
           }
+          return false //TODO: This is a quick fix. Needs a database variable if a command allows other commands to trigger if it fails.
         }
       }
     }
