@@ -35,6 +35,11 @@ module.exports = class PrivMsg {
     messageObj.message += " "
     PrivMsg.findAndSetUserLevel(messageObj)
 
+    if (this.bot.isUserIdInBlacklist(messageObj.userId)) {
+      Logger.debug(`User on blacklist: ${messageObj.username} (${messageObj.userId})`)
+      return false
+    }
+
     let channelObj = this.bot.channels[messageObj.roomId]
 
     if (!channelObj) {
