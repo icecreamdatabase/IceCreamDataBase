@@ -203,6 +203,25 @@ module.exports = class Tts {
 
   // noinspection JSUnusedGlobalSymbols
   /**
+   * Handle the !tts stats command
+   * @param privMsgObj
+   * @param optionObj
+   * @param parameter
+   * @returns {string}
+   */
+  async handleStats (privMsgObj, optionObj, parameter) {
+    let websocketClientCount = TtsWebSocket.websocketClientCount
+    let linkedCount = Object.keys(this.bot.privMsg.channelPoints.tts.channelPointsSettings).length
+
+    let response = optionObj.response.toString()
+    response = response.replace("${linkedCount}", linkedCount.toString())
+    response = response.replace("${websocketclientCount}", websocketClientCount.toString())
+    return response
+  }
+
+
+  // noinspection JSUnusedGlobalSymbols
+  /**
    * Handle the !tts skip command
    * @param privMsgObj
    * @param optionObj

@@ -257,4 +257,18 @@ module.exports = class TtsWebSocket {
     output.map(x => x.message = x.message.trim())
     return output.filter(x => x.message)
   }
+
+  /**
+   * Current number of connected websocket clients that have registered a channel.
+   * @returns {number}
+   */
+  get websocketClientCount () {
+    let currentWebsocketClientCount = 0
+    this.wss.clients.forEach(function each (client) {
+      if (client.readyState === WebSocket.OPEN) {
+        currentWebsocketClientCount++
+      }
+    })
+    return currentWebsocketClientCount
+  }
 }
