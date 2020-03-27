@@ -211,11 +211,25 @@ module.exports = class Tts {
    */
   async handleStats (privMsgObj, optionObj, parameter) {
     let websocketClientCount = TtsWebSocket.websocketClientCount
-    let linkedCount = Object.keys(this.bot.privMsg.channelPoints.tts.channelPointsSettings).length
+    let linkedIds = Object.keys(this.bot.privMsg.channelPoints.tts.channelPointsSettings)
+    let linkedCount = linkedIds.length
+
+    let channelInfos = await this.bot.apiFunctions.channelInfosFromIds(linkedIds)
+    let broadCasterTypeCount = {partner: 0, affiliate: 0}
+    channelInfos.reduce((previousValue, currentValue) => {
+      if (currentValue["broadcaster_type"] === "partner") {
+        previousValue.partner++
+      } else if (currentValue["broadcaster_type"] === "affiliate") {
+        previousValue.affiliate++
+      }
+      return previousValue
+    }, broadCasterTypeCount)
 
     let response = optionObj.response.toString()
     response = response.replace("${linkedCount}", linkedCount.toString())
     response = response.replace("${websocketclientCount}", websocketClientCount.toString())
+    response = response.replace("${partnerCount}", broadCasterTypeCount.partner.toString())
+    response = response.replace("${affiliateCount}", broadCasterTypeCount.affiliate.toString())
     return response
   }
 

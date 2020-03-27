@@ -15,7 +15,7 @@
     },
     "handleStats": {
       "command": "stats",
-      "response": "${linkedCount} streamers have linked a reward. ${websocketclientCount} clients are currently connected. More stats are coming soon!"
+      "response": "${linkedCount} streamers (${partnerCount} partners and ${affiliateCount} affiliates) have linked a reward. ${websocketclientCount} clients are currently connected. More stats are coming soon!"
     },
     "handleSkip": {
       "command": "skip",

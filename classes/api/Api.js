@@ -284,6 +284,36 @@ module.exports = class ApiFunctions {
   }
 
   /**
+   * Channel object returned by
+   * kraken/channels/XXXXXX
+   *
+   * @typedef {Object} Channel
+   * @property {boolean} mature
+   * @property {string} status
+   * @property {string} broadcaster_language
+   * @property {string} broadcaster_software
+   * @property {string} display_name
+   * @property {string} game
+   * @property {string} language
+   * @property {string} _id
+   * @property {string} name
+   * @property {string} created_at
+   * @property {string} updated_at
+   * @property {boolean} partner
+   * @property {string} logo
+   * @property {string} video_banner
+   * @property {string} profile_banner
+   * @property {string} profile_banner_background_color
+   * @property {string} url
+   * @property {number} views
+   * @property {number} followers
+   * @property {string} broadcaster_type
+   * @property {string} description
+   * @property {boolean} private_video
+   * @property {boolean} privacy_options_enabled
+   */
+
+  /**
    * Accesses the kraken/channels/:roomID
    * Example: https://api.twitch.tv/kraken/channels/38949074?api_version=5
    * Example return:
@@ -318,6 +348,36 @@ module.exports = class ApiFunctions {
    */
   static async channelInfo (clientID, roomId) {
     return await this.apiRequestKraken(clientID, 'channels/' + roomId)
+  }
+
+  /**
+   * Get Channel objects for an array of roomIds
+   * @param {number|string} clientID
+   * @param {[number]} roomIds
+   * @returns {Promise<Object>}
+   */
+  static async channelInfos (clientID, roomIds) {
+    return await this.apiRequestKraken(clientID, 'channels?id=' + roomIds.join(','))
+  }
+
+  /**
+   * Get Channel objects for an array of roomIds
+   * @param {number|string} clientID
+   * @param {[number]} roomIds
+   * @returns {Promise<[Channel]>} channelObjects
+   */
+  static async channelInfosFromIds (clientID, roomIds) {
+    let chunkSize = 100
+    let users = []
+    let requestChunks = [].concat.apply([], roomIds.map((elem, i) => i % chunkSize ? [] : [roomIds.slice(i, i + chunkSize)]))
+
+    for (let chunk of requestChunks) {
+      let responseChunk = await this.channelInfos(clientID, chunk)
+      if (responseChunk["_total"] > 0) {
+        users = users.concat(responseChunk["channels"])
+      }
+    }
+    return users
   }
 
   /**

@@ -182,6 +182,15 @@ module.exports = class ApiFunctions {
   }
 
   /**
+   * Get Channel objects for an array of roomIds
+   * @param {[number]} roomIds
+   * @returns {Promise<[Channel]>} channelObjects
+   */
+  async channelInfosFromIds (roomIds) {
+    return Api.channelInfosFromIds(this.bot.clientId, roomIds)
+  }
+
+  /**
    * TODO: WIP
    * Get followtime of a user in channel
    * @param userId
