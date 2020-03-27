@@ -215,21 +215,15 @@ module.exports = class Tts {
     let linkedCount = linkedIds.length
 
     let channelInfos = await this.bot.apiFunctions.channelInfosFromIds(linkedIds)
-    let broadCasterTypeCount = {partner: 0, affiliate: 0}
-    channelInfos.reduce((previousValue, currentValue) => {
-      if (currentValue["broadcaster_type"] === "partner") {
-        previousValue.partner++
-      } else if (currentValue["broadcaster_type"] === "affiliate") {
-        previousValue.affiliate++
-      }
-      return previousValue
-    }, broadCasterTypeCount)
+    let broadCasterTypeCount = {partner: 0, affiliate: 0, "": 0}
+    channelInfos.forEach(x => broadCasterTypeCount[x.broadcaster_type]++)
 
     let response = optionObj.response.toString()
     response = response.replace("${linkedCount}", linkedCount.toString())
     response = response.replace("${websocketclientCount}", websocketClientCount.toString())
     response = response.replace("${partnerCount}", broadCasterTypeCount.partner.toString())
     response = response.replace("${affiliateCount}", broadCasterTypeCount.affiliate.toString())
+    response = response.replace("${neitherCount}", broadCasterTypeCount[""].toString())
     return response
   }
 
