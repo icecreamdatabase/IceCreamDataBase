@@ -36,6 +36,8 @@ module.exports = class Bot {
       this.userBlacklist = []
 
       setInterval(this.updateUserBlacklist.bind(this), UPDATE_USERBLACKLIST_INTERVAL)
+      // noinspection JSIgnoredPromiseFromCall
+      this.updateUserBlacklist()
 
       if (this.clientId && !global.clientIdFallback) {
         global.clientIdFallback = this.clientId
@@ -140,7 +142,7 @@ module.exports = class Bot {
   }
 
   isUserIdInBlacklist (userId) {
-    return this.userBlacklist.includes(userId)
+    return this.userBlacklist.includes(parseInt(userId))
   }
 
   async addUserIdToBlacklist (userId) {

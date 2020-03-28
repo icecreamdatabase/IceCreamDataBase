@@ -36,7 +36,7 @@ module.exports = class UserNotice {
     if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
 
       if (this.bot.isUserIdInBlacklist(usernoticeObj["user-id"])) {
-        Logger.debug(`User on blacklist: ${usernoticeObj["user-id"]}`)
+        Logger.debug(`User on blacklist: ${usernoticeObj["user-id"]} - ${usernoticeObj["room-id"]}`)
         return
       }
 
