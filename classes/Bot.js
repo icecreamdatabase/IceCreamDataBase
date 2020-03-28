@@ -1,7 +1,8 @@
 "use strict"
 //CLASSES
 const Logger = require('./helper/Logger')
-const Sql = require('./sql/main/SqlChannels.js')
+const SqlChannels = require('./sql/main/SqlChannels.js')
+const SqlBlacklist = require('./sql/main/SqlUserBlacklist')
 const TwitchIRCConnection = require('../classes/TwitchIRCConnection.js')
 const ApiFunctions = require('./api/ApiFunctions.js')
 const PrivMsg = require('./modules/PrivMsg.js')
@@ -17,6 +18,7 @@ global.clientIdFallback = null
 
 //update channels every 120 seconds (2 minutes)
 const UPDATE_ALL_CHANNELS_INTERVAL = 120000 //ms
+const UPDATE_USERBLACKLIST_INTERVAL = 15000 //ms
 
 module.exports = class Bot {
   constructor (botData) {
@@ -31,6 +33,11 @@ module.exports = class Bot {
       this.TwitchIRCConnection.botData = botData
       //create empty channel array to chat object
       this.channels = {}
+      this.userBlacklist = []
+
+      setInterval(this.updateUserBlacklist.bind(this), UPDATE_USERBLACKLIST_INTERVAL)
+      // noinspection JSIgnoredPromiseFromCall
+      this.updateUserBlacklist()
 
       if (this.clientId && !global.clientIdFallback) {
         global.clientIdFallback = this.clientId
@@ -52,7 +59,7 @@ module.exports = class Bot {
     this.userIdLoginCache = new UserIdLoginCache(this)
     this.TwitchIRCConnection.queue = new Queue(this)
 
-    Sql.getChannelData(this.userId).then(this.onChannelData.bind(this))
+    SqlChannels.getChannelData(this.userId).then(this.onChannelData.bind(this))
   }
 
   /**
@@ -134,12 +141,25 @@ module.exports = class Bot {
     return this.TwitchIRCConnection.botData.supinicApiKey
   }
 
+  isUserIdInBlacklist (userId) {
+    return this.userBlacklist.includes(parseInt(userId))
+  }
+
+  async addUserIdToBlacklist (userId) {
+    SqlBlacklist.addUserId(userId)
+    await this.updateUserBlacklist()
+  }
+
+  async updateUserBlacklist () {
+    this.userBlacklist = await SqlBlacklist.getUserIds()
+  }
+
   /**
    * Update and sync this.channels object from database
    * @returns {Promise<void>} "All channels updated promise"
    */
   async updateBotChannels () {
-    let allChannelData = await Sql.getChannelData(this.userId)
+    let allChannelData = await SqlChannels.getChannelData(this.userId)
 
     //remove unused channels
     for (let channelId in this.channels) {

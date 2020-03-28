@@ -35,6 +35,18 @@ module.exports = class PrivMsg {
     messageObj.message += " "
     PrivMsg.findAndSetUserLevel(messageObj)
 
+    if (this.bot.isUserIdInBlacklist(messageObj.userId)) {
+      Logger.debug(`User on blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channel} (${messageObj.roomId})`)
+      return true
+    }
+
+    if (messageObj.message.toLowerCase().startsWith("<gdpr optout ")) {
+      await this.bot.addUserIdToBlacklist(messageObj.userId)
+      Logger.info(`User added blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channel} (${messageObj.roomId})`)
+      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
+      return true
+    }
+
     let channelObj = this.bot.channels[messageObj.roomId]
 
     if (!channelObj) {

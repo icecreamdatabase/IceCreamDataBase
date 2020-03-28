@@ -135,3 +135,10 @@ create table notifications
         foreign key (botID, channelID) references connections (botID, channelID)
 );
 
+create table userBlacklist
+(
+    userId  int(10)                              not null
+        primary key,
+    addDate datetime default current_timestamp() not null
+);
+

@@ -34,6 +34,12 @@ module.exports = class UserNotice {
    */
   async onUsernotice (usernoticeObj) {
     if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
+
+      if (this.bot.isUserIdInBlacklist(usernoticeObj["user-id"])) {
+        Logger.debug(`User on blacklist: ${usernoticeObj["user-id"]} - ${usernoticeObj["room-id"]}`)
+        return
+      }
+
       let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
       if (userNoticeType) {
         let notificationObj = this.notificationData[usernoticeObj.tags["room-id"]]
