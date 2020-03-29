@@ -29,7 +29,7 @@
       "command": "link",
       "response": {
         "alreadyLinked": "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel=",
-        "notLinked": "Please link a reward by using this command inside the TTS textfield. (Make the TTS say the message \"!tts link\")",
+        "notLinked": "Please link a reward by using this command inside the TTS textfield. (Use the reward by putting \"!tts link\" into the message box.) https://i.nuuls.com/EqeM5.png --> https://i.nuuls.com/ISENe.png",
         "justLinked": "Successfully linked reward. Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel="
       }
     },
@@ -45,7 +45,7 @@
       "response": {
         "general": "Use your channel points to play a TTS message.",
         "conversation": "Use your channel points to play a TTS message. You can use multiple voices in your message by prefixing their text like this: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\". To check available voices: \"!tts voices\"",
-        "unlinked": "The broadcaster has to create a custom reward with \"Require Viewer to Enter Text\" checked and use the TTS with the message \"!tts link\" to enable TTS."
+        "unlinked": "The broadcaster has to create a custom reward https://dashboard.twitch.tv/community/channel-points/rewards with \"Require Viewer to Enter Text\" checked. https://i.nuuls.com/KnM5p.png Then use the newly created reward with the message \"!tts link\"."
       }
     },
     "handleSettings": {
