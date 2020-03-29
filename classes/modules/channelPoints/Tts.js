@@ -227,7 +227,6 @@ module.exports = class Tts {
     return response
   }
 
-
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts skip command

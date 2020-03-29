@@ -170,21 +170,7 @@ module.exports = class SqlChannelPoints {
    * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAllowCustomPlaybackrate, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
    */
   static async getChannelPointsSettings (botId) {
-    let results = await sqlPool.query(`SELECT channelID,
-                                              ttsConversation,
-                                              ttsVolume,
-                                              ttsCustomRewardId,
-                                              ttsDefaultVoiceName,
-                                              ttsQueueMessages,
-                                              ttsMaxMessageTime,
-                                              ttsCooldown,
-                                              ttsUserLevel,
-                                              ttsTimeoutCheckTime,
-                                              ttsAllowCustomPlaybackrate,
-                                              ttsAcceptMessage,
-                                              ttsRejectCooldownMessage,
-                                              ttsRejectUserLevelMessage,
-                                              ttsRejectTimeoutMessage
+    let results = await sqlPool.query(`SELECT channelID, ttsJson
                                        FROM channelPointsSettings
                                        WHERE enabled = B'1'
                                          AND botID = ?
@@ -192,9 +178,11 @@ module.exports = class SqlChannelPoints {
 
     let returnObj = {}
     results.forEach(x => {
-      returnObj[x.channelID] = x
+      returnObj[x.channelID] = x.ttsJson
     })
     return returnObj
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+    // https://stackoverflow.com/a/50862441
   }
 
   /**
