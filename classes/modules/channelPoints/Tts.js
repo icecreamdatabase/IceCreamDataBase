@@ -79,7 +79,7 @@ module.exports = class Tts {
         responseMessage = ttsStrings.response
       }
       if (responseMessage) {
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, "@" + privMsgObj.username + ", " + responseMessage)
+        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
       }
       return true
     }
@@ -494,7 +494,7 @@ module.exports = class Tts {
   async handleTtsRedeem (privMsgObj) {
     let hasTakenAction = false
     if (Object.prototype.hasOwnProperty.call(privMsgObj.raw.tags, "custom-reward-id")) {
-      let returnMessage
+      let responseMessage
       let settingObj = this.channelPointsSettings[privMsgObj.roomId]
       if (settingObj.ttsUserLevel <= privMsgObj.userLevel) {
         if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
@@ -514,25 +514,26 @@ module.exports = class Tts {
             //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept
-              returnMessage = settingObj.ttsAcceptMessage
+              responseMessage = settingObj.ttsAcceptMessage
             } else {
               //Reject timeout
-              returnMessage = settingObj.ttsRejectTimeoutMessage
+              responseMessage = settingObj.ttsRejectTimeoutMessage
             }
             hasTakenAction = true
           }
         } else {
           //Reject cooldown
-          returnMessage = settingObj.ttsRejectCooldownMessage
+          responseMessage = settingObj.ttsRejectCooldownMessage
         }
       } else {
         //Reject userlevel
-        returnMessage = settingObj.ttsRejectUserLevelMessage
+        responseMessage = settingObj.ttsRejectUserLevelMessage
       }
-      if (returnMessage) {
-        returnMessage = await Helper.replaceParameterMessage(privMsgObj, returnMessage)
-        //send returnMesage
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, returnMessage)
+      if (responseMessage) {
+        /* We might need to enable it it again at some point. But right now it's unused */
+        //responseMessage = await Helper.replaceParameterMessage(privMsgObj, responseMessage)
+
+        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
       }
     }
