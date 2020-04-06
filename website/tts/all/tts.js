@@ -1,6 +1,6 @@
 //default parameter
 const defaultVoice = "Brian"
-const defaultTtsDelay = 1000
+const defaultTtsDelay = 100
 const seVoiceFile = '../se-voices.json'
 let seVoiceData = null
 
