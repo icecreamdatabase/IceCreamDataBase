@@ -6,7 +6,7 @@ const Api = require('../../api/Api.js')
 const DiscordLog = require('../DiscordLog')
 const Helper = require('../commands/Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
-const ClearChat = require("../ClearChat")
+const ClearChat = require("../IrcTags/ClearChat")
 
 const WebSocket = require('ws')
 const voices = require('../../../json/se-voices.json')
