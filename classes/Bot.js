@@ -8,6 +8,7 @@ const ApiFunctions = require('./api/ApiFunctions.js')
 const PrivMsg = require('./modules/PrivMsg.js')
 const UserNotice = require('./modules/UserNotice.js')
 const ClearChat = require('./modules/ClearChat.js')
+const UserState = require('./modules/UserState')
 const Queue = require('../classes/Queue.js')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')
 
@@ -88,16 +89,17 @@ module.exports = class Bot {
     this.privMsg = new PrivMsg(this)
     this.userNotice = new UserNotice(this)
     this.clearChat = new ClearChat(this)
+    this.userState = new UserState(this)
 
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
-    this.apiFunctions.updateBotStatus().then(this.onUpdatedBotStatus.bind(this))
+    this.apiFunctions.updateBotRatelimits().then(this.onBotReady.bind(this))
   }
 
   /**
-   * Callback for this.apiFunctions.updateBotStatus()
+   * Callback for this.apiFunctions.updateBotRateLimit()
    * Don't forget .bind(this)!
    */
-  onUpdatedBotStatus () {
+  onBotReady () {
     Logger.info("### Fully setup: " + this.userId + " (" + this.userName + ")")
   }
 
