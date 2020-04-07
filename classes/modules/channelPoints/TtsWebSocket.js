@@ -7,6 +7,7 @@ const DiscordLog = require('../DiscordLog')
 const Helper = require('../commands/Helper')
 const UserLevels = require("../../../ENUMS/UserLevels")
 const ClearChat = require("../IrcTags/ClearChat")
+const ClearMsg = require("../IrcTags/ClearMsg")
 
 const WebSocket = require('ws')
 const voices = require('../../../json/se-voices.json')
@@ -142,7 +143,7 @@ module.exports = class TtsWebSocket {
     return new Promise((resolve) => {
       setTimeout(async (channel, username, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, color) => {
         // * 2 so we are also checking a bit before "now"
-        if (await ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2)) {
+        if (ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2) || ClearMsg.wasDeleted(privMsgObj.raw.tags.id)) {
           let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
           DiscordLog.twitchMessageCustom("tts-message-log",
             "Failed in: " + channel,
