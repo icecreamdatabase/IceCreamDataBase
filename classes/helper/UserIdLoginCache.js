@@ -23,7 +23,7 @@ module.exports = class UserIdLoginCache {
   }
 
   async idToName (id) {
-    if (!userInfosById.hasOwnProperty(id)) {
+    if (!Object.prototype.hasOwnProperty.call(userInfosById, id)) {
       let users = await this.bot.apiFunctions.userDataFromIds([id])
       if (users.length > 0) {
         let user = users[0]
@@ -40,7 +40,11 @@ module.exports = class UserIdLoginCache {
 
   async nameToId (name) {
     name = name.toLowerCase().trim()
-    if (!userInfosByName.hasOwnProperty(name)) {
+    //Get rid of channelnamne #
+    if (name.charAt(0) === "#") {
+      name = name.substr(1)
+    }
+    if (!Object.prototype.hasOwnProperty.call(userInfosByName, name)) {
       let users = await this.bot.apiFunctions.userDataFromLogins([name])
       if (users.length > 0) {
         let user = users[0]

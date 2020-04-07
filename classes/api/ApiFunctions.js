@@ -5,10 +5,8 @@ const Logger = require('../helper/Logger')
 const UserLevels = require('../../ENUMS/UserLevels.js')
 const ChatLimit = require('../../ENUMS/ChatLimit.js')
 
-//update bot status every 300 seconds (5 minutes)
-const UPDATE_BOT_STATUS_INTERVAL = 300000 //ms
-const UPDATE_BOT_STATUS_RANDOM_DELAY_FACTOR = 0.5
-const UPDATE_BOT_STATUS_RANDOM_MIN_DELAY = 100 //ms
+//update bot ratelimits every 300 seconds (5 minutes)
+const UPDATE_RATELIMIT_INTERVAL = 300000 //ms
 //ping supinic api once very 1800 seconds (30 minutes)
 const SUPINIC_API_PING_INTERVAL = 1800000
 
@@ -16,7 +14,7 @@ module.exports = class ApiFunctions {
   constructor (bot) {
     this.bot = bot
 
-    setInterval(this.updateBotStatus.bind(this, true), UPDATE_BOT_STATUS_INTERVAL)
+    setInterval(this.updateBotRatelimits.bind(this), UPDATE_RATELIMIT_INTERVAL)
     setInterval(this.supinicApiPing.bind(this), SUPINIC_API_PING_INTERVAL)
     // noinspection JSIgnoredPromiseFromCall
     this.supinicApiPing()
@@ -253,46 +251,18 @@ module.exports = class ApiFunctions {
     return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
 
-  /**
-   * Update the UserLevel of the bot for every channel they are joined.
-   * @returns {Promise<void>}
-   */
-  async updateBotStatus (slowFetch = false) {
-    let maxDelay = UPDATE_BOT_STATUS_INTERVAL * UPDATE_BOT_STATUS_RANDOM_DELAY_FACTOR / Object.keys(this.bot.channels).length
-    for (let i in this.bot.channels) {
-      let channel = this.bot.channels[i]
-      let botStatus = await this.userStatus(this.bot.userId, channel.channelID)
-      channel.botStatus = UserLevels.PLEB
-      if (botStatus.isSubscriber) {
-        channel.botStatus = UserLevels.SUBSCRIBER
-      }
-      if (botStatus.isVip) {
-        channel.botStatus = UserLevels.VIP
-      }
-      if (botStatus.isMod) {
-        channel.botStatus = UserLevels.MODERATOR
-      }
-      if (botStatus.isBroadcaster) {
-        channel.botStatus = UserLevels.BROADCASTER
-      }
+  async updateBotRatelimits () {
+    let userInfo = await this.userInfo(this.bot.userId)
 
-      if (botStatus.isVerifiedBot) {
-        this.bot.rateLimitUser = ChatLimit.VERIFIED
-        this.bot.rateLimitModerator = ChatLimit.VERIFIED_MOD
-      } else if (botStatus.isKnownBot) {
-        this.bot.rateLimitUser = ChatLimit.KNOWN
-        this.bot.rateLimitModerator = ChatLimit.KNOWN_MOD
-      } else {
-        this.bot.rateLimitUser = ChatLimit.NORMAL
-        this.bot.rateLimitModerator = ChatLimit.NORMAL_MOD
-      }
-      if (slowFetch) {
-        await ApiFunctions.sleep(Math.floor(Math.random() * maxDelay) + UPDATE_BOT_STATUS_RANDOM_MIN_DELAY)
-      }
+    if (userInfo["is_verified_bot"]) {
+      this.bot.rateLimitUser = ChatLimit.VERIFIED
+      this.bot.rateLimitModerator = ChatLimit.VERIFIED_MOD
+    } else if (userInfo["is_known_bot"]) {
+      this.bot.rateLimitUser = ChatLimit.KNOWN
+      this.bot.rateLimitModerator = ChatLimit.KNOWN_MOD
+    } else {
+      this.bot.rateLimitUser = ChatLimit.NORMAL
+      this.bot.rateLimitModerator = ChatLimit.NORMAL_MOD
     }
-  }
-
-  static async sleep (ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
