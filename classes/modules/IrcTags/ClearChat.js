@@ -1,9 +1,8 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../helper/Logger')
-const DiscordLog = require('./DiscordLog')
-//const Sql = require('../sql/modules/SqlUserNotice.js')
+const Logger = require('../../helper/Logger')
+const DiscordLog = require('../DiscordLog')
 
 const lastTimeoutObj = {}
 
@@ -22,7 +21,7 @@ module.exports = class ClearChat {
   async onClearChat (clearChatObj) {
     let channelName = clearChatObj.param.substring(1)
     let userName = clearChatObj.trailing.toLowerCase()
-    if (!lastTimeoutObj.hasOwnProperty(channelName)) {
+    if (!Object.prototype.hasOwnProperty.call(lastTimeoutObj, channelName)) {
       lastTimeoutObj[channelName] = {}
     }
     lastTimeoutObj[channelName][userName] = Date.now()
@@ -40,8 +39,8 @@ module.exports = class ClearChat {
       channelName = channelName.substring(1)
     }
     userName = userName.toLowerCase()
-    return lastTimeoutObj.hasOwnProperty(channelName)
-      && lastTimeoutObj[channelName].hasOwnProperty(userName)
+    return Object.prototype.hasOwnProperty.call(lastTimeoutObj, channelName)
+      && Object.prototype.hasOwnProperty.call(lastTimeoutObj[channelName], userName)
       && (secondsAgo * 1000 + (lastTimeoutObj[channelName][userName] || 0)) > Date.now()
   }
 }
