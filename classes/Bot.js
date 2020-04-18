@@ -31,8 +31,6 @@ module.exports = class Bot {
       this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
       this.TwitchIRCConnection = new TwitchIRCConnection(botData)
-      //add botData to chat object
-      this.TwitchIRCConnection.botData = botData
       //create empty channel array to chat object
       this.channels = {}
       this.userBlacklist = []
