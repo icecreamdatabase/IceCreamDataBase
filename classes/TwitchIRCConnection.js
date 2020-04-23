@@ -189,7 +189,7 @@ class TwitchIRCConnection extends EventEmitter {
     if (this.forceDisconnect || this.reconnectionAttempts > 0) {
       return // either deliberate or reconnection is already running.
     }
-    Logger.error(`Disconnected from Twitch. \nBot: ${this.botData.username} \nReconnect attempt: ${this.reconnectionAttempts}`)
+    Logger.error(`Disconnected from Twitch. \nBot: ${this.botData.username}`)
     let timeout = 150
     if (this.reconnectionAttempts > 0) {
       const randomJitter = Math.floor(Math.random() * (reconnectJitter + 1))
