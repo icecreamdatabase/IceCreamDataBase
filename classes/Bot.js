@@ -12,6 +12,7 @@ const ClearMsg = require('./modules/IrcTags/ClearMsg')
 const UserState = require('./modules/IrcTags/UserState')
 const Queue = require('../classes/Queue.js')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')
+const Authentication = require('./auth/Authentication')
 
 const ChatLimit = require("../ENUMS/ChatLimit")
 
@@ -24,13 +25,19 @@ const UPDATE_USERBLACKLIST_INTERVAL = 15000 //ms
 
 module.exports = class Bot {
   constructor (botData) {
-    if (botData.enabled) {
-      Logger.info("Setting up bot: " + botData.userId + " (" + botData.username + ")")
+    this.botData = botData
+    this.authentication = new Authentication(this, this.botData.userId)
+    this.authentication.update().then(this.onAuthentication.bind(this))
+  }
+
+  onAuthentication () {
+    if (this.botData.enabled) {
+      Logger.info("Setting up bot: " + this.botData.userId + " (" + this.botData.username + ")")
 
       this.rateLimitUser = ChatLimit.NORMAL
       this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
-      this.TwitchIRCConnection = new TwitchIRCConnection(botData)
+      this.TwitchIRCConnection = new TwitchIRCConnection(this.botData)
       //create empty channel array to chat object
       this.channels = {}
       this.userBlacklist = []
@@ -108,7 +115,7 @@ module.exports = class Bot {
    * @returns {string} clientId
    */
   get clientId () {
-    return this.TwitchIRCConnection.botData.clientId
+    return this.botData.clientId
   }
 
   /**
@@ -116,7 +123,7 @@ module.exports = class Bot {
    * @returns {number} userId
    */
   get userId () {
-    return this.TwitchIRCConnection.botData.userId
+    return this.botData.userId
   }
 
   /**
@@ -124,7 +131,7 @@ module.exports = class Bot {
    * @returns {string} userName
    */
   get userName () {
-    return this.TwitchIRCConnection.botData.username
+    return this.botData.username
   }
 
   /**
@@ -132,7 +139,7 @@ module.exports = class Bot {
    * @returns {string} userName
    */
   get supinicApiUser () {
-    return this.TwitchIRCConnection.botData.supinicApiUser
+    return this.botData.supinicApiUser
   }
 
   /**
@@ -140,7 +147,7 @@ module.exports = class Bot {
    * @returns {string} key
    */
   get supinicApiKey () {
-    return this.TwitchIRCConnection.botData.supinicApiKey
+    return this.botData.supinicApiKey
   }
 
   isUserIdInBlacklist (userId) {
