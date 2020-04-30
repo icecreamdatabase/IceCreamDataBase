@@ -1,5 +1,6 @@
 "use strict"
 const util = require('util')
+const WebSocket = require('ws')
 //CLASSES
 const Logger = require('../../helper/Logger')
 const Api = require('../../api/Api.js')
@@ -9,15 +10,25 @@ const UserLevels = require("../../../ENUMS/UserLevels")
 const ClearChat = require("../IrcTags/ClearChat")
 const ClearMsg = require("../IrcTags/ClearMsg")
 
-const WebSocket = require('ws')
-const voices = require('../../../json/se-voices.json')
-const fallbackVoice = "Brian"
-const useCaseSensitiveVoiceMatching = false
-
 const WEBSOCKETPINGINTERVAL = 15000
 const regExpTtsArray = new RegExp(/(\w+)(?:\(x?(\d*\.?\d*)\))?:/)
 const PLAYBACKRATEMIN = 0.1
 const PLAYBACKRATEMAX = 10.0
+
+const voices = require('../../../json/se-voices.json')
+const fallbackVoice = "Brian"
+const useCaseSensitiveVoiceMatching = false
+const voiceRandomObj = {
+  "lang": "Random",
+  "voices": [
+    {
+      "id": "Random",
+      "name": "Random"
+    }
+  ]
+}
+// noinspection JSUnresolvedFunction
+const voicesWithRandom = voices.concat([voiceRandomObj])
 
 module.exports = class TtsWebSocket {
   constructor () {
@@ -52,7 +63,7 @@ module.exports = class TtsWebSocket {
   getVoiceLang (voice, useCase = false) {
     let voiceLang = null
 
-    voices.some(langElem => {
+    voicesWithRandom.some(langElem => {
       let hasElem = langElem.voices.some(voiceElem => {
         if (useCase) {
           return (voiceElem.id === voice || voiceElem.name === voice)
@@ -82,7 +93,7 @@ module.exports = class TtsWebSocket {
     let voiceID = null
     voice = voice.trim()
 
-    voices.some(langElem => {
+    voicesWithRandom.some(langElem => {
       return langElem.voices.some(voiceElem => {
         let match = (useCase ?
           (voiceElem.id === voice || voiceElem.name === voice) :
@@ -255,8 +266,22 @@ module.exports = class TtsWebSocket {
         output[outputIndex]["message"] += " " + word
       }
     }
-    output.map(x => x.message = x.message.trim())
+    output.map(x => {
+      x.message = x.message.trim()
+      if (x.voice === voiceRandomObj.voices[0].id) {
+        x.voice = this.randomVoice
+      }
+    })
     return output.filter(x => x.message)
+  }
+
+  get randomVoice () {
+    // noinspection JSUnresolvedVariable
+    let languageArr = voices[Math.floor(Math.random() * voices.length)]
+    // noinspection JSUnresolvedVariable
+    let voiceObj = languageArr.voices[Math.floor(Math.random() * languageArr.voices.length)]
+    // noinspection JSUnresolvedVariable
+    return voiceObj.id
   }
 
   /**
