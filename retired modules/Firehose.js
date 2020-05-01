@@ -4,7 +4,7 @@ const axios = require('axios')
 const CancelToken = axios.CancelToken
 //CLASSES
 const Logger = require('../classes/helper/Logger')
-const DiscordLog = require('../classes/modules/DiscordLog')
+const DiscordLog = require('../classes/helper/DiscordLog')
 //ENUMS
 const ChatLimit = require('../ENUMS/ChatLimit.js')
 

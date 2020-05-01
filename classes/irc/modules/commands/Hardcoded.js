@@ -2,12 +2,12 @@
 const util = require('util')
 const si = require('systeminformation')
 //CLASSES
-const Api = require('../../api/Api')
-const Logger = require('../../helper/Logger')
-const DiscordLog = require('./../DiscordLog')
+const Api = require('../../../api/Api')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('./Helper')
-const TimeConversionHelper = require("../../helper/TimeConversionHelper")
-const UserLevels = require("../../../ENUMS/UserLevels")
+const TimeConversionHelper = require("../../../helper/TimeConversionHelper")
+const UserLevels = require("../../../../ENUMS/UserLevels")
 const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
 module.exports = class Hardcoded {

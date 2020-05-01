@@ -4,7 +4,7 @@ const EventEmitter = require('eventemitter3')
 const ircMessage = require('irc-message')
 
 const Logger = require('../helper/Logger')
-const DiscordLog = require('../modules/DiscordLog')
+const DiscordLog = require('../helper/DiscordLog')
 
 const host = 'irc.chat.twitch.tv'
 const port = 6667

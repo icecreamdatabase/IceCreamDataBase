@@ -1,16 +1,16 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 const HardCoded = require('../commands/Hardcoded')
 const Commands = require('../commands/Commands')
 const ChannelPoints = require('../channelPoints/ChannelPoints')
 const Helper = require('../commands/Helper')
 //ENUMS
-const UserLevels = require('../../../ENUMS/UserLevels.js')
+const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
-const options = require('../../../config.json')
+const options = require('../../../../config.json')
 
 module.exports = class PrivMsg {
   constructor (bot) {

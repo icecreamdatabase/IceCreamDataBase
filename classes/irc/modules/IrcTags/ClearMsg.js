@@ -1,8 +1,8 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 
 // 5 minutes
 const CLEAR_OLD_ENTIRES_INTERVAL = 30000

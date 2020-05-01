@@ -1,11 +1,11 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const SqlLocalCommands = require('../../sql/modules/SqlCommands')
-const DiscordLog = require('./../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const SqlLocalCommands = require('../../../sql/modules/SqlCommands')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('./Helper')
-const UserLevels = require('./../../../ENUMS/UserLevels')
+const UserLevels = require('../../../../ENUMS/UserLevels')
 
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 

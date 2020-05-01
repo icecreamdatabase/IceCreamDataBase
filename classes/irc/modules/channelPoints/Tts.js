@@ -1,14 +1,14 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const SqlChannels = require('../../sql/main/SqlChannels')
-const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const SqlChannels = require('../../../sql/main/SqlChannels')
+const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('../commands/Helper')
 const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
-const UserLevels = require("../../../ENUMS/UserLevels")
-const ttsStrings = require("../../../json/tts-strings")
+const UserLevels = require("../../../../ENUMS/UserLevels")
+const ttsStrings = require("../../../../json/tts-strings")
 
 const UPDATE_INTERVAL = 30000//ms
 const ttsCommandCooldownMs = 3000

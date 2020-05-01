@@ -2,7 +2,7 @@
 const util = require('util')
 const SqlAuth = require('./classes/sql/main/SqlAuth')
 const Bot = require('./classes/Bot.js')
-const DiscordLog = require('./classes/modules/DiscordLog')
+const DiscordLog = require('./classes/helper/DiscordLog')
 const Logger = require('./classes/helper/Logger')
 
 let bots = {}

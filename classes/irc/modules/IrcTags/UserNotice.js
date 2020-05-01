@@ -1,12 +1,12 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const DiscordLog = require('../DiscordLog')
-const Sql = require('../../sql/modules/SqlUserNotice.js')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
+const Sql = require('../../../sql/modules/SqlUserNotice.js')
 
 //ENUMS
-const UserNoticeTypes = require('../../../ENUMS/UserNoticeTypes.js')
+const UserNoticeTypes = require('../../../../ENUMS/UserNoticeTypes.js')
 
 const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms

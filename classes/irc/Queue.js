@@ -3,7 +3,7 @@ const util = require('util')
 const EventEmitter = require('eventemitter3')
 //CLASSES
 const Logger = require('../helper/Logger')
-const DiscordLog = require('../modules/DiscordLog')
+const DiscordLog = require('../helper/DiscordLog')
 const BasicBucket = require('./BasicBucket.js')
 //ENUMS
 const UserLevels = require('../../ENUMS/UserLevels.js')
