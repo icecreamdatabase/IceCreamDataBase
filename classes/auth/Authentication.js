@@ -28,8 +28,7 @@ module.exports = class Authentication {
   get userName () {
     return this._authData["userName"]
   }
-
-  get clientID () {
+  get clientId () {
     return this._authData["clientID"]
   }
 

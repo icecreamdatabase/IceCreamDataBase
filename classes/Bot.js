@@ -4,7 +4,7 @@ const EventEmitter = require('eventemitter3')
 //CLASSES
 const Logger = require('./helper/Logger')
 const SqlBlacklist = require('./sql/main/SqlUserBlacklist')
-const ApiFunctions = require('./api/ApiFunctions.js')
+const Api = require('./api/Api')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')
 const Authentication = require('./auth/Authentication')
 
@@ -12,6 +12,7 @@ const IrcBot = require('./irc/IrcBot')
 
 
 const UPDATE_USERBLACKLIST_INTERVAL = 15000 // 15 seconds
+const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
 module.exports = class Bot {
   constructor (id) {
@@ -31,7 +32,13 @@ module.exports = class Bot {
 
   onAuthentication () {
     if (this.authentication.enableBot) {
-      //this.api = new Api(this)
+      this.api = new Api(this)
+
+
+      setInterval(api.other.supinicApiPing.bind(this, this.authentication.supinicApiUser, this.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
+      // noinspection JSIgnoredPromiseFromCall
+      api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
+
       this.ircBot = new IrcBot(this)
       //this.pubSub = new PubSub(this)
     }
