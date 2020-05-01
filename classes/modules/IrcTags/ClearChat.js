@@ -10,7 +10,7 @@ module.exports = class ClearChat {
   constructor (bot) {
     this.bot = bot
 
-    this.bot.TwitchIRCConnection.on('CLEARCHAT', this.onClearChat.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('CLEARCHAT', this.onClearChat.bind(this))
   }
 
   /**

@@ -14,7 +14,6 @@ const reconnectJitter = 500
 class TwitchIRCConnection extends EventEmitter {
   constructor (bot) {
     super()
-    this.queue = null
     this.bot = bot
     this.forceDisconnect = false
     this.reconnectionAttempts = 0

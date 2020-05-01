@@ -83,7 +83,7 @@ module.exports = class Authentication {
         method: 'post',
         url: 'https://id.twitch.tv/oauth2/token',
         params: {
-          'client_id': this.clientID,
+          'client_id': this.clientId,
           'client_secret': this._authData["clientSecret"],
           'grant_type': 'refresh_token',
           'refresh_token': this._authData["refresh_token"]

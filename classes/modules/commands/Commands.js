@@ -82,7 +82,7 @@ module.exports = class Commands {
         // noinspection LoopStatementThatDoesntLoopJS
         for (let commandMatch of commandArray) {
           if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
-            Helper.handleParameter(messageObj, commandMatch).then((response) => {
+            this.bot.irc.privMsg.helper.handleParameter(messageObj, commandMatch).then((response) => {
               this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
               if (Object.prototype.hasOwnProperty.call(commandMatch, "ID")) {
                 SqlLocalCommands.increaseTimesUsed(commandMatch.ID)

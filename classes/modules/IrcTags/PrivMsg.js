@@ -19,8 +19,9 @@ module.exports = class PrivMsg {
     this.hardcoded = new HardCoded(this.bot)
     this.commands = new Commands(this.bot)
     this.channelPoints = new ChannelPoints(this.bot)
+    this.helper = new Helper(this.bot)
 
-    this.bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
 
   /**
@@ -42,7 +43,7 @@ module.exports = class PrivMsg {
     if (messageObj.message.toLowerCase().startsWith("<gdpr optout ")) {
       await this.bot.addUserIdToBlacklist(messageObj.userId)
       Logger.info(`User added blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channel} (${messageObj.roomId})`)
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
+      this.bot.queue.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
       return true
     }
 
@@ -54,7 +55,7 @@ module.exports = class PrivMsg {
     }
 
     // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
-    Helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
+    this.helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
 
     if (channelObj.logMessages) {
       Logger.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)

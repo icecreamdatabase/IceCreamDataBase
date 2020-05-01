@@ -31,21 +31,19 @@ module.exports = class Kraken {
 
   /**
    * Gets info about current live broadcast for channelID
-   * @param clientID
    * @param channelID
    * @returns {Promise<Object>}
    */
-   async streamInfo (clientID, channelID) {
+   async streamInfo (channelID) {
     return await this.request(`streams/${channelID}`)
   }
 
   /**
    * Get an array with info of past 100 broadcast vods
-   * @param clientId
    * @param channelID
    * @returns {Promise<Object>}
    */
-   async getVods (clientId, channelID) {
+   async getVods (channelID) {
     return await this.request(`channels/${channelID}/videos?broadcast_type=archive&limit=100`)
   }
 
@@ -289,7 +287,7 @@ module.exports = class Kraken {
 
   /**
    * Get Channel objects for an array of roomIds
-   * @param {[number]} roomIds
+   * @param {[number|string]} roomIds
    * @returns {Promise<[Channel]>} channelObjects
    */
    async channelInfosFromIds (roomIds) {

@@ -4,7 +4,6 @@ const util = require('util')
 const Logger = require('../../helper/Logger')
 const SqlChannels = require('../../sql/main/SqlChannels')
 const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
-const Api = require('../../api/Api.js')
 const DiscordLog = require('../DiscordLog')
 const Helper = require('../commands/Helper')
 const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
@@ -79,7 +78,7 @@ module.exports = class Tts {
         responseMessage = ttsStrings.response
       }
       if (responseMessage) {
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+        this.bot.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
       }
       return true
     }
@@ -109,7 +108,7 @@ module.exports = class Tts {
           }
         }
       }
-      let channelInfo = await this.bot.apiFunctions.channelInfo(userId)
+      let channelInfo = await this.bot.api.kraken.channelInfo(userId)
       if (["partner", "affiliate"].includes(channelInfo["broadcaster_type"])) {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
@@ -214,7 +213,7 @@ module.exports = class Tts {
     let linkedIds = Object.keys(this.bot.privMsg.channelPoints.tts.channelPointsSettings)
     let linkedCount = linkedIds.length
 
-    let channelInfos = await this.bot.apiFunctions.channelInfosFromIds(linkedIds)
+    let channelInfos = await this.bot.api.kraken.channelInfosFromIds(linkedIds)
     let broadCasterTypeCount = {partner: 0, affiliate: 0, "": 0}
     channelInfos.forEach(x => broadCasterTypeCount[x.broadcaster_type]++)
 
@@ -533,7 +532,7 @@ module.exports = class Tts {
         /* We might need to enable it it again at some point. But right now it's unused */
         //responseMessage = await Helper.replaceParameterMessage(privMsgObj, responseMessage)
 
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+        this.bot.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
       }
     }

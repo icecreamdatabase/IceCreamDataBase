@@ -45,7 +45,7 @@ module.exports = class Irc {
    */
   onConnected () {
     Logger.info(`### Connected: ${this.bot.userId} (${this.bot.userName})`)
-    this.TwitchIRCConnection.queue = new Queue(this)
+    this.queue = new Queue(this.bot)
 
     SqlChannels.getChannelData(this.bot.userId).then(this.onChannelData.bind(this))
   }
@@ -64,7 +64,7 @@ module.exports = class Irc {
    * Don't forget .bind(this)!
    */
   onDataPrefetched () {
-    //this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
+    this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
   }
 
   /**
@@ -73,11 +73,11 @@ module.exports = class Irc {
    */
   onUpdatedChannels () {
     //OnX modules
-    this.privMsg = new PrivMsg(this)
-    this.userNotice = new UserNotice(this)
-    this.clearChat = new ClearChat(this)
-    this.clearMsg = new ClearMsg(this)
-    this.userState = new UserState(this)
+    this.privMsg = new PrivMsg(this.bot)
+    this.userNotice = new UserNotice(this.bot)
+    this.clearChat = new ClearChat(this.bot)
+    this.clearMsg = new ClearMsg(this.bot)
+    this.userState = new UserState(this.bot)
 
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 

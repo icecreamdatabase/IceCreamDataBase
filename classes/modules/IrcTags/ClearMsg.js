@@ -13,7 +13,7 @@ module.exports = class ClearMsg {
   constructor (bot) {
     this.bot = bot
 
-    this.bot.TwitchIRCConnection.on('CLEARMSG', this.onClearMsg.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('CLEARMSG', this.onClearMsg.bind(this))
 
     setInterval(ClearMsg.clearOldEntries, CLEAR_OLD_ENTIRES_INTERVAL)
   }

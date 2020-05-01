@@ -10,7 +10,7 @@ module.exports = class UserState {
   constructor (bot) {
     this.bot = bot
 
-    this.bot.TwitchIRCConnection.on('USERSTATE', this.onUserState.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('USERSTATE', this.onUserState.bind(this))
   }
 
   /**

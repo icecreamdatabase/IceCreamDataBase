@@ -7,7 +7,7 @@ const SqlBlacklist = require('./sql/main/SqlUserBlacklist')
 const Api = require('./api/Api')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')
 const Authentication = require('./auth/Authentication')
-const IrcBot = require('./irc/Irc')
+const Irc = require('./irc/Irc')
 //ENUMS
 
 
@@ -37,9 +37,9 @@ module.exports = class Bot {
 
       setInterval(this.api.other.supinicApiPing.bind(this, this.authentication.supinicApiUser, this.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
       // noinspection JSIgnoredPromiseFromCall
-      this.api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
+      //this.api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
 
-      this.ircBot = new IrcBot(this)
+      this.irc = new Irc(this)
       //this.pubSub = new PubSub(this)
     }
   }

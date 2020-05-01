@@ -155,7 +155,7 @@ module.exports = class TtsWebSocket {
       setTimeout(async (channel, username, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, color) => {
         // * 2 so we are also checking a bit before "now"
         if (ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2) || ClearMsg.wasDeleted(privMsgObj.raw.tags.id)) {
-          let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
+          let userInfo = await Api.apiFallbackObject.kraken.userDataFromLogins([username]) //TODO: test this
           DiscordLog.twitchMessageCustom("tts-message-log",
             "Failed in: " + channel,
             message,

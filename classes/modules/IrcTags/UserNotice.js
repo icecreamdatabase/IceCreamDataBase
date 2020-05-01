@@ -19,7 +19,7 @@ module.exports = class UserNotice {
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `notificationData` array.
 
-    this.bot.TwitchIRCConnection.on('USERNOTICE', this.onUsernotice.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('USERNOTICE', this.onUsernotice.bind(this))
 
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
@@ -33,7 +33,7 @@ module.exports = class UserNotice {
    * @returns {Promise<void>}
    */
   async onUsernotice (usernoticeObj) {
-    if (this.notificationData.hasOwnProperty(usernoticeObj.tags["room-id"])) {
+    if (Object.prototype.hasOwnProperty.call(this.notificationData, usernoticeObj.tags["room-id"])) {
 
       if (this.bot.isUserIdInBlacklist(usernoticeObj["user-id"])) {
         Logger.debug(`User on blacklist: ${usernoticeObj["user-id"]} - ${usernoticeObj["room-id"]}`)
@@ -43,7 +43,7 @@ module.exports = class UserNotice {
       let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
       if (userNoticeType) {
         let notificationObj = this.notificationData[usernoticeObj.tags["room-id"]]
-        if (notificationObj.hasOwnProperty(userNoticeType)) {
+        if (Object.prototype.hasOwnProperty.call(notificationObj, userNoticeType)) {
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
             announcementMessage = UserNotice.notificationParameter(announcementMessage, usernoticeObj)
@@ -70,7 +70,7 @@ module.exports = class UserNotice {
 
     //TODO: make this look nicer and be more compact
     if (UserNoticeType === UserNoticeTypes.SUB) {
-      if (usernoticeObj.tags.hasOwnProperty("msg-param-sub-plan")) {
+      if (Object.prototype.hasOwnProperty.call(usernoticeObj.tags, "msg-param-sub-plan")) {
         switch (usernoticeObj.tags["msg-param-sub-plan"]) {
           case "Prime":
             UserNoticeType = UserNoticeTypes.SUB_PRIME
@@ -87,7 +87,7 @@ module.exports = class UserNotice {
       }
     }
     if (UserNoticeType === UserNoticeTypes.RESUB) {
-      if (usernoticeObj.tags.hasOwnProperty("msg-param-sub-plan")) {
+      if (Object.prototype.hasOwnProperty.call(usernoticeObj.tags, "msg-param-sub-plan")) {
         switch (usernoticeObj.tags["msg-param-sub-plan"]) {
           case "Prime":
             UserNoticeType = UserNoticeTypes.RESUB_PRIME
