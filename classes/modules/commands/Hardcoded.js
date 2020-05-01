@@ -3,7 +3,6 @@ const util = require('util')
 const si = require('systeminformation')
 //CLASSES
 const Logger = require('../../helper/Logger')
-const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const TimeConversionHelper = require("../../helper/TimeConversionHelper")

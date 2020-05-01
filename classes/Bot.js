@@ -7,8 +7,8 @@ const SqlBlacklist = require('./sql/main/SqlUserBlacklist')
 const Api = require('./api/Api')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')
 const Authentication = require('./auth/Authentication')
-
-const IrcBot = require('./irc/IrcBot')
+const IrcBot = require('./irc/Irc')
+//ENUMS
 
 
 const UPDATE_USERBLACKLIST_INTERVAL = 15000 // 15 seconds
@@ -35,9 +35,9 @@ module.exports = class Bot {
       this.api = new Api(this)
 
 
-      setInterval(api.other.supinicApiPing.bind(this, this.authentication.supinicApiUser, this.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
+      setInterval(this.api.other.supinicApiPing.bind(this, this.authentication.supinicApiUser, this.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
       // noinspection JSIgnoredPromiseFromCall
-      api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
+      this.api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
 
       this.ircBot = new IrcBot(this)
       //this.pubSub = new PubSub(this)

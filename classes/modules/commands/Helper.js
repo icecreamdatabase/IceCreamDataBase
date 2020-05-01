@@ -3,7 +3,6 @@ const util = require('util')
 //CLASSES
 const Logger = require('../../helper/Logger')
 const Api = require('../../api/Api.js')
-const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Gdq = require('./../Gdq')
 const Counters = require('./Counters')

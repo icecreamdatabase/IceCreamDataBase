@@ -4,7 +4,6 @@ const Logger = require('../helper/Logger')
 const SqlChannels = require('../sql/main/SqlChannels.js')
 const SqlBlacklist = require('../sql/main/SqlUserBlacklist')
 const TwitchIRCConnection = require('./TwitchIRCConnection.js')
-const ApiFunctions = require('../api/ApiFunctions.js')
 const PrivMsg = require('../modules/IrcTags/PrivMsg.js')
 const UserNotice = require('../modules/IrcTags/UserNotice.js')
 const ClearChat = require('../modules/IrcTags/ClearChat.js')
@@ -18,7 +17,7 @@ const ChatLimit = require("../../ENUMS/ChatLimit")
 //update channels every 120 seconds (2 minutes)
 const UPDATE_ALL_CHANNELS_INTERVAL = 120000 //ms
 
-module.exports = class IrcBot {
+module.exports = class Irc {
   constructor (bot) {
     this.bot = bot
 
@@ -31,6 +30,10 @@ module.exports = class IrcBot {
     //create empty channel array to chat object
     this.channels = {}
 
+    this.updateBotRatelimits().then(this.onUpdateBotRatelimits.bind(this))
+  }
+
+  onUpdateBotRatelimits () {
     //Connecting the bot to the twich servers
     Logger.info(`### Connecting: ${this.bot.userId} (${this.bot.userName})`)
     this.TwitchIRCConnection.connect().then(this.onConnected.bind(this))
@@ -42,10 +45,9 @@ module.exports = class IrcBot {
    */
   onConnected () {
     Logger.info(`### Connected: ${this.bot.userId} (${this.bot.userName})`)
-    //this.apiFunctions = new ApiFunctions(this)
     this.TwitchIRCConnection.queue = new Queue(this)
 
-    //SqlChannels.getChannelData(this.bot.userId).then(this.onChannelData.bind(this))
+    SqlChannels.getChannelData(this.bot.userId).then(this.onChannelData.bind(this))
   }
 
   /**
@@ -62,7 +64,7 @@ module.exports = class IrcBot {
    * Don't forget .bind(this)!
    */
   onDataPrefetched () {
-    this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
+    //this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
   }
 
   /**
@@ -78,14 +80,7 @@ module.exports = class IrcBot {
     this.userState = new UserState(this)
 
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
-    this.apiFunctions.updateBotRatelimits().then(this.onBotReady.bind(this))
-  }
 
-  /**
-   * Callback for this.apiFunctions.updateBotRateLimit()
-   * Don't forget .bind(this)!
-   */
-  onBotReady () {
     Logger.info("### Fully setup: " + this.bot.userId + " (" + this.bot.userName + ")")
   }
 
@@ -98,11 +93,11 @@ module.exports = class IrcBot {
 
     //remove unused channels
     for (let channelId in this.channels) {
-      if (this.channels.hasOwnProperty(channelId)) {
+      if (Object.prototype.hasOwnProperty.call(this.channels, channelId)) {
         //check
         let contains = false
         for (let currentChannelId in allChannelData) {
-          if (allChannelData.hasOwnProperty(currentChannelId)) {
+          if (Object.prototype.hasOwnProperty.call(allChannelData, currentChannelId)) {
             if (allChannelData[currentChannelId].channelID === this.channels[channelId].channelID) {
               contains = true
             }
@@ -118,11 +113,11 @@ module.exports = class IrcBot {
     }
     //add new channels
     for (let channelId in allChannelData) {
-      if (allChannelData.hasOwnProperty(channelId)) {
+      if (Object.prototype.hasOwnProperty.call(allChannelData, channelId)) {
         //check
         let contains = false
         for (let currentChannelId in this.channels) {
-          if (this.channels.hasOwnProperty(currentChannelId)) {
+          if (Object.prototype.hasOwnProperty.call(this.channels, currentChannelId)) {
             if (this.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
               contains = true
               // Don't reset these 3 values. Copy them over instead.
@@ -146,5 +141,20 @@ module.exports = class IrcBot {
     }
     //save changes to bot array
     this.channels = allChannelData
+  }
+
+  async updateBotRatelimits () {
+    let userInfo = await this.bot.api.kraken.userInfo(this.bot.userId)
+
+    if (userInfo["is_verified_bot"]) {
+      this.rateLimitUser = ChatLimit.VERIFIED
+      this.rateLimitModerator = ChatLimit.VERIFIED_MOD
+    } else if (userInfo["is_known_bot"]) {
+      this.rateLimitUser = ChatLimit.KNOWN
+      this.rateLimitModerator = ChatLimit.KNOWN_MOD
+    } else {
+      this.rateLimitUser = ChatLimit.NORMAL
+      this.rateLimitModerator = ChatLimit.NORMAL_MOD
+    }
   }
 }

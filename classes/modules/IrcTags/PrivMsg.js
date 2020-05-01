@@ -2,7 +2,6 @@
 const util = require('util')
 //CLASSES
 const Logger = require('../../helper/Logger')
-const ApiFunctions = require('../../api/ApiFunctions')
 const DiscordLog = require('../DiscordLog')
 const HardCoded = require('../commands/Hardcoded')
 const Commands = require('../commands/Commands')

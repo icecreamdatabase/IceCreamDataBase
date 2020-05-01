@@ -36,7 +36,7 @@ module.exports = class Other {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
     }
-    let chattersObj = await this.request("https://tmi.twitch.tv/group/user/" + channelName + "/chatters")
+    let chattersObj = (await axios(`https://tmi.twitch.tv/group/user/${channelName}/chatters`)).data
     if (Object.prototype.hasOwnProperty.call(chattersObj, "chatters")) {
       return [].concat.apply([], Object.values(chattersObj.chatters))
     }
@@ -81,7 +81,7 @@ module.exports = class Other {
     if (waAppid) {
       let apiUrl = "https://api.wolframalpha.com/v1/result?i=" + encodeURIComponent(input) + "&appid=" + waAppid + "&units=metric"
       try {
-        return await axios(apiUrl)
+        return (await axios(apiUrl)).data
       } catch (e) {
         return e.response.data.toString()
       }
@@ -103,7 +103,7 @@ module.exports = class Other {
       try {
         await axios({
           method: 'put',
-          url: 'https://supinic.com/api/bot/active',
+          url: 'https://supinic.com/api/bot-program/bot/active',
           headers: {
             Authorization: `Basic ${user}:${key}`
           }

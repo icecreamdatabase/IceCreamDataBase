@@ -23,9 +23,9 @@ module.exports = class Kraken {
           'Authorization': `OAuth ${this.bot.authentication.accessToken}`,
         }
       })
-
+      return result.data
     } catch (e) {
-
+      Logger.info(e)
     }
   }
 
@@ -337,5 +337,38 @@ module.exports = class Kraken {
       returnObj.followtimeY = Math.floor(returnObj.followTimeS / TimeConversion.YEARTOSECONDS)
     }
     return returnObj
+  }
+
+  /**
+   * Returns the userstate of a userId inside a room from the api
+   * @param  {String|int} userId The userID to check for
+   * @param  {String|int} roomId The roomID to check in
+   * @return {isBroadcaster, isMod, isVip, isAny}        Object of the status
+   */
+  async userStatus (userId, roomId) {
+    let userData = await this.userInChannelInfo(userId, roomId)
+    let isBroadcaster = false
+    let isMod = false
+    let isVip = false
+    let isSubscriber = false
+    for (let badge of userData.badges) {
+      if (badge.id === "broadcaster") {
+        isBroadcaster = true
+      }
+      if (badge.id === "moderator") {
+        isMod = true
+      }
+      if (badge.id === "vip") {
+        isVip = true
+      }
+      if (badge.id === "subscriber") {
+        isSubscriber = true
+      }
+    }
+    let isAny = isBroadcaster || isMod || isVip
+    let isKnownBot = userData["is_known_bot"] || false
+    let isVerifiedBot = userData["is_verified_bot"] || false
+
+    return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
 }

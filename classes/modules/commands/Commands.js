@@ -3,7 +3,6 @@ const util = require('util')
 //CLASSES
 const Logger = require('../../helper/Logger')
 const SqlLocalCommands = require('../../sql/modules/SqlCommands')
-const ApiFunctions = require('../../api/ApiFunctions.js')
 const DiscordLog = require('./../DiscordLog')
 const Helper = require('./Helper')
 const UserLevels = require('./../../../ENUMS/UserLevels')
