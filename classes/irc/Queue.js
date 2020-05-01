@@ -20,7 +20,6 @@ module.exports = class Queue {
     this.messageQueue = []
     this.queueEmitter = new EventEmitter()
 
-    //todo: doe these buckets even get increased?
     this.privmsgModeratorbucket = new BasicBucket(this.bot.irc.rateLimitModerator)
     this.privsgUserBucket = new BasicBucket(this.bot.irc.rateLimitUser)
     this.queueEmitter.on('event', this.checkQueue.bind(this))
