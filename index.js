@@ -1,6 +1,6 @@
 "use strict"
 const util = require('util')
-const Mysql = require('./classes/sql/main/SqlBot.js')
+const SqlAuth = require('./classes/sql/main/SqlAuth')
 const Bot = require('./classes/Bot.js')
 const DiscordLog = require('./classes/modules/DiscordLog')
 const Logger = require('./classes/helper/Logger')
@@ -31,17 +31,10 @@ const unhook = hookStderr((string, encoding, fd) => {
   DiscordLog.error(string)
 })
 
-
 process.on('unhandledRejection', (reason, p) => {
   Logger.warn('Unhandled Rejection at promise:\n' + util.inspect(p) + '\nreason:\n' + util.inspect(reason))
 })
 
-
-Mysql.getBotData().then(async (allBotData) => {
-  for (let botData of allBotData) {
-    if (botData.enabled) {
-      let newBot = new Bot(botData)
-      bots[newBot.userId] = newBot
-    }
-  }
-})
+SqlAuth.getIdList().then(ids => ids.forEach(id => {
+ bots[id] = new Bot(id)
+}))

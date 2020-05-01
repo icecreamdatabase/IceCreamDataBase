@@ -1,5 +1,5 @@
 "use strict"
-const Logger = require('./helper/Logger')
+const Logger = require('../helper/Logger')
 
 const TICKET_RETURN_TIMEOUT = 30000
 

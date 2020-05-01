@@ -7,6 +7,11 @@ module.exports = class SqlBot {
 
   }
 
+  static async getIdList () {
+    let results = await sqlPool.query(`SELECT ID FROM auth WHERE enabled = b'1';`)
+    return results.map(x => x["ID"])
+  }
+
   static async getAuthData (botId) {
     let results = await sqlPool.query(`SELECT *
                                        FROM auth

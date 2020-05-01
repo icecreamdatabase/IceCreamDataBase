@@ -2,11 +2,11 @@
 const util = require('util')
 const EventEmitter = require('eventemitter3')
 //CLASSES
-const Logger = require('./helper/Logger')
-const DiscordLog = require('./modules/DiscordLog')
-const BasicBucket = require('../classes/BasicBucket.js')
+const Logger = require('../helper/Logger')
+const DiscordLog = require('../modules/DiscordLog')
+const BasicBucket = require('./BasicBucket.js')
 //ENUMS
-const UserLevels = require('../ENUMS/UserLevels.js')
+const UserLevels = require('../../ENUMS/UserLevels.js')
 //other consts
 const TIMEOUT_OFFSET = 100 //ms
 const MIN_MESSAGE_CUT_LENGTH_FACTOR = 0.75
@@ -15,13 +15,14 @@ const NEWLINE_SEPERATOR = "{nl}"
 
 module.exports = class Queue {
   constructor (bot) {
-    this.bot = bot
+    this.ircBot = bot
 
     this.messageQueue = []
     this.queueEmitter = new EventEmitter()
 
-    this.privmsgModeratorbucket = new BasicBucket(this.bot.rateLimitModerator)
-    this.privsgUserBucket = new BasicBucket(this.bot.rateLimitUser)
+    //todo: doe these buckets even get increased?
+    this.privmsgModeratorbucket = new BasicBucket(this.ircBot.rateLimitModerator)
+    this.privsgUserBucket = new BasicBucket(this.ircBot.rateLimitUser)
     this.queueEmitter.on('event', this.checkQueue.bind(this))
   }
 
@@ -34,7 +35,7 @@ module.exports = class Queue {
    * @returns {Promise<void>}
    */
   async sayWithChannelId (channelId, message, userId) {
-    this.sayWithBoth(channelId, await this.bot.userIdLoginCache.idToName(channelId), message, userId)
+    this.sayWithBoth(channelId, await this.ircBot.bot.userIdLoginCache.idToName(channelId), message, userId)
   }
 
   /**
@@ -46,7 +47,7 @@ module.exports = class Queue {
    * @returns {Promise<void>}
    */
   async sayWithChannelName (channelName, message, userId) {
-    this.sayWithBoth(await this.bot.userIdLoginCache.nameToId(channelName), channelName, message, userId)
+    this.sayWithBoth(await this.ircBot.bot.userIdLoginCache.nameToId(channelName), channelName, message, userId)
   }
 
   /**
@@ -55,8 +56,7 @@ module.exports = class Queue {
    * @param message
    */
   sayWithMsgObj (msgObj, message) {
-    this.bot.TwitchIRCConnection.queue.sayWithBoth(msgObj.roomId, msgObj.channel,
-      message, msgObj.userId)
+    this.sayWithBoth(msgObj.roomId, msgObj.channel, message, msgObj.userId)
   }
 
   /**
@@ -117,7 +117,7 @@ module.exports = class Queue {
    * @returns {string} split message
    */
   splitRecursively (message, channelId) {
-    let maxMessageLength = this.bot.channels[channelId].maxMessageLength
+    let maxMessageLength = this.ircBot.channels[channelId].maxMessageLength
     if (message.length > maxMessageLength) {
       let indexOfLastSpace = message.substring(0, maxMessageLength).lastIndexOf(' ')
       if (indexOfLastSpace < maxMessageLength * MIN_MESSAGE_CUT_LENGTH_FACTOR) {
@@ -145,7 +145,7 @@ module.exports = class Queue {
       return
     }
     msgObj.isBeingChecked = true
-    let channel = this.bot.channels[msgObj.channelId]
+    let channel = this.ircBot.channels[msgObj.channelId]
     let botStatus = channel.botStatus || UserLevels.DEFAULT
     if (typeof botStatus === 'undefined' || botStatus === null) {
       botStatus = UserLevels.DEFAULT
@@ -183,10 +183,10 @@ module.exports = class Queue {
     }
     channel.lastMessage = msgObj.message
 
-    this.bot.TwitchIRCConnection.say(msgObj.channelName, msgObj.message)
+    this.ircBot.TwitchIRCConnection.say(msgObj.channelName, msgObj.message)
 
     this.messageQueue.shift()
-    //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
+    //Logger.info("--> " + msgObj.channelName + " " + this.ircBot.bot.userName + ": " + msgObj.message)
     this.queueEmitter.emit('event')
   }
 }
