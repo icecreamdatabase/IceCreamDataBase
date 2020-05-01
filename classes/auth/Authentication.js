@@ -3,7 +3,11 @@ const util = require('util')
 const Logger = require('../helper/Logger')
 const axios = require('axios')
 const SqlAuth = require('../sql/main/SqlAuth')
+//ENUMS
+const TimeConversion = require('../../ENUMS/TimeConversion')
 
+const VALIDATE_REFRESH_OFFSET = 120000 // 2 minutes
+const VALIDATE_INTERVAL = 900000 // 15 minutes
 const UPDATE_INTERVAL = 300000 // 5 minutes
 
 module.exports = class Authentication {
@@ -11,6 +15,7 @@ module.exports = class Authentication {
     this.bot = bot
     this.userId = userId
     this.authData = {}
+    setInterval(this.validate.bind(this), VALIDATE_INTERVAL)
     setInterval(this.update.bind(this), UPDATE_INTERVAL)
   }
 
@@ -24,6 +29,7 @@ module.exports = class Authentication {
 
   async setAccessToken (accessToken) {
     await SqlAuth.setAccessToken(this.userId, accessToken)
+    await this.update()
   }
 
   get accessToken () {
@@ -43,11 +49,14 @@ module.exports = class Authentication {
           'Authorization': `OAuth ${this.accessToken}`
         }
       })
-      Logger.info(util.inspect(result.data))
-      if (result.data["expires_in"] < 3600) {
+      if (result.data["expires_in"] < (VALIDATE_INTERVAL + VALIDATE_REFRESH_OFFSET) / TimeConversion.SECONDSTOMILLISECONDS) {
         this.refresh()
       }
     } catch (e) {
+      //if unauthorized (expired or wrong token) also this.refresh()
+      if (e.response.status === 401) {
+        this.refresh()
+      }
       Logger.warn(e)
     }
   }
@@ -64,15 +73,36 @@ module.exports = class Authentication {
           'refresh_token': this.refreshToken
         }
       })
-      Logger.info(util.inspect(result.data))
-      this.setAccessToken(result.data["access_token"]).then()
+      this.setAccessToken(result.data["access_token"]).then(()=>{
+        Logger.debug(`Token refreshed for ${this.bot.userName}`)
+      })
     } catch (e) {
-      Logger.error(e)
+      Logger.warn(`Token refresh failed for ${this.bot.userName}`)
+    }
+  }
+
+  async revoke () {
+    try {
+      let result = await axios({
+        method: 'post',
+        url: 'https://id.twitch.tv/oauth2/revoke',
+        params: {
+          'client_id': this.clientID,
+          'token': this.accessToken
+        }
+      })
+      Logger.debug(`Token revoked for ${this.bot.userName}`)
+    } catch (e) {
+      Logger.warn(`Token revoke for ${this.bot.userName} errored: \n${e.response.statusText}`)
     }
   }
 
   async update () {
     this.authData = await SqlAuth.getAuthData(this.userId)
+  }
+
+  async init () {
+    await this.update()
     if (Object.keys(this.authData).length) {
       await this.validate()
     } else {

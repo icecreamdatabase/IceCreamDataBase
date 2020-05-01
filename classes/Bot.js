@@ -27,7 +27,7 @@ module.exports = class Bot {
   constructor (botData) {
     this.botData = botData
     this.authentication = new Authentication(this, this.botData.userId)
-    this.authentication.update().then(this.onAuthentication.bind(this))
+    this.authentication.init().then(this.onAuthentication.bind(this))
   }
 
   onAuthentication () {
