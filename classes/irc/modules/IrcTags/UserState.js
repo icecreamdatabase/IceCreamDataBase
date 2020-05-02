@@ -21,7 +21,9 @@ module.exports = class UserState {
   async onUserState (obj) {
     // update own botStatus in a specific channel
     let roomId = await this.bot.userIdLoginCache.nameToId(obj.param.substr(1))
-    this.bot.irc.channels[roomId].botStatus = UserState.getUserLevel(obj.tags)
+    if (Object.prototype.hasOwnProperty.call(this.bot.irc.channels, roomId)) {
+      this.bot.irc.channels[roomId].botStatus = UserState.getUserLevel(obj.tags)
+    }
 
     return true
   }
