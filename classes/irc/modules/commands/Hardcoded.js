@@ -2,12 +2,12 @@
 const util = require('util')
 const si = require('systeminformation')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const ApiFunctions = require('../../api/ApiFunctions.js')
-const DiscordLog = require('./../DiscordLog')
+const Api = require('../../../api/Api')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('./Helper')
-const TimeConversionHelper = require("../../helper/TimeConversionHelper")
-const UserLevels = require("../../../ENUMS/UserLevels")
+const TimeConversionHelper = require("../../../helper/TimeConversionHelper")
+const UserLevels = require("../../../../ENUMS/UserLevels")
 const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
 module.exports = class Hardcoded {
@@ -30,8 +30,15 @@ module.exports = class Hardcoded {
 
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<y ")) {
-      this.bot.apiFunctions.followTime(38949074, 57019243).then(x => {
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))
+      Api.apiFallbackObject.kraken.userDataFromLogins([messageObj.username]).then(userInfo => {
+        DiscordLog.twitchMessageCustom("tts-message-log",
+          "apiFallbackObject test",
+          messageObj.message,
+          new Date().toISOString(),
+          messageObj.raw.tags.color,
+          messageObj.username,
+          userInfo[0].logo
+        )
       })
       return true
     }
@@ -40,7 +47,7 @@ module.exports = class Hardcoded {
       && messageObj.message.startsWith("<tags ")) {
 
       DiscordLog.debug(JSON.stringify(messageObj, null, 2))
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done.")
+      this.bot.irc.queue.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done.")
       return true
     }
 
@@ -48,7 +55,7 @@ module.exports = class Hardcoded {
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<s ")) {
 
-      this.bot.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
+      this.bot.irc.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
@@ -61,8 +68,8 @@ module.exports = class Hardcoded {
         || messageObj.message.startsWith("<q ")
       )
     ) {
-      this.bot.apiFunctions.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "Query returned: " + message)
+      this.bot.api.other.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
+        this.bot.irc.queue.sayWithMsgObj(messageObj, "Query returned: " + message)
       })
       return true
     }
@@ -77,10 +84,10 @@ module.exports = class Hardcoded {
       if (evalString) {
         try {
           let ss = (x) => {
-            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, x.toString())
+            this.bot.irc.queue.sayWithMsgObj(messageObj, x.toString())
           }
           let so = (x) => {
-            this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, util.inspect(x))
+            this.bot.irc.queue.sayWithMsgObj(messageObj, util.inspect(x))
           }
           msg = (eval(evalString) || "").toString()
         } catch (err) {
@@ -97,7 +104,7 @@ module.exports = class Hardcoded {
       } else {
         msg = messageObj.username + ", Nothing to eval given..."
       }
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, msg)
+      this.bot.irc.queue.sayWithMsgObj(messageObj, msg)
     }
 
     return false

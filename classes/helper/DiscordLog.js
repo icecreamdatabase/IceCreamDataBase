@@ -4,7 +4,7 @@ const util = require('util')
 const https = require('https')
 const EventEmitter = require('eventemitter3')
 const options = require('../../config.json')
-const Logger = require('../helper/Logger')
+const Logger = require('./Logger')
 
 const WEBHOOK = {
   host: "discordapp.com",

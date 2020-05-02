@@ -2,7 +2,7 @@
 const sqlPool = require('../Sql').pool
 const util = require('util')
 const Logger = require('../../helper/Logger')
-const DiscordLog = require('../../../classes/modules/DiscordLog')
+const DiscordLog = require('../../helper/DiscordLog')
 
 module.exports = class SqlCounters {
   constructor () {

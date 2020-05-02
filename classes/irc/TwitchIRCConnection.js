@@ -3,8 +3,8 @@ const net = require('net')
 const EventEmitter = require('eventemitter3')
 const ircMessage = require('irc-message')
 
-const Logger = require('./helper/Logger')
-const DiscordLog = require('./modules/DiscordLog')
+const Logger = require('../helper/Logger')
+const DiscordLog = require('../helper/DiscordLog')
 
 const host = 'irc.chat.twitch.tv'
 const port = 6667
@@ -12,10 +12,9 @@ const reconnectMultiplier = 2000
 const reconnectJitter = 500
 
 class TwitchIRCConnection extends EventEmitter {
-  constructor (botData) {
+  constructor (bot) {
     super()
-    this.queue = null
-    this.botData = botData
+    this.bot = bot
     this.forceDisconnect = false
     this.reconnectionAttempts = 0
     this.interval = null
@@ -135,9 +134,9 @@ class TwitchIRCConnection extends EventEmitter {
         this.connected = true
         Logger.info(`Successfully connected to ${host}:${port}`)
         this.send('CAP REQ :twitch.tv/tags twitch.tv/commands')// twitch.tv/membership')
-        this.send(`PASS ${this.botData.token}`)
-        this.send(`NICK ${this.botData.username}`)
-        this.send(`USER ${this.botData.username} 8 * :${this.botData.username}`)
+        this.send(`PASS oauth:${this.bot.authentication.accessToken}`)
+        this.send(`NICK ${this.bot.userName}`)
+        this.send(`USER ${this.bot.userName} 8 * :${this.bot.userName}`)
         this.emit('connect')
         for (let i = 0; i < this.channels.length; i++) {
           this.send(`JOIN #${this.channels[i]}`)
@@ -189,7 +188,7 @@ class TwitchIRCConnection extends EventEmitter {
     if (this.forceDisconnect || this.reconnectionAttempts > 0) {
       return // either deliberate or reconnection is already running.
     }
-    Logger.error(`Disconnected from Twitch. \nBot: ${this.botData.username}`)
+    Logger.error(`Disconnected from Twitch. \nBot: ${this.bot.userName}`)
     let timeout = 150
     if (this.reconnectionAttempts > 0) {
       const randomJitter = Math.floor(Math.random() * (reconnectJitter + 1))

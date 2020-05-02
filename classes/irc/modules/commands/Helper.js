@@ -1,15 +1,14 @@
 "use strict"
 const util = require('util')
+const axios = require('axios')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const Api = require('../../api/Api.js')
-const ApiFunctions = require('../../api/ApiFunctions.js')
-const DiscordLog = require('./../DiscordLog')
-const Gdq = require('./../Gdq')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
+const Gdq = require('../Gdq')
 const Counters = require('./Counters')
-const UserLevels = require("../../../ENUMS/UserLevels")
-const TimeConversion = require("../../../ENUMS/TimeConversion")
-const TimeConversionHelper = require("../../helper/TimeConversionHelper")
+const UserLevels = require("../../../../ENUMS/UserLevels")
+const TimeConversion = require("../../../../ENUMS/TimeConversion")
+const TimeConversionHelper = require("../../../helper/TimeConversionHelper")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
@@ -17,7 +16,6 @@ const apiJsonRegExp = new RegExp(/\${apijson=(.*?);(.*?)}/, 'i')
 const discordWebhookRegExp = new RegExp(/\${createNote=(?:.*\/)?([^/]*)\/([^/;]*)(?:;([^}]*))*}/, 'i')
 const rndRegExp = new RegExp(/\${rnd=\(([^)]*)\)}/, 'i')
 
-const userWasInChannelObj = {}
 
 const icecreamFacts = {
   "Magnum Mini Almond Ice Cream Bar": "Most tasters could agree that, while the ice cream was \"creamy,\" they enjoyed the chocolate coating more. \"The crunchy milk chocolate\" has a \"hint of nuts\" which gave it good texture, according to our volunteers. Overall, the 160-calorie bar tastes as delicious as it looks.",
@@ -38,8 +36,9 @@ const icecreamFacts = {
 }
 
 module.exports = class Helper {
-  constructor () {
-
+  constructor (bot) {
+    this.bot = bot
+    this.userWasInChannelObj = {}
   }
 
   /**
@@ -48,7 +47,7 @@ module.exports = class Helper {
    * @param commandObj created in Commands.js
    * @returns {Promise<string>} response
    */
-  static async handleParameter (msgObj, commandObj) {
+  async handleParameter (msgObj, commandObj) {
     let input = commandObj.response
     if (input.includes("${")) {
       let message = input
@@ -74,7 +73,7 @@ module.exports = class Helper {
         }
         lastDepth = depth
       }
-      input = this.replaceParameterCommand(commandObj, input)
+      input = Helper.replaceParameterCommand(commandObj, input)
       input = await this.replaceParameterMessage(msgObj, input)
       input = await Counters.replaceParameter(msgObj, input)
     }
@@ -87,7 +86,7 @@ module.exports = class Helper {
    * @param msgPart input string
    * @returns {Promise<string>}
    */
-  static async handleOr (msgObj, msgPart) {
+  async handleOr (msgObj, msgPart) {
     if (msgPart.includes("||")) {
       let firstParameter = msgObj.message.split(" ")[1]
       if (firstParameter !== null) {
@@ -108,7 +107,7 @@ module.exports = class Helper {
    * @returns {string}
    */
   static replaceParameterCommand (commandObj, message) {
-    if (commandObj.hasOwnProperty("timesUsed")) {
+    if (Object.prototype.hasOwnProperty.call(commandObj, "timesUsed")) {
       message = message.replace(new RegExp("\\${timesUsed}", 'g'), commandObj.timesUsed + 1)
     }
     return message
@@ -120,7 +119,7 @@ module.exports = class Helper {
    * @param message input string
    * @returns {Promise<void|string|*>}
    */
-  static async replaceParameterMessage (msgObj, message) {
+  async replaceParameterMessage (msgObj, message) {
     if (message.includes("${rnd=(")) {
       let rndArray = message.match(rndRegExp)[1].split("|")
       let rndSelected = rndArray[Math.floor(Math.random() * rndArray.length)]
@@ -135,8 +134,8 @@ module.exports = class Helper {
     message = message.replace(new RegExp("\\${uptime}", 'g'), TimeConversionHelper.secondsToYYMMDDHHMMSS(process.uptime()))
 
     if (message.includes("${monthlyUptime}")) {
-      let vods = await Api.getVods(global.clientIdFallback, msgObj.roomId)
-      let seconds = this.vodsTotalUptimeSince(vods, this.getFirstOfMonthDate())
+      let vods = await this.bot.api.kraken.getVods(msgObj.roomId)
+      let seconds = Helper.vodsTotalUptimeSince(vods, Helper.getFirstOfMonthDate())
       let replacement
       if (seconds > 0) {
         replacement = TimeConversionHelper.secondsToHHMM(seconds, true)
@@ -160,8 +159,8 @@ module.exports = class Helper {
     if (message.includes("${api") && apiRegExp.test(message)) {
       let apiUrl = message.match(apiRegExp)[1]
 
-      await Api.request(apiUrl).then(response => {
-        message = message.replace(new RegExp(apiRegExp, 'g'), response)
+      await axios(apiUrl).then(response => {
+        message = message.replace(new RegExp(apiRegExp, 'g'), response.data)
       }).catch(err => {
         message = message.replace(new RegExp(apiRegExp, 'g'), err)
       })
@@ -172,8 +171,8 @@ module.exports = class Helper {
       let jsonKey = match[1]
       let apiUrl = match[2]
 
-      await Api.request(apiUrl).then(response => {
-        message = message.replace(new RegExp(apiJsonRegExp, 'g'), response[jsonKey])
+      await axios(apiUrl).then(response => {
+        message = message.replace(new RegExp(apiJsonRegExp, 'g'), response.data[jsonKey])
       }).catch(err => {
         message = message.replace(new RegExp(apiJsonRegExp, 'g'), err)
       })
@@ -181,7 +180,7 @@ module.exports = class Helper {
 
     if (message.includes("${createNote=")) {
       let match = message.match(discordWebhookRegExp)
-      let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [msgObj.username])
+      let userInfo = await this.bot.api.kraken.userDataFromLogins([msgObj.username])
       DiscordLog.twitchMessageManual(match[1], match[2], "",
         msgObj.message.slice(msgObj.message.indexOf(" ") + 1) || "No message supplied.",
         new Date().toISOString(),
@@ -206,12 +205,12 @@ module.exports = class Helper {
    * @returns {boolean} should respond to command
    */
   static checkLastCommandUsage (commandMatch, lastCommandUsageObject, roomId, minCooldown, userLevel) {
-    if (commandMatch.hasOwnProperty("cooldown") && commandMatch.hasOwnProperty("ID")) {
+    if (Object.prototype.hasOwnProperty.call(commandMatch, "cooldown") && Object.prototype.hasOwnProperty.call(commandMatch, "ID")) {
       let lastUsage = 0
-      if (!lastCommandUsageObject.hasOwnProperty(roomId)) {
+      if (!Object.prototype.hasOwnProperty.call(lastCommandUsageObject, roomId)) {
         lastCommandUsageObject[roomId] = {}
       }
-      if (lastCommandUsageObject[roomId].hasOwnProperty(commandMatch.ID)) {
+      if (Object.prototype.hasOwnProperty.call(lastCommandUsageObject[roomId], commandMatch.ID)) {
         lastUsage = lastCommandUsageObject[roomId][commandMatch.ID]
       }
       let cooldownPassed = Math.max(commandMatch.cooldown, minCooldown) * 1000 + lastUsage < Date.now()
@@ -231,20 +230,20 @@ module.exports = class Helper {
    * @param userName userName
    * @returns {Promise<boolean>} was user in channel
    */
-  static async checkUserWasInChannel (channelName, userName) {
+  async checkUserWasInChannel (channelName, userName) {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
     }
-    if (!userWasInChannelObj.hasOwnProperty(channelName)) {
-      userWasInChannelObj[channelName] = new Set()
+    if (!Object.prototype.hasOwnProperty.call(this.userWasInChannelObj, channelName)) {
+      this.userWasInChannelObj[channelName] = new Set()
     }
-    if (userWasInChannelObj[channelName].has(userName)) {
-      Api.getAllUsersInChannel(channelName).then((chatters) => this.addUsersToUserWasInChannelObj(channelName, chatters))
+    if (this.userWasInChannelObj[channelName].has(userName)) {
+      this.bot.api.other.getAllUsersInChannel(channelName).then((chatters) => this.addUsersToUserWasInChannelObj(channelName, chatters))
       return true
     }
-    let chatters = await Api.getAllUsersInChannel(channelName)
+    let chatters = await this.bot.api.other.getAllUsersInChannel(channelName)
     this.addUsersToUserWasInChannelObj(channelName, chatters)
-    return userWasInChannelObj[channelName].has(userName)
+    return this.userWasInChannelObj[channelName].has(userName)
   }
 
   /**
@@ -252,15 +251,15 @@ module.exports = class Helper {
    * @param channelName channelName
    * @param userNames Array of userNames
    */
-  static addUsersToUserWasInChannelObj (channelName, userNames) {
+  addUsersToUserWasInChannelObj (channelName, userNames) {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
     }
-    if (!userWasInChannelObj.hasOwnProperty(channelName)) {
-      userWasInChannelObj[channelName] = new Set(userNames)
+    if (!Object.prototype.hasOwnProperty.call(this.userWasInChannelObj, channelName)) {
+      this.userWasInChannelObj[channelName] = new Set(userNames)
     } else {
       for (let userName of userNames) {
-        userWasInChannelObj[channelName].add(userName)
+        this.userWasInChannelObj[channelName].add(userName)
       }
     }
   }
@@ -284,9 +283,9 @@ module.exports = class Helper {
    */
   static vodsTotalUptimeSince (vodsObj, dateSince) {
     let timeSum = 0
-    if (vodsObj.hasOwnProperty("videos")) {
+    if (Object.prototype.hasOwnProperty.call(vodsObj, "videos")) {
       for (let vidObj of vodsObj.videos) {
-        if (vidObj.hasOwnProperty("created_at")) {
+        if (Object.prototype.hasOwnProperty.call(vidObj, "created_at")) {
           if (dateSince < new Date(vidObj["created_at"])) {
             timeSum += vidObj["length"]
           } else { //not sure if this else is really needed ... we are only looping through 100 entires

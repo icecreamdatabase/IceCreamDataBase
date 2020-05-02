@@ -1,16 +1,16 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 //ENUMS
-const UserLevels = require('../../../ENUMS/UserLevels.js')
+const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
 module.exports = class UserState {
   constructor (bot) {
     this.bot = bot
 
-    this.bot.TwitchIRCConnection.on('USERSTATE', this.onUserState.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('USERSTATE', this.onUserState.bind(this))
   }
 
   /**
@@ -21,7 +21,9 @@ module.exports = class UserState {
   async onUserState (obj) {
     // update own botStatus in a specific channel
     let roomId = await this.bot.userIdLoginCache.nameToId(obj.param.substr(1))
-    this.bot.channels[roomId].botStatus = UserState.getUserLevel(obj.tags)
+    if (Object.prototype.hasOwnProperty.call(this.bot.irc.channels, roomId)) {
+      this.bot.irc.channels[roomId].botStatus = UserState.getUserLevel(obj.tags)
+    }
 
     return true
   }

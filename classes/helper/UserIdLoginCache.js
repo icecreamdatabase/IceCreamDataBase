@@ -15,7 +15,7 @@ module.exports = class UserIdLoginCache {
   }
 
   async prefetchListOfIds (ids) {
-    let users = await this.bot.apiFunctions.userDataFromIds(ids)
+    let users = await this.bot.api.kraken.userDataFromIds(ids)
     for (let user of users) {
       userInfosById[user["_id"]] = user
       userInfosByName[user["name"].toLowerCase()] = user
@@ -24,7 +24,7 @@ module.exports = class UserIdLoginCache {
 
   async idToName (id) {
     if (!Object.prototype.hasOwnProperty.call(userInfosById, id)) {
-      let users = await this.bot.apiFunctions.userDataFromIds([id])
+      let users = await this.bot.api.kraken.userDataFromIds([id])
       if (users.length > 0) {
         let user = users[0]
         userInfosById[user["_id"]] = user
@@ -45,7 +45,7 @@ module.exports = class UserIdLoginCache {
       name = name.substr(1)
     }
     if (!Object.prototype.hasOwnProperty.call(userInfosByName, name)) {
-      let users = await this.bot.apiFunctions.userDataFromLogins([name])
+      let users = await this.bot.api.kraken.userDataFromLogins([name])
       if (users.length > 0) {
         let user = users[0]
         userInfosById[user["_id"]] = user

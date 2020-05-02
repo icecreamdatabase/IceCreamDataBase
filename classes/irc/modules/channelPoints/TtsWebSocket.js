@@ -2,11 +2,11 @@
 const util = require('util')
 const WebSocket = require('ws')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const Api = require('../../api/Api.js')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const Api = require('../../../api/Api.js')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('../commands/Helper')
-const UserLevels = require("../../../ENUMS/UserLevels")
+const UserLevels = require("../../../../ENUMS/UserLevels")
 const ClearChat = require("../IrcTags/ClearChat")
 const ClearMsg = require("../IrcTags/ClearMsg")
 
@@ -15,7 +15,7 @@ const regExpTtsArray = new RegExp(/(\w+)(?:\(x?(\d*\.?\d*)\))?:/)
 const PLAYBACKRATEMIN = 0.1
 const PLAYBACKRATEMAX = 10.0
 
-const voices = require('../../../json/se-voices.json')
+const voices = require('../../../../json/se-voices.json')
 const fallbackVoice = "Brian"
 const useCaseSensitiveVoiceMatching = false
 const voiceRandomObj = {
@@ -155,7 +155,7 @@ module.exports = class TtsWebSocket {
       setTimeout(async (channel, username, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, color) => {
         // * 2 so we are also checking a bit before "now"
         if (ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2) || ClearMsg.wasDeleted(privMsgObj.raw.tags.id)) {
-          let userInfo = await Api.userDataFromLogins(global.clientIdFallback, [username])
+          let userInfo = await Api.apiFallbackObject.kraken.userDataFromLogins([username]) //TODO: test this
           DiscordLog.twitchMessageCustom("tts-message-log",
             "Failed in: " + channel,
             message,

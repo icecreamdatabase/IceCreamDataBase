@@ -1,15 +1,14 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const SqlChannels = require('../../sql/main/SqlChannels')
-const SqlChannelPoints = require('../../sql/modules/SqlChannelPoints')
-const Api = require('../../api/Api.js')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const SqlChannels = require('../../../sql/main/SqlChannels')
+const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('../commands/Helper')
 const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
-const UserLevels = require("../../../ENUMS/UserLevels")
-const ttsStrings = require("../../../json/tts-strings")
+const UserLevels = require("../../../../ENUMS/UserLevels")
+const ttsStrings = require("../../../../json/tts-strings")
 
 const UPDATE_INTERVAL = 30000//ms
 const ttsCommandCooldownMs = 3000
@@ -48,8 +47,8 @@ module.exports = class Tts {
    */
   async handleTtsCommands (privMsgObj) {
     if (privMsgObj.message.toLowerCase().startsWith(ttsStrings.prefix)
-      && (this.bot.channels[privMsgObj.roomId].useChannelPoints
-        || this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled)
+      && (this.bot.irc.channels[privMsgObj.roomId].useChannelPoints
+        || this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled)
       && (this.ttsCommandLastUsage + ttsCommandCooldownMs < Date.now()
         || privMsgObj.userLevel >= UserLevels.MODERATOR)
     ) {
@@ -79,7 +78,7 @@ module.exports = class Tts {
         responseMessage = ttsStrings.response
       }
       if (responseMessage) {
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+        this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
       }
       return true
     }
@@ -95,7 +94,7 @@ module.exports = class Tts {
    * @returns {Promise<string>}
    */
   async handleRegister (privMsgObj, optionObj, parameter) {
-    if (this.bot.channels[privMsgObj.roomId].ttsRegisterEnabled) {
+    if (this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled) {
       //channel and connection creating
       let userId = privMsgObj.userId
       let username = privMsgObj.username
@@ -109,7 +108,7 @@ module.exports = class Tts {
           }
         }
       }
-      let channelInfo = await this.bot.apiFunctions.channelInfo(userId)
+      let channelInfo = await this.bot.api.kraken.channelInfo(userId)
       if (["partner", "affiliate"].includes(channelInfo["broadcaster_type"])) {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
@@ -211,10 +210,10 @@ module.exports = class Tts {
    */
   async handleStats (privMsgObj, optionObj, parameter) {
     let websocketClientCount = TtsWebSocket.websocketClientCount
-    let linkedIds = Object.keys(this.bot.privMsg.channelPoints.tts.channelPointsSettings)
+    let linkedIds = Object.keys(this.bot.irc.privMsg.channelPoints.tts.channelPointsSettings)
     let linkedCount = linkedIds.length
 
-    let channelInfos = await this.bot.apiFunctions.channelInfosFromIds(linkedIds)
+    let channelInfos = await this.bot.api.kraken.channelInfosFromIds(linkedIds)
     let broadCasterTypeCount = {partner: 0, affiliate: 0, "": 0}
     channelInfos.forEach(x => broadCasterTypeCount[x.broadcaster_type]++)
 
@@ -533,7 +532,7 @@ module.exports = class Tts {
         /* We might need to enable it it again at some point. But right now it's unused */
         //responseMessage = await Helper.replaceParameterMessage(privMsgObj, responseMessage)
 
-        this.bot.TwitchIRCConnection.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+        this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
       }
     }

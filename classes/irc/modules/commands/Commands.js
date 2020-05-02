@@ -1,12 +1,11 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const SqlLocalCommands = require('../../sql/modules/SqlCommands')
-const ApiFunctions = require('../../api/ApiFunctions.js')
-const DiscordLog = require('./../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const SqlLocalCommands = require('../../../sql/modules/SqlCommands')
+const DiscordLog = require('../../../helper/DiscordLog')
 const Helper = require('./Helper')
-const UserLevels = require('./../../../ENUMS/UserLevels')
+const UserLevels = require('../../../../ENUMS/UserLevels')
 
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 
@@ -31,7 +30,7 @@ module.exports = class Commands {
       && messageObj.message.startsWith("<r ")) {
 
       this.updateCommandData.bind(this)()
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
+      this.bot.irc.queue.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
       return true
     }
 
@@ -82,9 +81,9 @@ module.exports = class Commands {
       if (commandArray.length > 0) {
         // noinspection LoopStatementThatDoesntLoopJS
         for (let commandMatch of commandArray) {
-          if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
-            Helper.handleParameter(messageObj, commandMatch).then((response) => {
-              this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, response)
+          if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.irc.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
+            this.bot.irc.privMsg.helper.handleParameter(messageObj, commandMatch).then((response) => {
+              this.bot.irc.queue.sayWithMsgObj(messageObj, response)
               if (Object.prototype.hasOwnProperty.call(commandMatch, "ID")) {
                 SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
               }

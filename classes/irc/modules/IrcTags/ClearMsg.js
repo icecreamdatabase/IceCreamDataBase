@@ -1,8 +1,8 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 
 // 5 minutes
 const CLEAR_OLD_ENTIRES_INTERVAL = 30000
@@ -13,7 +13,7 @@ module.exports = class ClearMsg {
   constructor (bot) {
     this.bot = bot
 
-    this.bot.TwitchIRCConnection.on('CLEARMSG', this.onClearMsg.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('CLEARMSG', this.onClearMsg.bind(this))
 
     setInterval(ClearMsg.clearOldEntries, CLEAR_OLD_ENTIRES_INTERVAL)
   }

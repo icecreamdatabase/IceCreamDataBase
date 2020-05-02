@@ -1,17 +1,16 @@
 "use strict"
 const util = require('util')
 //CLASSES
-const Logger = require('../../helper/Logger')
-const ApiFunctions = require('../../api/ApiFunctions')
-const DiscordLog = require('../DiscordLog')
+const Logger = require('../../../helper/Logger')
+const DiscordLog = require('../../../helper/DiscordLog')
 const HardCoded = require('../commands/Hardcoded')
 const Commands = require('../commands/Commands')
 const ChannelPoints = require('../channelPoints/ChannelPoints')
 const Helper = require('../commands/Helper')
 //ENUMS
-const UserLevels = require('../../../ENUMS/UserLevels.js')
+const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
-const options = require('../../../config.json')
+const options = require('../../../../config.json')
 
 module.exports = class PrivMsg {
   constructor (bot) {
@@ -20,8 +19,9 @@ module.exports = class PrivMsg {
     this.hardcoded = new HardCoded(this.bot)
     this.commands = new Commands(this.bot)
     this.channelPoints = new ChannelPoints(this.bot)
+    this.helper = new Helper(this.bot)
 
-    this.bot.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
+    this.bot.irc.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
   }
 
   /**
@@ -43,11 +43,11 @@ module.exports = class PrivMsg {
     if (messageObj.message.toLowerCase().startsWith("<gdpr optout ")) {
       await this.bot.addUserIdToBlacklist(messageObj.userId)
       Logger.info(`User added blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channel} (${messageObj.roomId})`)
-      this.bot.TwitchIRCConnection.queue.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
+      this.bot.queue.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
       return true
     }
 
-    let channelObj = this.bot.channels[messageObj.roomId]
+    let channelObj = this.bot.irc.channels[messageObj.roomId]
 
     if (!channelObj) {
       DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}`)
@@ -55,7 +55,7 @@ module.exports = class PrivMsg {
     }
 
     // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
-    Helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
+    this.helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
 
     if (channelObj.logMessages) {
       Logger.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
