@@ -9,7 +9,7 @@ let bots = {}
 
 // noinspection JSUndefinedPropertyAssignment
 global.getBots = function () {
-  return Object.values(bots)
+  return Object.values(bots).filter(x => x.authentication.enableBot)
 }
 // noinspection JSUndefinedPropertyAssignment
 global.getBot = function (botname) {

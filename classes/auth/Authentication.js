@@ -65,16 +65,18 @@ module.exports = class Authentication {
           'Authorization': `OAuth ${this.accessToken}`
         }
       })
-      Logger.debug(`^^^ Validated token for: ${this.userId} (${this.userName})`)
+      //Logger.debug(`^^^ Validated token for: ${this.userId} (${this.userName})`)
       if (result.data["expires_in"] < (VALIDATE_INTERVAL + VALIDATE_REFRESH_OFFSET) / TimeConversion.SECONDSTOMILLISECONDS) {
-        this.refresh()
+        await this.refresh()
       }
     } catch (e) {
       //if unauthorized (expired or wrong token) also this.refresh()
       if (e.response.status === 401) {
-        this.refresh()
+        Logger.info(`Unauthorized. Needs to refresh for ${this.bot.userName}`)
+        await this.refresh()
+      } else {
+        Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.response.statusText}`)
       }
-      Logger.warn(e)
     }
   }
 
