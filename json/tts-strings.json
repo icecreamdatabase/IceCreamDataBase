@@ -1,9 +1,11 @@
 {
   "prefix": "!tts",
+  "ignorecooldown": false,
   "response": "This is a channelpoint based TTS system made by icdb. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available commands are: \"!tts help\", \"!tts voices\", \"!tts stats\", \"!tts skip\" (mod only), \"!tts settings\" (mod only), \"!tts link\" (mod only), \"!tts unregister\" (broadcaster only)",
   "globalResponsePrefix": "icdbBot \uD83D\uDCE3",
   "options": {
     "handleRegister": {
+      "ignoreCooldown": true,
       "command": "register",
       "response": {
         "success": "Successfully registered. Please use \"!tts help\" command in your own channel.",
@@ -11,22 +13,27 @@
       }
     },
     "handleUnregister": {
+      "ignoreCooldown": true,
       "command": "unregister",
       "response": "Successfully unregistered. The bot is leaving the channel in 5 seconds."
     },
     "handleStats": {
+      "ignoreCooldown": false,
       "command": "stats",
       "response": "${linkedCount} streamers (${partnerCount} partners and ${affiliateCount} affiliates) have linked a reward. ${websocketclientCount} clients are currently connected. More stats are coming soon!"
     },
     "handleSkip": {
+      "ignoreCooldown": false,
       "command": "skip",
       "response": "Skipped the currently playing messages."
     },
     "handleReload": {
+      "ignoreCooldown": false,
       "command": "reload",
       "response": "Reloaded all clients."
     },
     "handleLink": {
+      "ignoreCooldown": false,
       "command": "link",
       "response": {
         "alreadyLinked": "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel=",
@@ -35,6 +42,7 @@
       }
     },
     "handleVoices": {
+      "ignoreCooldown": false,
       "command": "voices",
       "response": {
         "general": "Check available voices here: https://supinic.com/stream/tts",
@@ -42,6 +50,7 @@
       }
     },
     "handleHelp": {
+      "ignoreCooldown": false,
       "command": "help",
       "response": {
         "general": "Use your channel points to play a TTS message.",
@@ -50,6 +59,7 @@
       }
     },
     "handleSettings": {
+      "ignoreCooldown": false,
       "command": "settings",
       "response": {
         "successful": "Updating successful.",

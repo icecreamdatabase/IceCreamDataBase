@@ -18,7 +18,7 @@ module.exports = class Tts {
 
     this.channelPointsSettings = {}
     this.lastTts = {}
-    this.ttsCommandLastUsage = 0
+    this.ttsCommandLastUsage = {}
 
     setTimeout(this.updateChannelPointSettings.bind(this), 2000)
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
@@ -38,6 +38,16 @@ module.exports = class Tts {
     }
   }
 
+  isCooldownOver (channelId, userLevel) {
+    let lastUsage = this.ttsCommandLastUsage[channelId] || 0
+    let cooldownPassed = ttsCommandCooldownMs + lastUsage < Date.now()
+    cooldownPassed = cooldownPassed || userLevel >= UserLevels.MODERATOR
+    if (cooldownPassed) {
+      this.ttsCommandLastUsage[channelId] = Date.now()
+    }
+    return cooldownPassed
+  }
+
   /**
    * Handle the privMsgObj by checking for all TTS register related triggers.
    * Stuff like: !tts register, !tts help, ...
@@ -48,32 +58,29 @@ module.exports = class Tts {
     if (privMsgObj.message.toLowerCase().startsWith(ttsStrings.prefix)
       && (this.bot.irc.channels[privMsgObj.roomId].useChannelPoints
         || this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled)
-      && (this.ttsCommandLastUsage + ttsCommandCooldownMs < Date.now()
-        || privMsgObj.userLevel >= UserLevels.MODERATOR)
     ) {
-      this.ttsCommandLastUsage = Date.now()
       let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1).trim().toLowerCase()
       let responseMessage = ""
 
+      let handled = false
       if (command) {
-        let handled = false
         for (let optionId in ttsStrings.options) {
           if (Object.prototype.hasOwnProperty.call(ttsStrings.options, optionId)
             && command.startsWith(ttsStrings.options[optionId].command)
             && optionId in this && typeof this[optionId] === "function") {
-            let commandParameter = (command.substr(ttsStrings.options[optionId].command.length + 1)).trim().toLowerCase()
-            try {
-              responseMessage = await this[optionId](privMsgObj, ttsStrings.options[optionId], commandParameter)
-            } catch (e) {
-              // ignored
+            if (ttsStrings.options[optionId].ignoreCooldown || this.isCooldownOver(privMsgObj.roomId, privMsgObj.userLevel)) {
+              let commandParameter = (command.substr(ttsStrings.options[optionId].command.length + 1)).trim().toLowerCase()
+              try {
+                responseMessage = await this[optionId](privMsgObj, ttsStrings.options[optionId], commandParameter)
+              } catch (e) {
+                // ignored
+              }
             }
             handled = true
           }
         }
-        if (!handled) {
-          responseMessage = ttsStrings.response
-        }
-      } else {
+      }
+      if (!handled && (ttsStrings.ignorecooldown || this.isCooldownOver(privMsgObj.roomId, privMsgObj.userLevel))) {
         responseMessage = ttsStrings.response
       }
       if (responseMessage) {
