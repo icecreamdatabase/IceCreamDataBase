@@ -65,6 +65,7 @@ module.exports = class Authentication {
           'Authorization': `OAuth ${this.accessToken}`
         }
       })
+      Logger.info(`^^^ Validated token for: ${this.userId} (${this.userName})`)
       if (result.data["expires_in"] < (VALIDATE_INTERVAL + VALIDATE_REFRESH_OFFSET) / TimeConversion.SECONDSTOMILLISECONDS) {
         this.refresh()
       }

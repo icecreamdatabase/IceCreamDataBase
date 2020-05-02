@@ -30,7 +30,7 @@ module.exports = class Commands {
       && messageObj.message.startsWith("<r ")) {
 
       this.updateCommandData.bind(this)()
-      this.bot.queue.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
+      this.bot.irc.queue.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
       return true
     }
 
@@ -81,9 +81,9 @@ module.exports = class Commands {
       if (commandArray.length > 0) {
         // noinspection LoopStatementThatDoesntLoopJS
         for (let commandMatch of commandArray) {
-          if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
+          if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.irc.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
             this.bot.irc.privMsg.helper.handleParameter(messageObj, commandMatch).then((response) => {
-              this.bot.queue.sayWithMsgObj(messageObj, response)
+              this.bot.irc.queue.sayWithMsgObj(messageObj, response)
               if (Object.prototype.hasOwnProperty.call(commandMatch, "ID")) {
                 SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
               }

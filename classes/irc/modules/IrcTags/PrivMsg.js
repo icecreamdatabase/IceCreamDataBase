@@ -47,7 +47,7 @@ module.exports = class PrivMsg {
       return true
     }
 
-    let channelObj = this.bot.channels[messageObj.roomId]
+    let channelObj = this.bot.irc.channels[messageObj.roomId]
 
     if (!channelObj) {
       DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}`)

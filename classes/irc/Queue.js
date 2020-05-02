@@ -116,7 +116,7 @@ module.exports = class Queue {
    * @returns {string} split message
    */
   splitRecursively (message, channelId) {
-    let maxMessageLength = this.bot.channels[channelId].maxMessageLength
+    let maxMessageLength = this.bot.irc.channels[channelId].maxMessageLength
     if (message.length > maxMessageLength) {
       let indexOfLastSpace = message.substring(0, maxMessageLength).lastIndexOf(' ')
       if (indexOfLastSpace < maxMessageLength * MIN_MESSAGE_CUT_LENGTH_FACTOR) {
@@ -144,7 +144,7 @@ module.exports = class Queue {
       return
     }
     msgObj.isBeingChecked = true
-    let channel = this.bot.channels[msgObj.channelId]
+    let channel = this.bot.irc.channels[msgObj.channelId]
     let botStatus = channel.botStatus || UserLevels.DEFAULT
     if (typeof botStatus === 'undefined' || botStatus === null) {
       botStatus = UserLevels.DEFAULT
