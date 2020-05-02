@@ -104,7 +104,7 @@ module.exports = class Hardcoded {
       } else {
         msg = messageObj.username + ", Nothing to eval given..."
       }
-      this.bot.queue.sayWithMsgObj(messageObj, msg)
+      this.bot.irc.queue.sayWithMsgObj(messageObj, msg)
     }
 
     return false
