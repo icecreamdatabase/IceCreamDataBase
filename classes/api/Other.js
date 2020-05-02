@@ -3,7 +3,6 @@ const Logger = require('../helper/Logger')
 const axios = require('axios')
 const util = require('util')
 const configOption = require('../../config')
-const TimeConversion = require("../../ENUMS/TimeConversion")
 
 const TWITCH_API_KRAKEN = {
   url: "https://api.twitch.tv/kraken/",

@@ -7,7 +7,6 @@ const DiscordLog = require('../../../helper/DiscordLog')
 const Gdq = require('../Gdq')
 const Counters = require('./Counters')
 const UserLevels = require("../../../../ENUMS/UserLevels")
-const TimeConversion = require("../../../../ENUMS/TimeConversion")
 const TimeConversionHelper = require("../../../helper/TimeConversionHelper")
 
 const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')

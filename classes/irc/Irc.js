@@ -2,7 +2,6 @@
 //CLASSES
 const Logger = require('../helper/Logger')
 const SqlChannels = require('../sql/main/SqlChannels.js')
-const SqlBlacklist = require('../sql/main/SqlUserBlacklist')
 const TwitchIRCConnection = require('./TwitchIRCConnection.js')
 const PrivMsg = require('./modules/IrcTags/PrivMsg.js')
 const UserNotice = require('./modules/IrcTags/UserNotice.js')
@@ -10,7 +9,6 @@ const ClearChat = require('./modules/IrcTags/ClearChat.js')
 const ClearMsg = require('./modules/IrcTags/ClearMsg')
 const UserState = require('./modules/IrcTags/UserState')
 const Queue = require('./Queue.js')
-const UserIdLoginCache = require('../helper/UserIdLoginCache')
 
 const ChatLimit = require("../../ENUMS/ChatLimit")
 

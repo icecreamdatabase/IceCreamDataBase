@@ -2,8 +2,6 @@
 const Logger = require('../helper/Logger')
 const axios = require('axios')
 const util = require('util')
-const configOption = require('../../config')
-const TimeConversion = require("../../ENUMS/TimeConversion")
 
 const BASEOBJECT_HELIX = {
   host: "api.twitch.tv",

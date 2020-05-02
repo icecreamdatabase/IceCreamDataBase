@@ -8,13 +8,13 @@ const Logger = require('./classes/helper/Logger')
 let bots = {}
 
 // noinspection JSUndefinedPropertyAssignment
-//global.getBots = function () {
-//  return Object.values(bots)
-//}
+global.getBots = function () {
+  return Object.values(bots)
+}
 // noinspection JSUndefinedPropertyAssignment
-//global.getBot = function (botname) {
-//  return Object.values(bots).find(value => value.userName.toLowerCase() === botname.toLowerCase())
-//}
+global.getBot = function (botname) {
+  return Object.values(bots).find(value => value.userName.toLowerCase() === botname.toLowerCase())
+}
 
 /*
 global.VERSION.REVISION = require('child_process')

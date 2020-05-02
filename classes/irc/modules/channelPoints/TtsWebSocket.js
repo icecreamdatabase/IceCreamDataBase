@@ -5,8 +5,6 @@ const WebSocket = require('ws')
 const Logger = require('../../../helper/Logger')
 const Api = require('../../../api/Api.js')
 const DiscordLog = require('../../../helper/DiscordLog')
-const Helper = require('../commands/Helper')
-const UserLevels = require("../../../../ENUMS/UserLevels")
 const ClearChat = require("../IrcTags/ClearChat")
 const ClearMsg = require("../IrcTags/ClearMsg")
 
