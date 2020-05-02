@@ -1,5 +1,21 @@
 create schema IceCreamDataBase collate utf8mb4_general_ci;
 
+create table auth
+(
+    ID             int              not null
+        primary key,
+    userName       varchar(25)      null,
+    enabled        bit default b'1' not null,
+    enableBot      bit default b'1' not null,
+    clientID       varchar(255)     not null,
+    clientSecret   varchar(255)     not null,
+    access_token   varchar(255)     null,
+    refresh_token  varchar(255)     null,
+    id_token       longtext         null,
+    supinicApiUser int              null,
+    supinicApiKey  varchar(128)     null
+);
+
 create table bots
 (
     ID             int unsigned auto_increment
