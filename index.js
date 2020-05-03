@@ -41,7 +41,7 @@ const unhook = hookStderr((string, encoding, fd) => {
 })
 
 process.on('unhandledRejection', (reason, p) => {
-  Logger.warn('Unhandled Rejection at promise:\n' + util.inspect(p) + '\nreason:\n' + util.inspect(reason))
+  Logger.warn('Unhandled Rejection at promise:\n\n' + util.inspect(p) + '\n\nreason:\n' + util.inspect(reason))
 })
 
 SqlAuth.getIdList().then(ids => ids.forEach(id => {
