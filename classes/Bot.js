@@ -24,14 +24,13 @@ module.exports = class Bot {
     // noinspection JSIgnoredPromiseFromCall
     this.updateUserBlacklist()
 
-    this.userIdLoginCache = new UserIdLoginCache(this)
-
     this.authentication = new Authentication(this, id)
     this.authentication.init().then(this.onAuthentication.bind(this))
   }
 
   onAuthentication () {
     if (this.authentication.enableBot) {
+      this.userIdLoginCache = new UserIdLoginCache(this)
       this.api = new Api(this)
 
 
