@@ -6,9 +6,7 @@ const Logger = require('../helper/Logger')
 const DiscordLog = require('../helper/DiscordLog')
 
 const host = 'wss://pubsub-edge.twitch.tv'
-const reconnectMultiplier = 2000
-const reconnectJitter = 500
-const heartbeatInterval = 1000 * 60 //ms between PING's
+const heartbeatInterval = 1000 * 30 //ms between PING's
 const reconnectInterval = 1000 * 3 //ms to wait before reconnect
 
 class TwitchPubSubConnection extends EventEmitter {
@@ -17,6 +15,7 @@ class TwitchPubSubConnection extends EventEmitter {
     this.bot = bot
     this.ws = null
     this.heartbeatHandle = null
+    this.awaitingPong = false
   }
 
   /**
@@ -60,14 +59,16 @@ class TwitchPubSubConnection extends EventEmitter {
 
       this.ws.addEventListener('message', event => {
         let message = JSON.parse(event.data)
-        Logger.debug('RECV: ' + JSON.stringify(message))
-        if (message.type === 'RECONNECT') {
-          Logger.debug('INFO:Reconnecting...')
-          setTimeout(connect, reconnectInterval)
-        }
-        if (message.type === 'MESSAGE') {
+        if (message.type === 'PONG') {
+          this.awaitingPong = false
+        } else if (message.type === 'RECONNECT') {
+          this.reconnect()
+        } else if (message.type === 'MESSAGE') {
+          Logger.debug('RECV: ' + JSON.stringify(message))
           let topicFull = message.data.topic
           let topicBare = topicFull.split('.', 1)[0]
+
+          message.data.message = JSON.parse(message.data.message)
 
           this.emit(topicFull, message.data)
           if (topicFull !== topicBare) {
@@ -85,8 +86,19 @@ class TwitchPubSubConnection extends EventEmitter {
     })
   }
 
+  reconnect () {
+    Logger.debug('INFO:Reconnecting...')
+    setTimeout(connect, reconnectInterval)
+  }
+
   heartbeat () {
-    this.ws.send(JSON.stringify({type: 'PING'}))
+    if (this.awaitingPong) {
+      Logger.debug("Ws no pong received.")
+      this.reconnect()
+    } else {
+      this.awaitingPong = true
+      this.ws.send(JSON.stringify({type: 'PING'}))
+    }
   }
 
   /**

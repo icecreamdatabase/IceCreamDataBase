@@ -29,7 +29,11 @@ module.exports = class Irc {
 
   registerChannelPoints (roomId) {
     this.twitchPubSubConnection.subscribe([`community-points-channel-v1.${roomId}`])
-    this.twitchPubSubConnection.on('community-points-channel-v1', this.onWhisper.bind(this))
+    this.twitchPubSubConnection.on('community-points-channel-v1', this.onReward.bind(this))
+  }
+
+  onReward (event) {
+    Logger.info(util.inspect(event))
   }
 
 }
