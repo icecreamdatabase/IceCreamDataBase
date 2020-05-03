@@ -14,6 +14,7 @@ module.exports = class Irc {
 
     this.twitchPubSubConnection.connect().then(() => {
       this.registerWhispers()
+      this.registerChannelPoints(38949074) //TODO: testing
     })
   }
 
@@ -26,9 +27,9 @@ module.exports = class Irc {
     Logger.info(util.inspect(event))
   }
 
-  registerChannelPoints () {
-    this.twitchPubSubConnection.subscribe([`channel-points-channel-v1.${this.bot.userId}`])
-    this.twitchPubSubConnection.on('whisper', this.onWhisper.bind(this))
+  registerChannelPoints (roomId) {
+    this.twitchPubSubConnection.subscribe([`community-points-channel-v1.${roomId}`])
+    this.twitchPubSubConnection.on('community-points-channel-v1', this.onWhisper.bind(this))
   }
 
 }
