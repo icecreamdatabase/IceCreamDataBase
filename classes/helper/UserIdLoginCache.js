@@ -12,6 +12,7 @@ module.exports = class UserIdLoginCache {
     this.bot = bot
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
+    setTimeout(this.updateMaps.bind(this), 10000)
   }
 
   async prefetchListOfIds (ids) {
@@ -63,7 +64,7 @@ module.exports = class UserIdLoginCache {
     let currentIds = Object.keys(userInfosById)
     userInfosById = {}
     userInfosByName = {}
-    this.prefetchListOfIds(currentIds).then(() => Logger.debug(`Refreshed UserIdLoginCache. Currently tracking ${Object.keys(userInfosById).length} ids.`))
+    this.prefetchListOfIds(currentIds).then(() => Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(userInfosById).length} ids.`))
   }
 }
 
