@@ -1,12 +1,8 @@
 "use strict"
+const util = require('util')
 //CLASSES
 const Logger = require('../helper/Logger')
 const TwitchPubSubConnection = require('./TwitchPubSubConnection')
-
-const ChatLimit = require("../../ENUMS/ChatLimit")
-
-//update channels every 120 seconds (2 minutes)
-const UPDATE_ALL_CHANNELS_INTERVAL = 120000 //ms
 
 module.exports = class Irc {
   constructor (bot) {
@@ -14,19 +10,25 @@ module.exports = class Irc {
 
     Logger.info(`Setting up pubsub: ${this.bot.userId} (${this.bot.userName})`)
 
-    this.TwitchPubSubConnection = new TwitchPubSubConnection(this.bot)
+    this.twitchPubSubConnection = new TwitchPubSubConnection(this.bot)
 
-    this.registerWhispers()
+    this.twitchPubSubConnection.connect().then(() => {
+      this.registerWhispers()
+    })
   }
 
   registerWhispers () {
-    this.TwitchPubSubConnection.subscribe([`whispers.${this.bot.userId}`])
-
-    this.TwitchPubSubConnection.on('whisper', this.onWhisper.bind(this))
+    this.twitchPubSubConnection.subscribe([`whispers.${this.bot.userId}`])
+    this.twitchPubSubConnection.on('whispers', this.onWhisper.bind(this))
   }
 
   onWhisper (event) {
+    Logger.info(util.inspect(event))
+  }
 
+  registerChannelPoints () {
+    this.twitchPubSubConnection.subscribe([`channel-points-channel-v1.${this.bot.userId}`])
+    this.twitchPubSubConnection.on('whisper', this.onWhisper.bind(this))
   }
 
 }
