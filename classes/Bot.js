@@ -8,6 +8,7 @@ const Api = require('./api/Api')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')
 const Authentication = require('./auth/Authentication')
 const Irc = require('./irc/Irc')
+const PubSub = require('./pubsub/PubSub')
 //ENUMS
 
 
@@ -40,7 +41,7 @@ module.exports = class Bot {
       //this.api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
 
       this.irc = new Irc(this)
-      //this.pubSub = new PubSub(this)
+      this.pubSub = new PubSub(this)
     }
   }
 
