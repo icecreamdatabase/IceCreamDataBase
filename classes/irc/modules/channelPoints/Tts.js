@@ -152,7 +152,7 @@ module.exports = class Tts {
       }
       await SqlChannelPoints.dropChannel(this.bot.userId, parseInt(userId))
       DiscordLog.custom("tts-status-log", "Part:", username, DiscordLog.getDecimalFromHexString("#FF0000"))
-      setTimeout(this.bot.updateBotChannels.bind(this.bot), 3000)
+      setTimeout(this.bot.irc.updateBotChannels.bind(this.bot), 2000)
       //await this.bot.updateBotChannels()
       return optionObj.response
     }
