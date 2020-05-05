@@ -148,19 +148,14 @@ module.exports = class SqlChannelPoints {
    * @param botID
    * @param channelID
    * @param ttsCustomRewardId
-   * @param ttsConversation
-   * @param ttsQueueMessages
    * @returns {Promise<void>}
    */
-  static async addChannel (botID, channelID, ttsCustomRewardId, ttsConversation = true, ttsQueueMessages = true) {
-    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsConversation, ttsQueueMessages,
-                                                           ttsCustomRewardId)
-                         VALUES (?, ?, b'1', ?, ?, ?)
+  static async addChannel (botID, channelID, ttsCustomRewardId) {
+    await sqlPool.query(`INSERT INTO channelPointsSettings(botID, channelID, enabled, ttsCustomRewardId)
+                         VALUES (?, ?, b'1', ?)
                          ON DUPLICATE KEY UPDATE enabled           = enabled,
-                                                 ttsConversation   = ttsConversation,
-                                                 ttsQueueMessages  = ttsQueueMessages,
-                                                 ttsCustomRewardId = ttsCustomRewardId`,
-      [botID, channelID, ttsConversation, ttsQueueMessages, ttsCustomRewardId])
+                                                 ttsCustomRewardId = ?`,
+      [botID, channelID, ttsCustomRewardId, ttsCustomRewardId])
   }
 
   /**
