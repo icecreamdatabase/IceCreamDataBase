@@ -40,6 +40,10 @@ module.exports = class Authentication {
     return !!this._authData["enableBot"]
   }
 
+  get enableWhisperLog () {
+    return !!this._authData["enableWhisperLog"]
+  }
+
   /**
    * Supinic user id of the current bot
    * @returns {string} userName

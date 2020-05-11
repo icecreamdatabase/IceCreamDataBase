@@ -11,6 +11,10 @@
     "tts-message-log": {
       "id": "xxxxxxxxxxxxxxxxxx",
       "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "whisper-log": {
+      "id": "xxxxxxxxxxxxxxxxxx",
+      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     }
   },
   "waoptions": {
