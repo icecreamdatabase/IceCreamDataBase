@@ -7,6 +7,22 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * Log a TTS message
+   * @returns {Promise<void>}
+   * @param messageId
+   * @param roomId
+   * @param userId
+   * @param rawMessage
+   * @param userLevel
+   * @param wasSent
+   */
+  static async ttsLog (messageId, roomId, userId, rawMessage, userLevel, wasSent) {
+    await sqlPool.query(`INSERT INTO ttsLog (messageId, roomId, userId, rawMessage, userLevel, wasSent)
+                         VALUES (?, ?, ?, ?, ?, ?)
+    ;`, [messageId, roomId, userId, rawMessage, userLevel, wasSent])
+  }
+
+  /**
    * Update the ttsCooldown setting for a connection
    * @param botID
    * @param channelID

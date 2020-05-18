@@ -7,6 +7,7 @@ const Api = require('../../../api/Api.js')
 const DiscordLog = require('../../../helper/DiscordLog')
 const ClearChat = require("../IrcTags/ClearChat")
 const ClearMsg = require("../IrcTags/ClearMsg")
+const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 
 const WEBSOCKETPINGINTERVAL = 15000
 const regExpTtsArray = new RegExp(/(\w+)(?:\(x?(\d*\.?\d*)\))?:/)
@@ -162,9 +163,23 @@ module.exports = class TtsWebSocket {
             username,
             userInfo[0].logo
           )
+          await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
+            privMsgObj.roomId,
+            privMsgObj.userId,
+            privMsgObj.message,
+            privMsgObj.userLevel,
+            false
+          )
           resolve(false)
         } else {
           this.sendTts(channel, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime)
+          await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
+            privMsgObj.roomId,
+            privMsgObj.userId,
+            privMsgObj.message,
+            privMsgObj.userLevel,
+            true
+          )
           resolve(true)
         }
       }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, privMsgObj.raw.tags.color)
