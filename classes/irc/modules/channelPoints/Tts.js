@@ -223,12 +223,22 @@ module.exports = class Tts {
     let broadCasterTypeCount = {partner: 0, affiliate: 0, "": 0}
     channelInfos.forEach(x => broadCasterTypeCount[x.broadcaster_type]++)
 
+    let usageInfo = await SqlChannelPoints.ttsUsageStats()
+
     let response = optionObj.response.toString()
     response = response.replace("${linkedCount}", linkedCount.toString())
     response = response.replace("${websocketclientCount}", websocketClientCount.toString())
     response = response.replace("${partnerCount}", broadCasterTypeCount.partner.toString())
     response = response.replace("${affiliateCount}", broadCasterTypeCount.affiliate.toString())
     response = response.replace("${neitherCount}", broadCasterTypeCount[""].toString())
+
+    console.log(usageInfo.hour.toString())
+    response = response.replace("${messageCountPastMinute}", usageInfo.minute.toString())
+    response = response.replace("${messageCountPastHour}", usageInfo.hour.toString())
+    response = response.replace("${messageCountPastDay}", usageInfo.day.toString())
+    response = response.replace("${messageCountPastWeek}", usageInfo.week.toString())
+    response = response.replace("${messageCountPastMonth}", usageInfo.month.toString())
+
     return response
   }
 

@@ -23,6 +23,21 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
+   * TTS usage amount
+   * @returns {Promise<{minute: int, hour: int, day: int, week: int, month: int}>}
+   */
+  static async ttsUsageStats () {
+    let results = await sqlPool.query(`
+        SELECT (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 MINUTE) AS 'minute',
+               (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 HOUR)   AS 'hour',
+               (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 DAY)    AS 'day',
+               (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 WEEK)   AS 'week',
+               (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH)  AS 'month'
+        ;`)
+    return results[0] || {minute: -1, hour: -1, day: -1, week: -1, month: -1}
+  }
+
+  /**
    * Update the ttsCooldown setting for a connection
    * @param botID
    * @param channelID
