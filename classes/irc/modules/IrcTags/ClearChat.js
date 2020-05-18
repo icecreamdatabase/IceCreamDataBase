@@ -25,6 +25,13 @@ module.exports = class ClearChat {
       lastTimeoutObj[channelName] = {}
     }
     lastTimeoutObj[channelName][userName] = Date.now()
+
+    // Detect perm ban of own bot account
+    if (parseInt(clearChatObj.tags["target-user-id"]) === this.bot.userId
+      && !Object.prototype.hasOwnProperty.call(clearChatObj.tags, "ban-duration")) {
+      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}`)
+      Logger.info(`${this.bot.userName} got banned in #${channelName}`)
+    }
   }
 
   /**
