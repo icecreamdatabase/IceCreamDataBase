@@ -22,6 +22,9 @@ class Tts {
 
     setTimeout(this.updateChannelPointSettings.bind(this), 2000)
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
+
+    //TODO: remove this after the bot ran once!
+    SqlChannelPoints.convertAllToNewFormat(this.bot.userId).then()
   }
 
   /**
