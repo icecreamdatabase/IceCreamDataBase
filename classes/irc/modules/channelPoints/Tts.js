@@ -9,6 +9,8 @@ const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const ttsStrings = require("../../../../json/tts-strings")
 
+const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Queue.js as well
+
 const UPDATE_INTERVAL = 30000//ms
 const ttsCommandCooldownMs = 3000
 
@@ -538,11 +540,24 @@ class Tts {
         //Reject userlevel
         responseMessage = ttsStrings.redemeResponse.rejectUserLevelMessage
       }
-      if (responseMessage) {
-        /* We might need to enable it it again at some point. But right now it's unused */
-        //responseMessage = await Helper.replaceParameterMessage(privMsgObj, responseMessage)
 
-        this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+      if (responseMessage) {
+        responseMessage = `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`
+      } else {
+        responseMessage = settingObj.getCommand(privMsgObj.raw.tags["custom-reward-id"])
+      }
+      if (responseMessage) {
+        responseMessage = responseMessage.replace(new RegExp("\\${user}", 'g'), privMsgObj.username)
+        responseMessage = responseMessage.replace(new RegExp("\\${channel}", 'g'), privMsgObj.channel.substring(1))
+        responseMessage = responseMessage.replace(new RegExp("\\${p}", 'g'), privMsgObj.message)
+        responseMessage = responseMessage.replace(new RegExp("\\${p0}", 'g'), privMsgObj.message.split(" ")[0] || "")
+        responseMessage = responseMessage.replace(new RegExp("\\${p1}", 'g'), privMsgObj.message.split(" ")[1] || "")
+
+        if (!settingObj.allowCommandNewLines) {
+          responseMessage = responseMessage.replace(new RegExp(NEWLINE_SEPERATOR, 'g'), "")
+        }
+
+        this.bot.irc.queue.sayWithMsgObj(privMsgObj, responseMessage)
         hasTakenAction = true
       }
     }

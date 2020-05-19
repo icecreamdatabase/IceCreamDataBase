@@ -10,7 +10,7 @@ const UserLevels = require('../../ENUMS/UserLevels.js')
 //other consts
 const TIMEOUT_OFFSET = 100 //ms
 const MIN_MESSAGE_CUT_LENGTH_FACTOR = 0.75
-const NEWLINE_SEPERATOR = "{nl}"
+const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Tts.js as well!
 
 
 module.exports = class Queue {
