@@ -12,7 +12,7 @@ const ttsStrings = require("../../../../json/tts-strings")
 const UPDATE_INTERVAL = 30000//ms
 const ttsCommandCooldownMs = 3000
 
-module.exports = class Tts {
+class Tts {
   constructor (bot) {
     this.bot = bot
 
@@ -529,20 +529,20 @@ module.exports = class Tts {
             //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept
-              responseMessage = settingObj.ttsAcceptMessage
+              responseMessage = ttsStrings.redemeResponse.acceptMessage
             } else {
               //Reject timeout
-              responseMessage = settingObj.ttsRejectTimeoutMessage
+              responseMessage = ttsStrings.redemeResponse.time
             }
             hasTakenAction = true
           }
         } else {
           //Reject cooldown
-          responseMessage = settingObj.ttsRejectCooldownMessage
+          responseMessage = ttsStrings.redemeResponse.rejectCooldownMessage
         }
       } else {
         //Reject userlevel
-        responseMessage = settingObj.ttsRejectUserLevelMessage
+        responseMessage = ttsStrings.redemeResponse.rejectUserLevelMessage
       }
       if (responseMessage) {
         /* We might need to enable it it again at some point. But right now it's unused */
@@ -561,5 +561,11 @@ module.exports = class Tts {
    */
   async updateChannelPointSettings () {
     this.channelPointsSettings = await SqlChannelPoints.getChannelPointsSettings(this.bot.userId)
+    if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, 38949074)) {
+      this.channelPointsSettings[38949074].volume = 90
+      console.log(this.channelPointsSettings[38949074].volume)
+    }
   }
 }
+
+module.exports = Tts
