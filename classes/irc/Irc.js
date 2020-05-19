@@ -129,8 +129,12 @@ module.exports = class Irc {
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
           //Logger.info(this.bot.userName + " Joining: #" + channelName)
-          this.TwitchIRCConnection.join(channelName)
-          Logger.info(this.bot.userName + " Joined: #" + channelName)
+          if (channelName !== null) {
+            this.TwitchIRCConnection.join(channelName)
+            Logger.info(this.bot.userName + " Joined: #" + channelName)
+          } else {
+            Logger.warn(`${this.bot.userName} failed to join banned channel: ${channelId}`)
+          }
           allChannelData[channelId].botStatus = null
           allChannelData[channelId].lastMessage = ""
           allChannelData[channelId].lastMessageTimeMillis = 0
