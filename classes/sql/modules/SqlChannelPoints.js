@@ -14,7 +14,7 @@ class SqlChannelPoints {
    * @property {string} defaultVoiceName
    * @property {number} maxMessageTime
    * @property {number} cooldown
-   * @property {number} userLevel
+   * @property {number} subOnly
    * @property {number} timeoutCheckTime
    * @property {boolean} allowCustomPlaybackrate
    */
@@ -73,7 +73,6 @@ class SqlChannelPoints {
    */
   addCommand (customRewardId, response) {
     this._commandJson[customRewardId] = response
-    //TODO: update db
     SqlChannelPoints.updateChannelPointsCommandJson(this._botId, this._channelId, this._commandJson).then()
   }
 
@@ -98,6 +97,10 @@ class SqlChannelPoints {
     this.update()
   }
 
+  /**
+   *
+   * @return {boolean}
+   */
   get queue () {
     return this._ttsJson.queueMessages || ttsStrings.options.handleSettings.options.handleSettingQueue.default
   }
@@ -107,6 +110,10 @@ class SqlChannelPoints {
     this.update()
   }
 
+  /**
+   *
+   * @return {number}
+   */
   get volume () {
     return this._ttsJson.volume || ttsStrings.options.handleSettings.options.handleSettingVolume.default
   }
@@ -116,6 +123,10 @@ class SqlChannelPoints {
     this.update()
   }
 
+  /**
+   *
+   * @return {string}
+   */
   get defaultVoiceName () {
     return this._ttsJson.defaultVoiceName || ttsStrings.options.handleSettings.options.handleSettingVoice.default
   }
@@ -125,6 +136,10 @@ class SqlChannelPoints {
     this.update()
   }
 
+  /**
+   *
+   * @return {number}
+   */
   get cooldown () {
     return this._ttsJson.cooldown || ttsStrings.options.handleSettings.options.handleSettingCooldown.default
   }
@@ -134,15 +149,23 @@ class SqlChannelPoints {
     this.update()
   }
 
-  get userLevel () {
-    return this._ttsJson.userLevel || ttsStrings.options.handleSettings.options.handleSettingSubscriber.default
+  /**
+   *
+   * @return {boolean}
+   */
+  get subOnly () {
+    return this._ttsJson.subOnly || ttsStrings.options.handleSettings.options.handleSettingSubscriber.default
   }
 
-  set userLevel (value) {
-    this._ttsJson.userLevel = value
+  set subOnly (value) {
+    this._ttsJson.subOnly = value
     this.update()
   }
 
+  /**
+   *
+   * @return {number}
+   */
   get timeoutCheckTime () {
     return this._ttsJson.timeoutCheckTime || ttsStrings.options.handleSettings.options.handleSettingTimeoutCheckTime.default
   }
@@ -152,14 +175,32 @@ class SqlChannelPoints {
     this.update()
   }
 
+  /**
+   *
+   * @return {number}
+   */
+  get maxMessageTime () {
+    return this._ttsJson.maxMessageTime || ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default
+  }
+
+  set maxMessageTime (value) {
+    this._ttsJson.maxMessageTime = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {boolean}
+   */
   get allowCustomPlaybackrate () {
-    return this._ttsJson.allowCustomPlaybackrate || ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default
+    return this._ttsJson.allowCustomPlaybackrate || ttsStrings.options.handleSettings.options.handleSettingAllowCustomPlaybackrate.default
   }
 
   set allowCustomPlaybackrate (value) {
     this._ttsJson.allowCustomPlaybackrate = value
     this.update()
   }
+
 
   /**
    *

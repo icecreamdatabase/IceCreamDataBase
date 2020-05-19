@@ -169,7 +169,7 @@ class Tts {
    */
   async handleHelp (privMsgObj, optionObj, parameter) {
     if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
-      if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+      if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].conversation) {
         return optionObj.response.conversation
       } else {
         return optionObj.response.general
@@ -196,7 +196,7 @@ class Tts {
         DiscordLog.custom("tts-status-log", "Link:", privMsgObj.channel.substr(1), DiscordLog.getDecimalFromHexString("#0000FF"))
         return optionObj.response.justLinked + privMsgObj.channel.substr(1)
       } else {
-        if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId]["ttsCustomRewardId"]) {
+        if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
           return optionObj.response.alreadyLinked + privMsgObj.channel.substr(1)
         } else {
           return optionObj.response.notLinked
@@ -216,7 +216,7 @@ class Tts {
    */
   async handleStats (privMsgObj, optionObj, parameter) {
     let websocketClientCount = TtsWebSocket.websocketClientCount
-    let linkedIds = Object.keys(this.bot.irc.privMsg.channelPoints.tts.channelPointsSettings)
+    let linkedIds = Object.keys(this.channelPointsSettings)
     let linkedCount = linkedIds.length
 
     let channelInfos = await this.bot.api.kraken.channelInfosFromIds(linkedIds)
@@ -284,7 +284,7 @@ class Tts {
    * @returns {string}
    */
   async handleVoices (privMsgObj, optionObj, parameter) {
-    if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsConversation) {
+    if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].conversation) {
       return optionObj.response.general
     } else {
       return optionObj.response.noConversation
@@ -348,10 +348,9 @@ class Tts {
    */
   async handleSettingSubscriber (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingUserLevelSubonly(this.bot.userId, roomId, JSON.parse(parameter))
-      await this.updateChannelPointSettings()
+      this.channelPointsSettings[roomId].subOnly = JSON.parse(parameter)
     }
-    return !!this.channelPointsSettings[roomId].ttsUserLevel
+    return !!this.channelPointsSettings[roomId].subOnly
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -363,10 +362,9 @@ class Tts {
    */
   async handleSettingConversation (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingConversation(this.bot.userId, roomId, JSON.parse(parameter))
-      await this.updateChannelPointSettings()
+      this.channelPointsSettings[roomId].conversation = JSON.parse(parameter)
     }
-    return !!this.channelPointsSettings[roomId].ttsConversation
+    return !!this.channelPointsSettings[roomId].conversation
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -380,13 +378,12 @@ class Tts {
     if (parameter) {
       let voice
       if ((voice = TtsWebSocket.getVoiceID(parameter, false))) {
-        await SqlChannelPoints.setSettingDefaultVoice(this.bot.userId, roomId, voice)
-        await this.updateChannelPointSettings()
+        this.channelPointsSettings[roomId].defaultVoiceName = voice
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[roomId].ttsDefaultVoiceName
+    return this.channelPointsSettings[roomId].defaultVoiceName
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -398,10 +395,9 @@ class Tts {
    */
   async handleSettingQueue (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingQueueMessages(this.bot.userId, roomId, JSON.parse(parameter))
-      await this.updateChannelPointSettings()
+      this.channelPointsSettings[roomId].queue = JSON.parse(parameter)
     }
-    return !!this.channelPointsSettings[roomId].ttsQueueMessages
+    return !!this.channelPointsSettings[roomId].queue
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -415,13 +411,12 @@ class Tts {
     if (parameter) {
       let volume = parseInt(parameter)
       if (0 <= volume && volume <= 100) {
-        await SqlChannelPoints.setSettingVolume(this.bot.userId, roomId, volume)
-        await this.updateChannelPointSettings()
+        this.channelPointsSettings[roomId].volume = volume
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[roomId].ttsVolume
+    return this.channelPointsSettings[roomId].volume
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -435,13 +430,12 @@ class Tts {
     if (parameter) {
       let maxMessageTime = parseInt(parameter)
       if (0 <= maxMessageTime && maxMessageTime <= 300) {
-        await SqlChannelPoints.setSettingMaxMessageTime(this.bot.userId, roomId, maxMessageTime)
-        await this.updateChannelPointSettings()
+        this.channelPointsSettings[roomId].maxMessageTime = maxMessageTime
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[roomId].ttsMaxMessageTime
+    return this.channelPointsSettings[roomId].maxMessageTime
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -455,13 +449,12 @@ class Tts {
     if (parameter) {
       let cooldown = parseInt(parameter)
       if (0 <= cooldown && cooldown <= 300) {
-        await SqlChannelPoints.setSettingCooldown(this.bot.userId, roomId, cooldown)
-        await this.updateChannelPointSettings()
+        this.channelPointsSettings[roomId].cooldown = cooldown
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[roomId].ttsCooldown
+    return this.channelPointsSettings[roomId].cooldown
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -475,13 +468,12 @@ class Tts {
     if (parameter) {
       let timeoutCheckTime = parseInt(parameter)
       if (0 <= timeoutCheckTime && timeoutCheckTime <= 30) {
-        await SqlChannelPoints.setSettingTimeoutcheckTime(this.bot.userId, roomId, timeoutCheckTime)
-        await this.updateChannelPointSettings()
+        this.channelPointsSettings[roomId].timeoutCheckTime = timeoutCheckTime
       } else {
         throw ("")
       }
     }
-    return this.channelPointsSettings[roomId].ttsTimeoutCheckTime
+    return this.channelPointsSettings[roomId].timeoutCheckTime
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -493,10 +485,9 @@ class Tts {
    */
   async handleSettingAllowCustomPlaybackrate (roomId, parameter) {
     if (parameter) {
-      await SqlChannelPoints.setSettingAllowCustomPlaybackrate(this.bot.userId, roomId, JSON.parse(parameter))
-      await this.updateChannelPointSettings()
+      this.channelPointsSettings[roomId].allowCustomPlaybackrate = JSON.parse(parameter)
     }
-    return !!this.channelPointsSettings[roomId].ttsAllowCustomPlaybackrate
+    return !!this.channelPointsSettings[roomId].allowCustomPlaybackrate
   }
 
   /* Setting sub commands END */
@@ -511,20 +502,20 @@ class Tts {
     if (Object.prototype.hasOwnProperty.call(privMsgObj.raw.tags, "custom-reward-id")) {
       let responseMessage
       let settingObj = this.channelPointsSettings[privMsgObj.roomId]
-      if (settingObj.ttsUserLevel <= privMsgObj.userLevel) {
-        if (settingObj.ttsCooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
+      if (settingObj.subOnly ? UserLevels.SUB : UserLevels.DEFAULT <= privMsgObj.userLevel) {
+        if (settingObj.cooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
             let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(
               privMsgObj,
-              settingObj.ttsConversation,
-              settingObj.ttsQueueMessages,
-              settingObj.ttsAllowCustomPlaybackrate,
-              settingObj.ttsVolume,
-              settingObj.ttsDefaultVoiceName,
-              settingObj.ttsTimeoutCheckTime,
-              settingObj.ttsMaxMessageTime
+              settingObj.conversation,
+              settingObj.queue,
+              settingObj.allowCustomPlaybackrate,
+              settingObj.volume,
+              settingObj.defaultVoiceName,
+              settingObj.timeoutCheckTime,
+              settingObj.maxMessageTime
             )
             //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
@@ -561,10 +552,6 @@ class Tts {
    */
   async updateChannelPointSettings () {
     this.channelPointsSettings = await SqlChannelPoints.getChannelPointsSettings(this.bot.userId)
-    if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, 38949074)) {
-      this.channelPointsSettings[38949074].volume = 90
-      console.log(this.channelPointsSettings[38949074].volume)
-    }
   }
 }
 
