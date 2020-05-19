@@ -83,26 +83,33 @@ create table connections
 
 create table channelPointsSettings
 (
-    botID                      int unsigned                                                                                    not null,
-    channelID                  int unsigned                                                                                    not null,
-    enabled                    bit              default b'1'                                                                   not null,
-    ttsConversation            bit              default b'1'                                                                   not null,
-    ttsQueueMessages           bit              default b'1'                                                                   not null,
-    ttsVolume                  int              default 100                                                                    not null,
-    ttsCustomRewardId          varchar(45)                                                                                     null,
-    ttsDefaultVoiceName        varchar(45)      default 'Brian'                                                                null,
-    ttsMaxMessageTime          int              default 0                                                                      null,
-    ttsCooldown                int(11) unsigned default 0                                                                      null,
-    ttsUserLevel               int(11) unsigned default 0                                                                      not null,
-    ttsTimeoutCheckTime        int(11) unsigned default 2                                                                      not null,
-    ttsAcceptMessage           varchar(512)                                                                                    null,
-    ttsAllowCustomPlaybackrate bit              default b'0'                                                                   not null,
-    ttsRejectUserLevelMessage  varchar(512)     default 'Your TTS message has not been sent. You are not a subscriber.'        null,
-    ttsRejectCooldownMessage   varchar(512)     default 'Your TTS message has not been sent. The cooldown is not over.'        null,
-    ttsRejectTimeoutMessage    varchar(512)     default 'Your TTS message has not been sent. Your message has been timed out.' null,
+    botID                      int unsigned                                                                                                not null,
+    channelID                  int unsigned                                                                                                not null,
+    enabled                    bit                          default b'1'                                                                   not null,
+    ttsJson                    longtext collate utf8mb4_bin default '{}'                                                                   not null,
+    commandJson                longtext collate utf8mb4_bin default '{}'                                                                   not null,
+    allowCommandNewLines       bit                          default b'0'                                                                   not null,
+    ttsConversation            bit                          default b'1'                                                                   not null,
+    ttsQueueMessages           bit                          default b'1'                                                                   not null,
+    ttsVolume                  int                          default 100                                                                    not null,
+    ttsCustomRewardId          varchar(45)                                                                                                 null,
+    ttsDefaultVoiceName        varchar(45)                  default 'Brian'                                                                null,
+    ttsMaxMessageTime          int                          default 0                                                                      null,
+    ttsCooldown                int(11) unsigned             default 0                                                                      null,
+    ttsUserLevel               int(11) unsigned             default 0                                                                      not null,
+    ttsTimeoutCheckTime        int(11) unsigned             default 2                                                                      not null,
+    ttsAllowCustomPlaybackrate bit                          default b'0'                                                                   not null,
+    ttsAcceptMessage           varchar(512)                                                                                                null,
+    ttsRejectUserLevelMessage  varchar(512)                 default 'Your TTS message has not been sent. You are not a subscriber.'        null,
+    ttsRejectCooldownMessage   varchar(512)                 default 'Your TTS message has not been sent. The cooldown is not over.'        null,
+    ttsRejectTimeoutMessage    varchar(512)                 default 'Your TTS message has not been sent. Your message has been timed out.' null,
     primary key (botID, channelID),
     constraint channelPointsSettings_connections_botID_channelID_fk
-        foreign key (botID, channelID) references connections (botID, channelID)
+        foreign key (botID, channelID) references connections (botID, channelID),
+    constraint commandJson
+        check (json_valid(`commandJson`)),
+    constraint ttsJson
+        check (json_valid(`ttsJson`))
 );
 
 create table commandGroupLink
@@ -151,6 +158,28 @@ create table notifications
     constraint notifications_connections_botID_channelID_fk
         foreign key (botID, channelID) references connections (botID, channelID)
 );
+
+create table ttsLog
+(
+    id         int auto_increment
+        primary key,
+    roomId     int                                   not null,
+    userId     int                                   not null,
+    rawMessage varchar(512)                          not null,
+    wasSent    bit       default b'1'                not null,
+    userLevel  tinyint                               null,
+    TIMESTAMP  timestamp default current_timestamp() not null,
+    messageId  varchar(36)                           not null
+);
+
+create index ttsLog_roomId_index
+    on ttsLog (roomId);
+
+create index ttsLog_userId_index
+    on ttsLog (userId);
+
+create index ttsLog_wasSent_index
+    on ttsLog (wasSent);
 
 create table userBlacklist
 (
