@@ -89,7 +89,9 @@ class SqlChannelPoints {
 
 
   get conversation () {
-    return this._ttsJson.conversation || ttsStrings.options.handleSettings.options.handleSettingConversation.default
+    return this._ttsJson.conversation !== undefined
+      ? this._ttsJson.conversation
+      : ttsStrings.options.handleSettings.options.handleSettingConversation.default
   }
 
   set conversation (value) {
@@ -102,7 +104,9 @@ class SqlChannelPoints {
    * @return {boolean}
    */
   get queue () {
-    return this._ttsJson.queueMessages || ttsStrings.options.handleSettings.options.handleSettingQueue.default
+    return this._ttsJson.queueMessages !== undefined
+      ? this._ttsJson.queueMessages
+      : ttsStrings.options.handleSettings.options.handleSettingQueue.default
   }
 
   set queue (value) {
@@ -154,7 +158,9 @@ class SqlChannelPoints {
    * @return {boolean}
    */
   get subOnly () {
-    return this._ttsJson.subOnly || ttsStrings.options.handleSettings.options.handleSettingSubscriber.default
+    return this._ttsJson.subOnly !== undefined
+      ? this._ttsJson.subOnly
+      : ttsStrings.options.handleSettings.options.handleSettingSubscriber.default
   }
 
   set subOnly (value) {
@@ -193,7 +199,9 @@ class SqlChannelPoints {
    * @return {boolean}
    */
   get allowCustomPlaybackrate () {
-    return this._ttsJson.allowCustomPlaybackrate || ttsStrings.options.handleSettings.options.handleSettingAllowCustomPlaybackrate.default
+    return this._ttsJson.allowCustomPlaybackrate !== undefined
+      ? this._ttsJson.allowCustomPlaybackrate
+      : ttsStrings.options.handleSettings.options.handleSettingAllowCustomPlaybackrate.default
   }
 
   set allowCustomPlaybackrate (value) {
