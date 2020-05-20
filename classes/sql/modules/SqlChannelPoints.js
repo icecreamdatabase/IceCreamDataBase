@@ -36,14 +36,16 @@ class SqlChannelPoints {
    * @param {commandJson} commandJson
    * @param {string} ttsCustomRewardId
    * @param allowCommandNewLines
+   * @param listenOnPubSub
    */
-  constructor (botId, channelId, ttsJson, commandJson, ttsCustomRewardId, allowCommandNewLines) {
+  constructor (botId, channelId, ttsJson, commandJson, ttsCustomRewardId, allowCommandNewLines, listenOnPubSub) {
     this._botId = botId
     this._channelId = channelId
     this._ttsJson = ttsJson
     this._commandJson = commandJson
     this._customRewardId = ttsCustomRewardId
     this._allowCommandNewLines = allowCommandNewLines
+    this._listenOnPubSub = listenOnPubSub
   }
 
   update () {
@@ -56,6 +58,7 @@ class SqlChannelPoints {
 
   set ttsCustomRewardId (value) {
     this._customRewardId = value
+    //TODO: sync with DB
   }
 
   get allowCommandNewLines () {
@@ -64,6 +67,16 @@ class SqlChannelPoints {
 
   set allowCommandNewLines (value) {
     this._allowCommandNewLines = value
+    //TODO: sync with DB
+  }
+
+  get listenOnPubSub () {
+    return this._allowCommandNewLines
+  }
+
+  set listenOnPubSub (value) {
+    this._allowCommandNewLines = value
+    //TODO: sync with DB
   }
 
   /**
@@ -228,7 +241,13 @@ class SqlChannelPoints {
 
     let returnObj = {}
     results.forEach(x => {
-      returnObj[x.channelID] = new SqlChannelPoints(botId, x.channelID, JSON.parse(x.ttsJson), JSON.parse(x.commandJson), x.ttsCustomRewardId, x.allowCommandNewLines)
+      returnObj[x.channelID] = new SqlChannelPoints(botId,
+        x.channelID,
+        JSON.parse(x.ttsJson),
+        JSON.parse(x.commandJson),
+        x.ttsCustomRewardId,
+        x.allowCommandNewLines,
+        x.listenOnPubSub)
     })
     return returnObj
   }
