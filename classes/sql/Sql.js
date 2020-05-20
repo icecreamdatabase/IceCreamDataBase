@@ -23,7 +23,7 @@ options.mysqloptions.typeCast = function castField (field, useDefaultTypeCasting
   return (useDefaultTypeCasting())
 }
 
-module.exports = class Sql {
+class Sql {
   constructor () {
     let pool = Mysql.createPool(options.mysqloptions)
 
@@ -47,4 +47,6 @@ module.exports = class Sql {
     return global.SqlSingletonInstance
   }
 
-}.getInstance() //TODO do all singleton classes like this
+}
+
+module.exports = Sql.getInstance() //TODO do all singleton classes like this

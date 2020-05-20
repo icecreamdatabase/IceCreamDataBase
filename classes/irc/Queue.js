@@ -13,7 +13,7 @@ const MIN_MESSAGE_CUT_LENGTH_FACTOR = 0.75
 const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Tts.js as well!
 
 
-module.exports = class Queue {
+class Queue {
   constructor (bot) {
     this.bot = bot
 
@@ -198,3 +198,5 @@ module.exports = class Queue {
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+module.exports = Queue

@@ -4,7 +4,7 @@ const util = require('util')
 const Logger = require('./Logger')
 const TimeConversion = require("../../ENUMS/TimeConversion")
 
-module.exports = class TimeConversionHelper {
+class TimeConversionHelper {
   constructor () {
 
   }
@@ -127,3 +127,5 @@ module.exports = class TimeConversionHelper {
   if (seconds < 10) { seconds = "0" + seconds }
   */
 }
+
+module.exports = TimeConversionHelper

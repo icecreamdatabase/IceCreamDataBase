@@ -1,7 +1,7 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 
-module.exports = class SqlChannels {
+class SqlChannels {
   constructor () {
 
   }
@@ -104,3 +104,5 @@ module.exports = class SqlChannels {
     return channels
   }
 }
+
+module.exports = SqlChannels

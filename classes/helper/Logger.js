@@ -1,7 +1,7 @@
 "use strict"
 const util = require('util')
 
-module.exports = class Logger {
+class Logger {
   constructor () {
   }
 
@@ -34,3 +34,4 @@ module.exports = class Logger {
   }
 }
 
+module.exports = Logger

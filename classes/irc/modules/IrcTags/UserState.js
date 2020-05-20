@@ -6,7 +6,7 @@ const DiscordLog = require('../../../helper/DiscordLog')
 //ENUMS
 const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
-module.exports = class UserState {
+class UserState {
   constructor (bot) {
     this.bot = bot
 
@@ -41,3 +41,5 @@ module.exports = class UserState {
     return UserLevels.DEFAULT
   }
 }
+
+module.exports = UserState

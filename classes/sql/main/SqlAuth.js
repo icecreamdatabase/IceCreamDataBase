@@ -1,13 +1,15 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 
-module.exports = class SqlBot {
+class SqlBot {
   constructor () {
 
   }
 
   static async getIdList () {
-    let results = await sqlPool.query(`SELECT ID FROM auth WHERE enabled = b'1';`)
+    let results = await sqlPool.query(`SELECT ID
+                                       FROM auth
+                                       WHERE enabled = b'1';`)
     return results.map(x => x["ID"])
   }
 
@@ -25,3 +27,5 @@ module.exports = class SqlBot {
                          WHERE ID = ?`, [accessToken, botId])
   }
 }
+
+module.exports = SqlBot

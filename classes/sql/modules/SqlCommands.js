@@ -1,7 +1,7 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 
-module.exports = class SqlCommands {
+class SqlCommands {
   constructor () {
   }
 
@@ -81,3 +81,5 @@ module.exports = class SqlCommands {
                    WHERE ID = ?;`, commandID)
   }
 }
+
+module.exports = SqlCommands

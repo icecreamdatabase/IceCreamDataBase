@@ -1,7 +1,7 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 
-module.exports = class SqlSubNotifications {
+class SqlUserNotice {
   constructor () {
 
   }
@@ -71,10 +71,12 @@ module.exports = class SqlSubNotifications {
     //make sure the index is the channelID
     let returnData = {}
     for (let index in results) {
-      if (results.hasOwnProperty(index)) {
+      if (Object.prototype.hasOwnProperty.call(results, index)) {
         returnData[results[index].channelID] = results[index]
       }
     }
     return returnData
   }
 }
+
+module.exports = SqlUserNotice

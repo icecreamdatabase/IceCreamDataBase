@@ -12,7 +12,7 @@ const BASEOBJECT_HELIX = {
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
-module.exports = class Helix {
+class Helix {
   constructor (bot) {
     this.bot = bot
   }
@@ -35,3 +35,5 @@ module.exports = class Helix {
   }
 
 }
+
+module.exports = Helix

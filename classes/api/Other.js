@@ -21,7 +21,7 @@ const TWITCH_API_HELIX = {
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
-module.exports = class Other {
+class Other {
   constructor () {
 
   }
@@ -115,3 +115,5 @@ module.exports = class Other {
     return false
   }
 }
+
+module.exports = Other

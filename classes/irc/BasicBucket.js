@@ -3,7 +3,7 @@ const Logger = require('../helper/Logger')
 
 const TICKET_RETURN_TIMEOUT = 30000
 
-module.exports = class BasicBucket {
+class BasicBucket {
   constructor (limit) {
     this.usedTickets = 0
     this._limit = limit || 20
@@ -51,3 +51,5 @@ function returnTicket () {
     Logger.error("Ticket returned when there where none given out!")
   }
 }
+
+module.exports = BasicBucket

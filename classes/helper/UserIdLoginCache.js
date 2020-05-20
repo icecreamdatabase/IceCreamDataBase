@@ -7,7 +7,7 @@ const CLEANUPINTERVAL = 10800000 //3 hours
 let userInfosById = {}
 let userInfosByName = {}
 
-module.exports = class UserIdLoginCache {
+class UserIdLoginCache {
   constructor (bot) {
     this.bot = bot
 
@@ -68,3 +68,4 @@ module.exports = class UserIdLoginCache {
   }
 }
 
+module.exports = UserIdLoginCache

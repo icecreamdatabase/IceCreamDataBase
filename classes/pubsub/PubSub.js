@@ -5,7 +5,7 @@ const Logger = require('../helper/Logger')
 const DiscordLog = require('../helper/DiscordLog')
 const TwitchPubSubConnection = require('./TwitchPubSubConnection')
 
-module.exports = class Irc {
+class Irc {
   constructor (bot) {
     this.bot = bot
 
@@ -49,3 +49,5 @@ module.exports = class Irc {
   }
 
 }
+
+module.exports = Irc

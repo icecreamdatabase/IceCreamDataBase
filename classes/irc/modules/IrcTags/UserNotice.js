@@ -11,7 +11,7 @@ const UserNoticeTypes = require('../../../../ENUMS/UserNoticeTypes.js')
 const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
 
-module.exports = class UserNotice {
+class UserNotice {
   constructor (bot) {
     this.bot = bot
     this.notificationData = {}
@@ -149,3 +149,4 @@ module.exports = class UserNotice {
   }
 }
 
+module.exports = UserNotice

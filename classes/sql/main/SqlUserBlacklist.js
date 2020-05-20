@@ -1,7 +1,7 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 
-module.exports = class SqlUserBlacklist {
+class SqlUserBlacklist {
   constructor () {
   }
 
@@ -30,3 +30,5 @@ module.exports = class SqlUserBlacklist {
         ;`, [userId])
   }
 }
+
+module.exports = SqlUserBlacklist

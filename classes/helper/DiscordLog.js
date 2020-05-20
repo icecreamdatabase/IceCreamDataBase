@@ -21,7 +21,7 @@ LOG_QUEUE_EMITTER.on('event', queueRunner)
 
 let QUEUE_BEING_CHECKED = false
 
-module.exports = class DiscordLog {
+class DiscordLog {
   constructor (bot) {
   }
 
@@ -254,3 +254,4 @@ async function sendToWebhook (messageQueueObj) {
   })
 }
 
+module.exports = DiscordLog

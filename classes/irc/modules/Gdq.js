@@ -5,7 +5,7 @@ const Logger = require('../../helper/Logger')
   This entire file is pretty much taken from here:
   https://taskinoz.com/gdq/js/script.js
  */
-module.exports = class Gdq {
+class Gdq {
   constructor () {
   }
 
@@ -68,3 +68,4 @@ module.exports = class Gdq {
   }
 }
 
+module.exports = Gdq

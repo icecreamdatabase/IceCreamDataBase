@@ -8,7 +8,7 @@ const DiscordLog = require('../../../helper/DiscordLog')
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
-module.exports = class Hardcoded {
+class Hardcoded {
   constructor (bot) {
     this.bot = bot
 
@@ -108,3 +108,5 @@ module.exports = class Hardcoded {
     return false
   }
 }
+
+module.exports = Hardcoded

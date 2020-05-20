@@ -6,7 +6,7 @@ const DiscordLog = require('../../../helper/DiscordLog')
 const Tts = require("./Tts")
 
 
-module.exports = class ChannelPoints {
+class ChannelPoints {
   constructor (bot) {
     this.bot = bot
 
@@ -26,3 +26,5 @@ module.exports = class ChannelPoints {
     return false
   }
 }
+
+module.exports = ChannelPoints

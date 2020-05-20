@@ -7,7 +7,7 @@ const SqlCounters = require('../../../sql/modules/SqlCounters')
 const counterRegExp = new RegExp(/\${counter(Inc|Get)?=([^}]+)}/, 'i')
 const counterInc = "Inc"
 
-module.exports = class Counters {
+class Counters {
   constructor () {
   }
 
@@ -34,3 +34,5 @@ module.exports = class Counters {
   }
 
 }
+
+module.exports = Counters

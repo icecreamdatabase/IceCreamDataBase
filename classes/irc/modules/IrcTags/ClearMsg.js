@@ -9,7 +9,7 @@ const CLEAR_OLD_ENTIRES_INTERVAL = 30000
 const KEEP_OLD_ENTRY_AMOUNT = 100
 let deletedMsgIds = []
 
-module.exports = class ClearMsg {
+class ClearMsg {
   constructor (bot) {
     this.bot = bot
 
@@ -44,3 +44,4 @@ module.exports = class ClearMsg {
   }
 }
 
+module.exports = ClearMsg

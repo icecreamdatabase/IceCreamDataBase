@@ -12,7 +12,7 @@ const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
 const options = require('../../../../config.json')
 
-module.exports = class PrivMsg {
+class PrivMsg {
   constructor (bot) {
     this.bot = bot
 
@@ -135,3 +135,5 @@ module.exports = class PrivMsg {
     }
   }
 }
+
+module.exports = PrivMsg

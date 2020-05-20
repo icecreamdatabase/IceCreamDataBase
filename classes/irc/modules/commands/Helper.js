@@ -34,7 +34,7 @@ const icecreamFacts = {
   "Blue Bunny Premium All Natural Vanilla Ice Cream": "The \"thick and creamy\" texture of Blue Bunny All Natural Vanilla Ice Cream was well received by our volunteers. \"Sweet and milky,\" the \"good French vanilla flavor\" of this ice cream caused one taster to joke, \"Bring on the cone!\""
 }
 
-module.exports = class Helper {
+class Helper {
   constructor (bot) {
     this.bot = bot
     this.userWasInChannelObj = {}
@@ -296,3 +296,5 @@ module.exports = class Helper {
     return timeSum
   }
 }
+
+module.exports = Helper

@@ -6,7 +6,7 @@ const DiscordLog = require('../../../helper/DiscordLog')
 
 const lastTimeoutObj = {}
 
-module.exports = class ClearChat {
+class ClearChat {
   constructor (bot) {
     this.bot = bot
 
@@ -52,3 +52,4 @@ module.exports = class ClearChat {
   }
 }
 
+module.exports = ClearChat

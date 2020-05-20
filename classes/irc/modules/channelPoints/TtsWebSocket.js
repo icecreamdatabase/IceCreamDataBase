@@ -29,7 +29,7 @@ const voiceRandomObj = {
 // noinspection JSUnresolvedFunction
 const voicesWithRandom = voices.concat([voiceRandomObj])
 
-module.exports = class TtsWebSocket {
+class TtsWebSocket {
   constructor () {
     if (TtsWebSocket.instance) {
       return TtsWebSocket.instance
@@ -311,3 +311,5 @@ module.exports = class TtsWebSocket {
     return currentWebsocketClientCount
   }
 }
+
+module.exports = TtsWebSocket

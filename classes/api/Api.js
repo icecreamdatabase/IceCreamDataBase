@@ -7,7 +7,7 @@ const ApiOther = require('./Other')
 
 let apiFallbackObject
 
-module.exports = class Api {
+class Api {
   constructor (bot) {
     this.kraken = new ApiKraken(bot)
     this.helix = new ApiHelix(bot)
@@ -22,3 +22,5 @@ module.exports = class Api {
     return apiFallbackObject
   }
 }
+
+module.exports = Api

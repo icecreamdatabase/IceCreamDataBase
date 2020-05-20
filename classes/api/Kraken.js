@@ -6,7 +6,7 @@ const TimeConversion = require("../../ENUMS/TimeConversion")
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
-module.exports = class Kraken {
+class Kraken {
   constructor (bot) {
     this.bot = bot
   }
@@ -369,3 +369,5 @@ module.exports = class Kraken {
     return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
 }
+
+module.exports = Kraken

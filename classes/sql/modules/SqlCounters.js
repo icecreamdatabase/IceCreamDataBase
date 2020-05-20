@@ -1,7 +1,7 @@
 "use strict"
 const sqlPool = require('../Sql').pool
 
-module.exports = class SqlCounters {
+class SqlCounters {
   constructor () {
   }
 
@@ -33,3 +33,5 @@ module.exports = class SqlCounters {
         ;`, [counterID, amount])
   }
 }
+
+module.exports = SqlCounters

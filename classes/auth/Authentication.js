@@ -10,7 +10,7 @@ const VALIDATE_REFRESH_OFFSET = 120000 // 2 minutes
 const VALIDATE_INTERVAL = 900000 // 15 minutes
 const UPDATE_INTERVAL = 300000 // 5 minutes
 
-module.exports = class Authentication {
+class Authentication {
   constructor (bot, userId) {
     this.bot = bot
     this._userId = userId
@@ -134,3 +134,5 @@ module.exports = class Authentication {
     }
   }
 }
+
+module.exports = Authentication

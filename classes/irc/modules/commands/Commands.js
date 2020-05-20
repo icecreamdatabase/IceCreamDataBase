@@ -9,7 +9,7 @@ const UserLevels = require('../../../../ENUMS/UserLevels')
 
 const UPDATE_COMMAND_INTERVAL = 15000 //ms
 
-module.exports = class Commands {
+class Commands {
   constructor (bot) {
     this.bot = bot
     this.commandDataNormal = {}
@@ -110,3 +110,5 @@ module.exports = class Commands {
     })
   }
 }
+
+module.exports = Commands

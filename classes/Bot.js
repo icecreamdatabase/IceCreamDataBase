@@ -15,7 +15,7 @@ const PubSub = require('./pubsub/PubSub')
 const UPDATE_USERBLACKLIST_INTERVAL = 15000 // 15 seconds
 const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
-module.exports = class Bot {
+class Bot {
   constructor (id) {
     this.refreshEmmitter = new EventEmitter()
     this.refreshEmmitter.on('refresh', this.onRefresh.bind(this))
@@ -69,3 +69,5 @@ module.exports = class Bot {
     this.userBlacklist = await SqlBlacklist.getUserIds()
   }
 }
+
+module.exports = Bot

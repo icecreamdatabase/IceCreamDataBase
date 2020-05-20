@@ -15,7 +15,7 @@ const ChatLimit = require("../../ENUMS/ChatLimit")
 //update channels every 120 seconds (2 minutes)
 const UPDATE_ALL_CHANNELS_INTERVAL = 120000 //ms
 
-module.exports = class Irc {
+class Irc {
   constructor (bot) {
     this.bot = bot
 
@@ -160,3 +160,5 @@ module.exports = class Irc {
     }
   }
 }
+
+module.exports = Irc
