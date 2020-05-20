@@ -3,6 +3,12 @@
   "ignorecooldown": false,
   "response": "This is a channelpoint based TTS system made by i\uDB40\uDC00c\uDB40\uDC00d\uDB40\uDC00b. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available commands are: \"!tts help\", \"!tts voices\", \"!tts stats\", \"!tts skip\" (mod only), \"!tts settings\" (mod only), \"!tts link\" (mod only), \"!tts unregister\" (broadcaster only)",
   "globalResponsePrefix": "icdbBot \uD83D\uDCE3",
+  "redemeResponse": {
+    "acceptMessage": "",
+    "rejectUserLevelMessage": "Your TTS message has not been sent. You are not a subscriber.",
+    "rejectCooldownMessage": "Your TTS message has not been sent. The cooldown is not over.",
+    "rejectTimeoutMessage": "Your TTS message has not been sent. Your message has been timed out."
+  },
   "options": {
     "handleRegister": {
       "ignoreCooldown": true,
@@ -66,7 +72,7 @@
         "failNotAnOption": "Updating failed. That is not an available option.",
         "failRange": "Updating failed. Value is outside of allowed range.",
         "get": "Current value is:",
-        "help": "Use \"!tts settings [OPTION] [VALUE]\". Avaiable options are: \"conversation\", \"sub\", \"queue\", \"volume\", \"cooldown\", \"maxmessagetime\", \"timeoutcheck\", \"voice\", \"allowcustomplaybackrate\"."
+        "help": "Use \"!tts settings [OPTION] [VALUE]\". Available options are: \"conversation\", \"sub\", \"queue\", \"volume\", \"cooldown\", \"maxmessagetime\", \"timeoutcheck\", \"voice\", \"allowcustomplaybackrate\"."
       },
       "options": {
         "handleSettingConversation": {

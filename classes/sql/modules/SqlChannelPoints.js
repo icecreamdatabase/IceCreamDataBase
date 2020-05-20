@@ -1,10 +1,254 @@
 "use strict"
+const util = require('util')
+const Logger = require('./../../helper/Logger')
 const sqlPool = require('../Sql').pool
+const ttsStrings = require("../../../json/tts-strings")
 
-module.exports = class SqlChannelPoints {
-  constructor () {
+class SqlChannelPoints {
+  /**
+   *
+   * @typedef {Object} ttsJson
+   * @property {boolean} conversation
+   * @property {boolean} queueMessages
+   * @property {number} volume
+   * @property {string} defaultVoiceName
+   * @property {number} maxMessageTime
+   * @property {number} cooldown
+   * @property {number} subOnly
+   * @property {number} timeoutCheckTime
+   * @property {boolean} allowCustomPlaybackrate
+   */
 
+  /**
+   * keys are customRewardIds
+   * objects are response strings
+   *
+   * @typedef {Object} commandJson
+   * @property {boolean} allowCommandNewLines
+   * @property {{string}[]} commands
+   */
+
+  /**
+   *
+   * @param {number} botId
+   * @param {number} channelId
+   * @param {ttsJson} ttsJson
+   * @param {commandJson} commandJson
+   * @param {string} ttsCustomRewardId
+   * @param allowCommandNewLines
+   */
+  constructor (botId, channelId, ttsJson, commandJson, ttsCustomRewardId, allowCommandNewLines) {
+    this._botId = botId
+    this._channelId = channelId
+    this._ttsJson = ttsJson
+    this._commandJson = commandJson
+    this._customRewardId = ttsCustomRewardId
+    this._allowCommandNewLines = allowCommandNewLines
   }
+
+  update () {
+    SqlChannelPoints.updateChannelPointsTtsJson(this._botId, this._channelId, this._ttsJson).then()
+  }
+
+  get ttsCustomRewardId () {
+    return this._customRewardId
+  }
+
+  set ttsCustomRewardId (value) {
+    this._customRewardId = value
+  }
+
+  get allowCommandNewLines () {
+    return this._allowCommandNewLines
+  }
+
+  set allowCommandNewLines (value) {
+    this._allowCommandNewLines = value
+  }
+
+  /**
+   *
+   * @param {string} customRewardId
+   * @param {string} response
+   */
+  addCommand (customRewardId, response) {
+    this._commandJson[customRewardId] = response
+    SqlChannelPoints.updateChannelPointsCommandJson(this._botId, this._channelId, this._commandJson).then()
+  }
+
+  /**
+   *
+   * @param {string} customRewardId
+   * @return {string|null}
+   */
+  getCommand (customRewardId) {
+    return Object.prototype.hasOwnProperty.call(this._commandJson, customRewardId)
+      ? this._commandJson[customRewardId]
+      : null
+  }
+
+
+  get conversation () {
+    return this._ttsJson.conversation !== undefined
+      ? this._ttsJson.conversation
+      : ttsStrings.options.handleSettings.options.handleSettingConversation.default
+  }
+
+  set conversation (value) {
+    this._ttsJson.conversation = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {boolean}
+   */
+  get queue () {
+    return this._ttsJson.queueMessages !== undefined
+      ? this._ttsJson.queueMessages
+      : ttsStrings.options.handleSettings.options.handleSettingQueue.default
+  }
+
+  set queue (value) {
+    this._ttsJson.queueMessages = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get volume () {
+    return this._ttsJson.volume || ttsStrings.options.handleSettings.options.handleSettingVolume.default
+  }
+
+  set volume (value) {
+    this._ttsJson.volume = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {string}
+   */
+  get defaultVoiceName () {
+    return this._ttsJson.defaultVoiceName || ttsStrings.options.handleSettings.options.handleSettingVoice.default
+  }
+
+  set defaultVoiceName (value) {
+    this._ttsJson.defaultVoiceName = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get cooldown () {
+    return this._ttsJson.cooldown || ttsStrings.options.handleSettings.options.handleSettingCooldown.default
+  }
+
+  set cooldown (value) {
+    this._ttsJson.cooldown = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {boolean}
+   */
+  get subOnly () {
+    return this._ttsJson.subOnly !== undefined
+      ? this._ttsJson.subOnly
+      : ttsStrings.options.handleSettings.options.handleSettingSubscriber.default
+  }
+
+  set subOnly (value) {
+    this._ttsJson.subOnly = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get timeoutCheckTime () {
+    return this._ttsJson.timeoutCheckTime || ttsStrings.options.handleSettings.options.handleSettingTimeoutCheckTime.default
+  }
+
+  set timeoutCheckTime (value) {
+    this._ttsJson.timeoutCheckTime = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {number}
+   */
+  get maxMessageTime () {
+    return this._ttsJson.maxMessageTime || ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default
+  }
+
+  set maxMessageTime (value) {
+    this._ttsJson.maxMessageTime = value
+    this.update()
+  }
+
+  /**
+   *
+   * @return {boolean}
+   */
+  get allowCustomPlaybackrate () {
+    return this._ttsJson.allowCustomPlaybackrate !== undefined
+      ? this._ttsJson.allowCustomPlaybackrate
+      : ttsStrings.options.handleSettings.options.handleSettingAllowCustomPlaybackrate.default
+  }
+
+  set allowCustomPlaybackrate (value) {
+    this._ttsJson.allowCustomPlaybackrate = value
+    this.update()
+  }
+
+
+  /**
+   *
+   * @param botId
+   * @returns {Promise<SqlChannelPoints[]>}
+   */
+  static async getChannelPointsSettings (botId) {
+    let results = await sqlPool.query(`SELECT channelID,
+                                              ttsCustomRewardId,
+                                              ttsJson,
+                                              commandJson,
+                                              allowCommandNewLines
+                                       FROM channelPointsSettings
+                                       WHERE enabled = B'1'
+                                         AND botID = ?
+    ;`, botId)
+
+    let returnObj = {}
+    results.forEach(x => {
+      returnObj[x.channelID] = new SqlChannelPoints(botId, x.channelID, JSON.parse(x.ttsJson), JSON.parse(x.commandJson), x.ttsCustomRewardId, x.allowCommandNewLines)
+    })
+    return returnObj
+  }
+
+  static async updateChannelPointsTtsJson (botId, channelId, ttsJson) {
+    await sqlPool.query(`UPDATE channelPointsSettings
+                         SET ttsJson = ?
+                         WHERE botID = ?
+                           AND channelID = ?
+    ;`, [JSON.stringify(ttsJson), botId, channelId])
+  }
+
+  static async updateChannelPointsCommandJson (botId, channelId, commandJson) {
+    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
+                         SET commandJson = ?
+                         WHERE botID = ?
+                           AND channelID = ?
+    ;`, [JSON.stringify(commandJson), botId, channelId])
+  }
+
 
   /**
    * Log a TTS message
@@ -38,143 +282,6 @@ module.exports = class SqlChannelPoints {
   }
 
   /**
-   * Update the ttsCooldown setting for a connection
-   * @param botID
-   * @param channelID
-   * @param ttsMaxMessageTime default 0
-   * @returns {Promise<void>}
-   */
-  static async setSettingMaxMessageTime (botID, channelID, ttsMaxMessageTime = 0) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsMaxMessageTime = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [ttsMaxMessageTime, botID, channelID])
-  }
-
-  /**
-   * Update the ttsCooldown setting for a connection
-   * @param botID
-   * @param channelID
-   * @param ttsCooldown default 0
-   * @returns {Promise<void>}
-   */
-  static async setSettingCooldown (botID, channelID, ttsCooldown = 0) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsCooldown = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [ttsCooldown, botID, channelID])
-  }
-
-  /**
-   * Update the ttsTimeoutCheckTime setting for a connection
-   * @param botID
-   * @param channelID
-   * @param ttsTimeoutCheckTime default 2 seconds
-   * @returns {Promise<void>}
-   */
-  static async setSettingTimeoutcheckTime (botID, channelID, ttsTimeoutCheckTime = 2) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsTimeoutCheckTime = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [ttsTimeoutCheckTime, botID, channelID])
-  }
-
-  /**
-   * Update the ttsConversation setting for a connection
-   * @param botID
-   * @param channelID
-   * @param volume
-   * @returns {Promise<void>}
-   */
-  static async setSettingVolume (botID, channelID, volume = 100) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsVolume = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [volume, botID, channelID])
-  }
-
-  /**
-   * Update the ttsQueueMessages setting for a connection
-   * @param botID
-   * @param channelID
-   * @param queue
-   * @returns {Promise<void>}
-   */
-  static async setSettingQueueMessages (botID, channelID, queue = false) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsQueueMessages = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [queue, botID, channelID])
-  }
-
-  /**
-   * Update the ttsConversation setting for a connection
-   * @param botID
-   * @param channelID
-   * @param conversation
-   * @returns {Promise<void>}
-   */
-  static async setSettingConversation (botID, channelID, conversation = false) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsConversation = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [conversation, botID, channelID])
-  }
-
-  /**
-   * Update the ttsAllowCustomPlaybackrate setting for a connection
-   * @param botID
-   * @param channelID
-   * @param allowCustomPlaybackrate
-   * @returns {Promise<void>}
-   */
-  static async setSettingAllowCustomPlaybackrate (botID, channelID, allowCustomPlaybackrate = false) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsAllowCustomPlaybackrate = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [allowCustomPlaybackrate, botID, channelID])
-  }
-
-  /**
-   * Update the ttsDefaultVoiceName setting for a connection
-   * @param botID
-   * @param channelID
-   * @param voice
-   * @returns {Promise<void>}
-   */
-  static async setSettingDefaultVoice (botID, channelID, voice = "Brian") {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsDefaultVoiceName = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [voice, botID, channelID])
-  }
-
-  /**
-   * Update the ttsUserLevel setting for a connection
-   * subonly === true: ttsUserLevel = 1
-   * subonly === false: ttsUserLevel = 0
-   * @param botID
-   * @param channelID
-   * @param subonly
-   * @returns {Promise<void>}
-   */
-  static async setSettingUserLevelSubonly (botID, channelID, subonly = false) {
-    await sqlPool.query(`UPDATE IGNORE channelPointsSettings
-                         SET ttsUserLevel = ?
-                         WHERE botID = ?
-                           AND channelID = ?
-    ;`, [subonly ? 1 : 0, botID, channelID])
-  }
-
-  /**
    * Add or update channelPointsSettings for a connection
    * @param botID
    * @param channelID
@@ -187,39 +294,6 @@ module.exports = class SqlChannelPoints {
                          ON DUPLICATE KEY UPDATE enabled           = enabled,
                                                  ttsCustomRewardId = ?`,
       [botID, channelID, ttsCustomRewardId, ttsCustomRewardId])
-  }
-
-  /**
-   * Return all channelPointsSettings for a bot
-   * @param botId
-   * @returns {Promise<{channelID, ttsConversation, ttsVolume, ttsCustomRewardId, ttsDefaultVoiceName, ttsCooldown, ttsUserLevel, ttsTimeoutCheckTime, ttsAllowCustomPlaybackrate, ttsAcceptMessage, ttsRejectCooldownMessage, ttsRejectUserLevelMessage, ttsRejectTimeoutMessage}[]>}
-   */
-  static async getChannelPointsSettings (botId) {
-    let results = await sqlPool.query(`SELECT channelID,
-                                              ttsConversation,
-                                              ttsVolume,
-                                              ttsCustomRewardId,
-                                              ttsDefaultVoiceName,
-                                              ttsQueueMessages,
-                                              ttsMaxMessageTime,
-                                              ttsCooldown,
-                                              ttsUserLevel,
-                                              ttsTimeoutCheckTime,
-                                              ttsAllowCustomPlaybackrate,
-                                              ttsAcceptMessage,
-                                              ttsRejectCooldownMessage,
-                                              ttsRejectUserLevelMessage,
-                                              ttsRejectTimeoutMessage
-                                       FROM channelPointsSettings
-                                       WHERE enabled = B'1'
-                                         AND botID = ?
-    ;`, botId)
-
-    let returnObj = {}
-    results.forEach(x => {
-      returnObj[x.channelID] = x
-    })
-    return returnObj
   }
 
   /**
@@ -240,4 +314,57 @@ module.exports = class SqlChannelPoints {
                            AND channelID = ?
     ;`, [botID, channelID])
   }
+
+  static async convertAllToNewFormat (botId) {
+
+    let results = await sqlPool.query(`SELECT channelID,
+                                              ttsConversation,
+                                              ttsQueueMessages,
+                                              ttsVolume,
+                                              ttsDefaultVoiceName,
+                                              ttsMaxMessageTime,
+                                              ttsCooldown,
+                                              ttsUserLevel,
+                                              ttsTimeoutCheckTime,
+                                              ttsAllowCustomPlaybackrate
+                                       FROM channelPointsSettings
+                                       WHERE botID = ?
+    ;`, botId)
+
+    for (const x of results) {
+      let ttsJson = {}
+      if (x.ttsConversation !== ttsStrings.options.handleSettings.options.handleSettingConversation.default) {
+        ttsJson.conversation = x.ttsConversation
+      }
+      if (x.ttsQueueMessages !== ttsStrings.options.handleSettings.options.handleSettingQueue.default) {
+        ttsJson.queueMessages = x.ttsQueueMessages
+      }
+      if (x.ttsVolume !== ttsStrings.options.handleSettings.options.handleSettingVolume.default) {
+        ttsJson.volume = x.ttsVolume
+      }
+      if (x.ttsDefaultVoiceName !== ttsStrings.options.handleSettings.options.handleSettingVoice.default) {
+        ttsJson.defaultVoiceName = x.ttsDefaultVoiceName
+      }
+      if (x.ttsMaxMessageTime !== ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default) {
+        ttsJson.maxMessageTime = x.ttsMaxMessageTime
+      }
+      if (x.ttsCooldown !== ttsStrings.options.handleSettings.options.handleSettingCooldown.default) {
+        ttsJson.cooldown = x.ttsCooldown
+      }
+      if (!!x.ttsUserLevel !== ttsStrings.options.handleSettings.options.handleSettingSubscriber.default) {
+        ttsJson.subOnly = !!x.ttsUserLevel
+      }
+      if (x.ttsTimeoutCheckTime !== ttsStrings.options.handleSettings.options.handleSettingTimeoutCheckTime.default) {
+        ttsJson.timeoutCheckTime = x.ttsTimeoutCheckTime
+      }
+      if (x.allowCustomPlaybackrate !== ttsStrings.options.handleSettings.options.handleSettingAllowCustomPlaybackrate.default) {
+        ttsJson.allowCustomPlaybackrate = x.ttsAllowCustomPlaybackrate
+      }
+
+      await this.updateChannelPointsTtsJson(botId, x.channelID, ttsJson)
+      Logger.info(`Channelpoints conversation to new format done`)
+    }
+  }
 }
+
+module.exports = SqlChannelPoints
