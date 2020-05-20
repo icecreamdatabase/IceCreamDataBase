@@ -48,6 +48,10 @@ class SqlChannelPoints {
     this._listenOnPubSub = listenOnPubSub
   }
 
+  get channelId () {
+    return this._channelId
+  }
+
   update () {
     SqlChannelPoints.updateChannelPointsTtsJson(this._botId, this._channelId, this._ttsJson).then()
   }
@@ -71,11 +75,11 @@ class SqlChannelPoints {
   }
 
   get listenOnPubSub () {
-    return this._allowCommandNewLines
+    return this._listenOnPubSub
   }
 
   set listenOnPubSub (value) {
-    this._allowCommandNewLines = value
+    this._listenOnPubSub = value
     //TODO: sync with DB
   }
 
@@ -233,7 +237,8 @@ class SqlChannelPoints {
                                               ttsCustomRewardId,
                                               ttsJson,
                                               commandJson,
-                                              allowCommandNewLines
+                                              allowCommandNewLines,
+                                              listenOnPubSub
                                        FROM channelPointsSettings
                                        WHERE enabled = B'1'
                                          AND botID = ?

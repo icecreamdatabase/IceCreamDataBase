@@ -22,15 +22,17 @@ class PubSubConnectionPool {
    *
    * @param {string} topic
    * @param func in event emitter format: messageContent => {}
+   * @return {boolean} new subscription added
    */
   async on (topic, func) {
-    let connection = this.getConnectionByTopic(topic)
-    if (!connection) {
-      connection = await this.getFreeConnection(1)
+    if (this.getConnectionByTopic(topic)) {
+      return false //already subscribed somewhere
     }
+    let connection = await this.getFreeConnection(1)
     if (connection) {
       connection.subscribe([topic])
       connection.on(topic, func)
+      return true
     } else {
       throw Error(`Couldn't get free pubsub connection!`)
     }

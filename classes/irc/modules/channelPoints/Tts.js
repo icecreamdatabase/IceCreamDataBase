@@ -3,27 +3,31 @@ const util = require('util')
 //CLASSES
 const Logger = require('../../../helper/Logger')
 const SqlChannels = require('../../../sql/main/SqlChannels')
-const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 const DiscordLog = require('../../../helper/DiscordLog')
 const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const ttsStrings = require("../../../../json/tts-strings")
 
-const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Queue.js as well
-
-const UPDATE_INTERVAL = 30000//ms
 const ttsCommandCooldownMs = 3000
 
 class Tts {
+  /**
+   *
+   * @param {Bot} bot
+   */
   constructor (bot) {
     this.bot = bot
 
-    this.channelPointsSettings = {}
     this.lastTts = {}
     this.ttsCommandLastUsage = {}
+  }
 
-    setTimeout(this.updateChannelPointSettings.bind(this), 2000)
-    setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
+  get channelPointsSettings () {
+    return this.bot.irc.privMsg.channelPoints._channelPointsSettings
+  }
+
+  set channelPointsSettings (value) {
+    this.bot.irc.privMsg.channelPoints._channelPointsSettings = value
   }
 
   /**
@@ -539,34 +543,11 @@ class Tts {
       }
 
       if (responseMessage) {
-        responseMessage = `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`
-      } else {
-        responseMessage = settingObj.getCommand(privMsgObj.raw.tags["custom-reward-id"])
-      }
-      if (responseMessage) {
-        responseMessage = responseMessage.replace(new RegExp("\\${user}", 'g'), privMsgObj.username)
-        responseMessage = responseMessage.replace(new RegExp("\\${channel}", 'g'), privMsgObj.channel.substring(1))
-        responseMessage = responseMessage.replace(new RegExp("\\${p}", 'g'), privMsgObj.message)
-        responseMessage = responseMessage.replace(new RegExp("\\${p0}", 'g'), privMsgObj.message.split(" ")[0] || "")
-        responseMessage = responseMessage.replace(new RegExp("\\${p1}", 'g'), privMsgObj.message.split(" ")[1] || "")
-
-        if (!settingObj.allowCommandNewLines) {
-          responseMessage = responseMessage.replace(new RegExp(NEWLINE_SEPERATOR, 'g'), "")
-        }
-
-        this.bot.irc.queue.sayWithMsgObj(privMsgObj, responseMessage)
+        this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
       }
     }
     return hasTakenAction
-  }
-
-  /**
-   * Update Tts.channelPointsSettings from the Database
-   * @returns {Promise<void>}
-   */
-  async updateChannelPointSettings () {
-    this.channelPointsSettings = await SqlChannelPoints.getChannelPointsSettings(this.bot.userId)
   }
 }
 

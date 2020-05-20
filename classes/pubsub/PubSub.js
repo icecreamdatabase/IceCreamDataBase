@@ -17,6 +17,15 @@ class PubSub {
     //this.registerChannelPoints(38949074) //TODO: testing
   }
 
+  /**
+   *
+   * @param {string} topic
+   * @param func in event emitter format: messageContent => {}
+   */
+  subscribe (topic, func) {
+    this.pubSubConnectionPool.on(topic, func).then().catch(e => DiscordLog.warn(e))
+  }
+
   registerWhispers () {
     this.pubSubConnectionPool.on(`whispers.${this.bot.userId}`, this.onWhisper.bind(this)).then()
   }
