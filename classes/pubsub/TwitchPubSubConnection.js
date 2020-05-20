@@ -1,3 +1,4 @@
+"use strict"
 const util = require('util')
 const EventEmitter = require('eventemitter3')
 const WebSocket = require('ws')
@@ -16,6 +17,7 @@ class TwitchPubSubConnection extends EventEmitter {
     this.ws = null
     this.heartbeatHandle = null
     this.awaitingPong = false
+    this.topics = []
   }
 
   /**
@@ -23,15 +25,19 @@ class TwitchPubSubConnection extends EventEmitter {
    * @param {[string]} topics
    */
   subscribe (topics) {
-    let request = {
-      "type": "LISTEN",
-      "nonce": TwitchPubSubConnection.generateNonce(15),
-      "data": {
-        "topics": topics,
-        "auth_token": this.bot.authentication.accessToken
+    if (topics.length > 0) {
+      let request = {
+        "type": "LISTEN",
+        "nonce": TwitchPubSubConnection.generateNonce(15),
+        "data": {
+          "topics": topics,
+          "auth_token": this.bot.authentication.accessToken
+        }
       }
+      this.send(request)
+      Array.prototype.push.apply(this.topics, topics)
+      //TODO: unsub roughly like this: this.topics = this.topics.filter(c => !topicsToRemove.includes(c))
     }
-    this.send(request)
   }
 
   /**
@@ -81,6 +87,9 @@ class TwitchPubSubConnection extends EventEmitter {
         clearInterval(this.heartbeatHandle)
         this.reconnect()
       })
+
+      // make sure that we rejoin topics after reconnecting
+      this.subscribe(this.topics)
     })
   }
 
@@ -106,7 +115,7 @@ class TwitchPubSubConnection extends EventEmitter {
    */
   send (data) {
     if (data.type !== "PING") {
-      //Logger.debug(`~~> ${data}`) //TODO: don't print auth
+      //Logger.debug(`~~> ${util.inspect(data)}`) //TODO: don't print auth
     }
     if (this.ws) {
       this.ws.send(JSON.stringify(data))
