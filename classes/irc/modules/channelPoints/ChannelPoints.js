@@ -28,6 +28,10 @@ class ChannelPoints {
 
   }
 
+  hasSettingsForChannelID (roomId) {
+    return Object.prototype.hasOwnProperty.call(this._channelPointsSettings, roomId)
+  }
+
   /**
    * Handle the privMsgObj by checking for all channelpoint related triggers.
    * @param privMsgObj created in PrivMsg.js
