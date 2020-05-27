@@ -199,7 +199,7 @@ class Tts {
       if (Object.prototype.hasOwnProperty.call(privMsgObj.raw.tags, "custom-reward-id")) {
         //channelPointSettings creating / updating
         await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, privMsgObj.raw.tags["custom-reward-id"])
-        this.updateChannelPointSettings()
+        await this.bot.irc.privMsg.channelPoints.updateChannelPointSettings()
         DiscordLog.custom("tts-status-log", "Link:", privMsgObj.channel.substr(1), DiscordLog.getDecimalFromHexString("#0000FF"))
         return optionObj.response.justLinked + privMsgObj.channel.substr(1)
       } else {
