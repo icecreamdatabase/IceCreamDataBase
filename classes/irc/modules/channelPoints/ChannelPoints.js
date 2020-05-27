@@ -71,8 +71,11 @@ class ChannelPoints {
       case 'redemption-status-update':
         console.log(`Status update: \n${util.inspect(event.message.data.redemption)}`)
         break
+      case 'custom-reward-updated':
+        console.log(`Reward updated: \n${util.inspect(event.message.data.updated_reward)}`)
+        break
       default:
-        console.log(`Default: \n${util.inspect(event)}`)
+        console.log(`Default: \n${util.inspect(event, {showHidden: false, depth: null})}`)
         break
     }
   }
@@ -84,8 +87,8 @@ class ChannelPoints {
    */
   async updateChannelPointSettings () {
     this._channelPointsSettings = await SqlChannelPoints.getChannelPointsSettings(this.bot.userId)
-    for (let channelId in this._channelPointsSettings) {
-      if (this._channelPointsSettings[channelId].listenOnPubSub) {
+    for (let channelId in this.channelPointsSettings) {
+      if (this.channelPointsSettings[channelId].listenOnPubSub) {
         this.bot.pubSub.subscribe(`community-points-channel-v1.${channelId}`, this.handlePubSub.bind(this))
       }
     }
