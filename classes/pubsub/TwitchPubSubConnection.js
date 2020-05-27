@@ -41,6 +41,25 @@ class TwitchPubSubConnection extends EventEmitter {
   }
 
   /**
+   *
+   * @param {[string]} topics
+   */
+  unsubscribe (topics) {
+    if (topics.length > 0) {
+      let request = {
+        "type": "UNLISTEN",
+        "nonce": TwitchPubSubConnection.generateNonce(15),
+        "data": {
+          "topics": topics,
+          "auth_token": this.bot.authentication.accessToken
+        }
+      }
+      this.send(request)
+      this.topics = this.topics.filter(c => !topics.includes(c))
+    }
+  }
+
+  /**
    * Connect to the twitch IRC server, login and send CAP REQ
    * @returns {Promise<void>}
    */

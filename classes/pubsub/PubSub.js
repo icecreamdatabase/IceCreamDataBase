@@ -3,25 +3,31 @@ const util = require('util')
 //CLASSES
 const Logger = require('../helper/Logger')
 const DiscordLog = require('../helper/DiscordLog')
-const TwitchPubSubConnection = require('./TwitchPubSubConnection')
+const PubSubConnectionPool = require('./PubSubConnectionPool')
 
-class Irc {
+class PubSub {
   constructor (bot) {
     this.bot = bot
 
     Logger.info(`Setting up pubsub: ${this.bot.userId} (${this.bot.userName})`)
 
-    this.twitchPubSubConnection = new TwitchPubSubConnection(this.bot)
+    this.pubSubConnectionPool = new PubSubConnectionPool(this.bot)
 
-    this.twitchPubSubConnection.connect().then(() => {
-      this.registerWhispers()
-      //this.registerChannelPoints(38949074) //TODO: testing
-    })
+    this.registerWhispers()
+    //this.registerChannelPoints(38949074) //TODO: testing
+  }
+
+  /**
+   *
+   * @param {string} topic
+   * @param func in event emitter format: messageContent => {}
+   */
+  subscribe (topic, func) {
+    this.pubSubConnectionPool.on(topic, func).then().catch(e => DiscordLog.warn(e))
   }
 
   registerWhispers () {
-    this.twitchPubSubConnection.subscribe([`whispers.${this.bot.userId}`])
-    this.twitchPubSubConnection.on('whispers', this.onWhisper.bind(this))
+    this.pubSubConnectionPool.on(`whispers.${this.bot.userId}`, this.onWhisper.bind(this)).then()
   }
 
   async onWhisper (event) {
@@ -40,8 +46,7 @@ class Irc {
   }
 
   registerChannelPoints (roomId) {
-    this.twitchPubSubConnection.subscribe([`community-points-channel-v1.${roomId}`])
-    this.twitchPubSubConnection.on('community-points-channel-v1', this.onReward.bind(this))
+    this.pubSubConnectionPool.on(`community-points-channel-v1.${roomId}`, this.onReward.bind(this))
   }
 
   onReward (event) {
@@ -50,4 +55,4 @@ class Irc {
 
 }
 
-module.exports = Irc
+module.exports = PubSub

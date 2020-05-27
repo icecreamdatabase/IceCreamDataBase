@@ -3,6 +3,7 @@ const util = require('util')
 //CLASSES
 const Logger = require('../../../helper/Logger')
 const DiscordLog = require('../../../helper/DiscordLog')
+const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 
 const lastTimeoutObj = {}
 
@@ -31,6 +32,10 @@ class ClearChat {
       && !Object.prototype.hasOwnProperty.call(clearChatObj.tags, "ban-duration")) {
       DiscordLog.info(`${this.bot.userName} got banned in #${channelName}`)
       Logger.info(`${this.bot.userName} got banned in #${channelName}`)
+      //TODO: check if the bot is joined for being TTS bot ... this isn't perfect ...
+      if (this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)) {
+        await SqlChannelPoints.dropChannel(this.bot.userId, clearChatObj.roomId)
+      }
     }
   }
 

@@ -36,14 +36,20 @@ class SqlChannelPoints {
    * @param {commandJson} commandJson
    * @param {string} ttsCustomRewardId
    * @param allowCommandNewLines
+   * @param listenOnPubSub
    */
-  constructor (botId, channelId, ttsJson, commandJson, ttsCustomRewardId, allowCommandNewLines) {
+  constructor (botId, channelId, ttsJson, commandJson, ttsCustomRewardId, allowCommandNewLines, listenOnPubSub) {
     this._botId = botId
     this._channelId = channelId
     this._ttsJson = ttsJson
     this._commandJson = commandJson
     this._customRewardId = ttsCustomRewardId
     this._allowCommandNewLines = allowCommandNewLines
+    this._listenOnPubSub = listenOnPubSub
+  }
+
+  get channelId () {
+    return this._channelId
   }
 
   update () {
@@ -56,6 +62,7 @@ class SqlChannelPoints {
 
   set ttsCustomRewardId (value) {
     this._customRewardId = value
+    //TODO: sync with DB
   }
 
   get allowCommandNewLines () {
@@ -64,6 +71,16 @@ class SqlChannelPoints {
 
   set allowCommandNewLines (value) {
     this._allowCommandNewLines = value
+    //TODO: sync with DB
+  }
+
+  get listenOnPubSub () {
+    return this._listenOnPubSub
+  }
+
+  set listenOnPubSub (value) {
+    this._listenOnPubSub = value
+    //TODO: sync with DB
   }
 
   /**
@@ -220,7 +237,8 @@ class SqlChannelPoints {
                                               ttsCustomRewardId,
                                               ttsJson,
                                               commandJson,
-                                              allowCommandNewLines
+                                              allowCommandNewLines,
+                                              listenOnPubSub
                                        FROM channelPointsSettings
                                        WHERE enabled = B'1'
                                          AND botID = ?
@@ -228,7 +246,13 @@ class SqlChannelPoints {
 
     let returnObj = {}
     results.forEach(x => {
-      returnObj[x.channelID] = new SqlChannelPoints(botId, x.channelID, JSON.parse(x.ttsJson), JSON.parse(x.commandJson), x.ttsCustomRewardId, x.allowCommandNewLines)
+      returnObj[x.channelID] = new SqlChannelPoints(botId,
+        x.channelID,
+        JSON.parse(x.ttsJson),
+        JSON.parse(x.commandJson),
+        x.ttsCustomRewardId,
+        x.allowCommandNewLines,
+        x.listenOnPubSub)
     })
     return returnObj
   }
@@ -313,57 +337,6 @@ class SqlChannelPoints {
                          WHERE botId = ?
                            AND channelID = ?
     ;`, [botID, channelID])
-  }
-
-  static async convertAllToNewFormat (botId) {
-
-    let results = await sqlPool.query(`SELECT channelID,
-                                              ttsConversation,
-                                              ttsQueueMessages,
-                                              ttsVolume,
-                                              ttsDefaultVoiceName,
-                                              ttsMaxMessageTime,
-                                              ttsCooldown,
-                                              ttsUserLevel,
-                                              ttsTimeoutCheckTime,
-                                              ttsAllowCustomPlaybackrate
-                                       FROM channelPointsSettings
-                                       WHERE botID = ?
-    ;`, botId)
-
-    for (const x of results) {
-      let ttsJson = {}
-      if (x.ttsConversation !== ttsStrings.options.handleSettings.options.handleSettingConversation.default) {
-        ttsJson.conversation = x.ttsConversation
-      }
-      if (x.ttsQueueMessages !== ttsStrings.options.handleSettings.options.handleSettingQueue.default) {
-        ttsJson.queueMessages = x.ttsQueueMessages
-      }
-      if (x.ttsVolume !== ttsStrings.options.handleSettings.options.handleSettingVolume.default) {
-        ttsJson.volume = x.ttsVolume
-      }
-      if (x.ttsDefaultVoiceName !== ttsStrings.options.handleSettings.options.handleSettingVoice.default) {
-        ttsJson.defaultVoiceName = x.ttsDefaultVoiceName
-      }
-      if (x.ttsMaxMessageTime !== ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default) {
-        ttsJson.maxMessageTime = x.ttsMaxMessageTime
-      }
-      if (x.ttsCooldown !== ttsStrings.options.handleSettings.options.handleSettingCooldown.default) {
-        ttsJson.cooldown = x.ttsCooldown
-      }
-      if (!!x.ttsUserLevel !== ttsStrings.options.handleSettings.options.handleSettingSubscriber.default) {
-        ttsJson.subOnly = !!x.ttsUserLevel
-      }
-      if (x.ttsTimeoutCheckTime !== ttsStrings.options.handleSettings.options.handleSettingTimeoutCheckTime.default) {
-        ttsJson.timeoutCheckTime = x.ttsTimeoutCheckTime
-      }
-      if (x.allowCustomPlaybackrate !== ttsStrings.options.handleSettings.options.handleSettingAllowCustomPlaybackrate.default) {
-        ttsJson.allowCustomPlaybackrate = x.ttsAllowCustomPlaybackrate
-      }
-
-      await this.updateChannelPointsTtsJson(botId, x.channelID, ttsJson)
-      Logger.info(`Channelpoints conversation to new format done`)
-    }
   }
 }
 
