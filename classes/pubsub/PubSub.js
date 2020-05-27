@@ -34,6 +34,8 @@ class PubSub {
     //Logger.info(util.inspect(event))
     switch (event.message.type) {
       case 'whisper_sent':
+        break
+      case 'whisper_received':
 
         if (this.bot.authentication.enableWhisperLog) {
           let userInfo = await this.bot.api.kraken.userDataFromIds([event.message["data_object"]["from_id"]])
