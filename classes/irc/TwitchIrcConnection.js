@@ -11,7 +11,7 @@ const port = 6667
 const reconnectMultiplier = 2000
 const reconnectJitter = 500
 
-class TwitchIRCConnection extends EventEmitter {
+class TwitchIrcConnection extends EventEmitter {
   /**
    * @param {Bot} bot
    */
@@ -234,4 +234,4 @@ class TwitchIRCConnection extends EventEmitter {
   }
 }
 
-module.exports = TwitchIRCConnection
+module.exports = TwitchIrcConnection

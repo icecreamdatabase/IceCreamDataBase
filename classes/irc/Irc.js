@@ -2,7 +2,7 @@
 //CLASSES
 const Logger = require('../helper/Logger')
 const SqlChannels = require('../sql/main/SqlChannels.js')
-const TwitchIRCConnection = require('./TwitchIRCConnection.js')
+const TwitchIrcConnection = require('./TwitchIrcConnection.js')
 const PrivMsg = require('./modules/IrcTags/PrivMsg.js')
 const UserNotice = require('./modules/IrcTags/UserNotice.js')
 const ClearChat = require('./modules/IrcTags/ClearChat.js')
@@ -58,7 +58,7 @@ class Irc {
     this.rateLimitUser = ChatLimit.NORMAL
     this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
-    this.twitchIrcConnection = new TwitchIRCConnection(this.bot)
+    this.twitchIrcConnection = new TwitchIrcConnection(this.bot)
     //create empty channel array to chat object
     this.channels = {}
 
