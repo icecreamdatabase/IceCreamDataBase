@@ -1,5 +1,4 @@
 "use strict"
-const util = require('util')
 const Logger = require('./Logger')
 
 const CLEANUPINTERVAL = 10800000 //3 hours

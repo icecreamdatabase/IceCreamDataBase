@@ -2,8 +2,6 @@
 const util = require('util')
 //CLASSES
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
-const Logger = require('../../../helper/Logger')
-const DiscordLog = require('../../../helper/DiscordLog')
 const Tts = require("./Tts")
 const CustomCommands = require("./CustomCommands")
 

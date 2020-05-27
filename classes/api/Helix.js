@@ -1,7 +1,5 @@
 "use strict"
-const Logger = require('../helper/Logger')
 const axios = require('axios')
-const util = require('util')
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
@@ -31,7 +29,7 @@ class Helix {
           'Authorization': this.bot.authentication.accessToken,
         }
       })
-
+      return result.data
     } catch (e) {
       //ignore
     }

@@ -1,6 +1,4 @@
 "use strict"
-const util = require('util')
-
 const https = require('https')
 const EventEmitter = require('eventemitter3')
 const options = require('../../config.json')

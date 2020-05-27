@@ -1,7 +1,5 @@
 "use strict"
-const util = require('util')
 //CLASSES
-const Logger = require('../../../helper/Logger')
 const SqlChannels = require('../../../sql/main/SqlChannels')
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 const DiscordLog = require('../../../helper/DiscordLog')
@@ -526,7 +524,6 @@ class Tts {
               settingObj.timeoutCheckTime,
               settingObj.maxMessageTime
             )
-            //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept
               responseMessage = ttsStrings.redemeResponse.acceptMessage

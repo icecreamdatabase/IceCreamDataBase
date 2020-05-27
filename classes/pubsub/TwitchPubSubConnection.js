@@ -4,7 +4,6 @@ const EventEmitter = require('eventemitter3')
 const WebSocket = require('ws')
 
 const Logger = require('../helper/Logger')
-const DiscordLog = require('../helper/DiscordLog')
 
 const host = 'wss://pubsub-edge.twitch.tv'
 const heartbeatInterval = 1000 * 30 //ms between PING's
@@ -66,7 +65,7 @@ class TwitchPubSubConnection extends EventEmitter {
   async connect () {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) connecting to PubSub`)
     return new Promise((resolve) => {
-      this.ws = new WebSocket('wss://pubsub-edge.twitch.tv/', [], {})
+      this.ws = new WebSocket(host, [], {})
 
       this.ws.addEventListener('open', event => {
         if (event.target.readyState === WebSocket.OPEN) {

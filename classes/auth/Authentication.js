@@ -1,5 +1,4 @@
 "use strict"
-const util = require('util')
 const Logger = require('../helper/Logger')
 const axios = require('axios')
 const SqlAuth = require('../sql/main/SqlAuth')

@@ -1,8 +1,7 @@
 "use strict"
-const util = require('util')
+require('util')
 const axios = require('axios')
 //CLASSES
-const Logger = require('../../../helper/Logger')
 const DiscordLog = require('../../../helper/DiscordLog')
 const Gdq = require('../Gdq')
 const Counters = require('./Counters')

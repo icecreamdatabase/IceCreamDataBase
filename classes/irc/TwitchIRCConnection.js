@@ -1,4 +1,4 @@
-const util = require('util')
+"use strict"
 const net = require('net')
 const EventEmitter = require('eventemitter3')
 const ircMessage = require('irc-message')
@@ -90,12 +90,12 @@ class TwitchIRCConnection extends EventEmitter {
           Logger.error(e)
         }
       })
-    this.client.on('close', (err) => {
+    this.client.on('close', () => {
       this.connected = false
       this.handleDisconnect()
       this.emit('disconnect')
     })
-    this.client.on('error', (err) => {
+    this.client.on('error', () => {
       this.connected = false
       this.handleDisconnect()
       this.emit('disconnect')

@@ -1,6 +1,4 @@
 "use strict"
-const util = require('util')
-const Logger = require('./../../helper/Logger')
 const sqlPool = require('../Sql').pool
 const ttsStrings = require("../../../json/tts-strings")
 

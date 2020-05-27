@@ -1,8 +1,6 @@
 "use strict"
-const util = require('util')
 const EventEmitter = require('eventemitter3')
 //CLASSES
-const Logger = require('./helper/Logger')
 const SqlBlacklist = require('./sql/main/SqlUserBlacklist')
 const Api = require('./api/Api')
 const UserIdLoginCache = require('./helper/UserIdLoginCache')

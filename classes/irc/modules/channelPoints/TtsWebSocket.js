@@ -1,5 +1,4 @@
 "use strict"
-const util = require('util')
 const WebSocket = require('ws')
 //CLASSES
 const Logger = require('../../../helper/Logger')

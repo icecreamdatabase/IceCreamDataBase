@@ -1,7 +1,5 @@
 "use strict"
-const Logger = require('../helper/Logger')
 const axios = require('axios')
-const util = require('util')
 const configOption = require('../../config')
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios

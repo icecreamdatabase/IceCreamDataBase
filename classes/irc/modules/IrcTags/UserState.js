@@ -1,9 +1,4 @@
 "use strict"
-const util = require('util')
-//CLASSES
-const Logger = require('../../../helper/Logger')
-const DiscordLog = require('../../../helper/DiscordLog')
-//ENUMS
 const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
 class UserState {

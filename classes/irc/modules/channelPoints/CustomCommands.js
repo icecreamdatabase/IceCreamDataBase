@@ -1,8 +1,4 @@
 "use strict"
-const util = require('util')
-//CLASSES
-const Logger = require('../../../helper/Logger')
-const DiscordLog = require('../../../helper/DiscordLog')
 
 const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Queue.js as well
 
@@ -33,6 +29,7 @@ class CustomCommands {
     }
   }
 
+  // noinspection JSUnusedLocalSymbols
   async handleSetup (privMsgObj) {
 
   }
