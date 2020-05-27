@@ -3,6 +3,7 @@ const util = require('util')
 //CLASSES
 const Logger = require('../../../helper/Logger')
 const SqlChannels = require('../../../sql/main/SqlChannels')
+const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 const DiscordLog = require('../../../helper/DiscordLog')
 const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
 const UserLevels = require("../../../../ENUMS/UserLevels")
