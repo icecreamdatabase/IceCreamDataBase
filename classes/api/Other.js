@@ -22,8 +22,18 @@ const TWITCH_API_HELIX = {
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 class Other {
-  constructor () {
+  /**
+   * @param {Bot} bot
+   */
+  constructor (bot) {
+    this._bot = bot
+  }
 
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**

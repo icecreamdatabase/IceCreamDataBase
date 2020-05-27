@@ -17,6 +17,11 @@ const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
 class Bot {
   constructor (id) {
+    this._userIdLoginCache = undefined
+    this._api = undefined
+    this._irc = undefined
+    this._pubSub = undefined
+
     this.refreshEmmitter = new EventEmitter()
     this.refreshEmmitter.on('refresh', this.onRefresh.bind(this))
 
@@ -29,18 +34,45 @@ class Bot {
     this.authentication.init().then(this.onAuthentication.bind(this))
   }
 
+  /**
+   * @return {UserIdLoginCache}
+   */
+  get userIdLoginCache () {
+    return this._userIdLoginCache
+  }
+
+  /**
+   * @return {Api}
+   */
+  get api () {
+    return this._api
+  }
+
+  /**
+   * @return {Irc}
+   */
+  get irc () {
+    return this._irc
+  }
+
+  /**
+   * @return {PubSub}
+   */
+  get pubSub () {
+    return this._pubSub
+  }
+
   onAuthentication () {
     if (this.authentication.enableBot) {
-      this.userIdLoginCache = new UserIdLoginCache(this)
-      this.api = new Api(this)
+      this._userIdLoginCache = new UserIdLoginCache(this)
+      this._api = new Api(this)
 
-
-      setInterval(this.api.other.supinicApiPing.bind(this, this.authentication.supinicApiUser, this.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
+      setInterval(this.api.other.constructor.supinicApiPing.bind(this, this.authentication.supinicApiUser, this.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
       // noinspection JSIgnoredPromiseFromCall
-      //this.api.other.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
+      //this.api.other.constructor.supinicApiPing(this.authentication.supinicApiUser, this.authentication.supinicApiKey)
 
-      this.irc = new Irc(this)
-      this.pubSub = new PubSub(this)
+      this._irc = new Irc(this)
+      this._pubSub = new PubSub(this)
     }
   }
 

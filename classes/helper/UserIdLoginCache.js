@@ -8,11 +8,21 @@ let userInfosById = {}
 let userInfosByName = {}
 
 class UserIdLoginCache {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
     setTimeout(this.updateMaps.bind(this), 10000)
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   async prefetchListOfIds (ids) {

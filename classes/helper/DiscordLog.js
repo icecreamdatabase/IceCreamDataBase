@@ -22,7 +22,10 @@ LOG_QUEUE_EMITTER.on('event', queueRunner)
 let QUEUE_BEING_CHECKED = false
 
 class DiscordLog {
-  constructor (bot) {
+  /**
+   * @private
+   */
+  constructor () {
   }
 
   /**

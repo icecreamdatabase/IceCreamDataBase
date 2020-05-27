@@ -13,8 +13,18 @@ const BASEOBJECT_HELIX = {
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 class Helix {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   async request (pathAppend, method = 'GET') {
@@ -30,7 +40,7 @@ class Helix {
       })
 
     } catch (e) {
-
+      //ignore
     }
   }
 
