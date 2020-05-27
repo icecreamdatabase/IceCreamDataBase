@@ -13,22 +13,24 @@ const ttsCommandCooldownMs = 3000
 
 class Tts {
   /**
-   *
    * @param {Bot} bot
    */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
     this.lastTts = {}
     this.ttsCommandLastUsage = {}
   }
 
-  get channelPointsSettings () {
-    return this.bot.irc.privMsg.channelPoints._channelPointsSettings
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
-  set channelPointsSettings (value) {
-    this.bot.irc.privMsg.channelPoints._channelPointsSettings = value
+  get channelPointsSettings () {
+    return this.bot.irc.privMsg.channelPoints.channelPointsSettings
   }
 
   /**

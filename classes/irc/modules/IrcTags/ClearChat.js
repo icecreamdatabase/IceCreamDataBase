@@ -8,10 +8,20 @@ const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 const lastTimeoutObj = {}
 
 class ClearChat {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
-    this.bot.irc.TwitchIRCConnection.on('CLEARCHAT', this.onClearChat.bind(this))
+    this.bot.irc.twitchIrcConnection.on('CLEARCHAT', this.onClearChat.bind(this))
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**

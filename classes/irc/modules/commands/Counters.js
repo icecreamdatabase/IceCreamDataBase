@@ -8,6 +8,9 @@ const counterRegExp = new RegExp(/\${counter(Inc|Get)?=([^}]+)}/, 'i')
 const counterInc = "Inc"
 
 class Counters {
+  /**
+   * @private
+   */
   constructor () {
   }
 

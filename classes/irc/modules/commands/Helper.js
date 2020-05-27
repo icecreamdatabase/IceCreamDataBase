@@ -9,7 +9,7 @@ const Counters = require('./Counters')
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const TimeConversionHelper = require("../../../helper/TimeConversionHelper")
 
-const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
+//const parameterRegExp = new RegExp(/\${((?:(?!}).)*)}/, 'i')
 const apiRegExp = new RegExp(/\${api=(.*?)}/, 'i')
 const apiJsonRegExp = new RegExp(/\${apijson=(.*?);(.*?)}/, 'i')
 const discordWebhookRegExp = new RegExp(/\${createNote=(?:.*\/)?([^/]*)\/([^/;]*)(?:;([^}]*))*}/, 'i')
@@ -35,9 +35,19 @@ const icecreamFacts = {
 }
 
 class Helper {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
     this.userWasInChannelObj = {}
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**
@@ -237,10 +247,10 @@ class Helper {
       this.userWasInChannelObj[channelName] = new Set()
     }
     if (this.userWasInChannelObj[channelName].has(userName)) {
-      this.bot.api.other.getAllUsersInChannel(channelName).then((chatters) => this.addUsersToUserWasInChannelObj(channelName, chatters))
+      this.bot.api.other.constructor.getAllUsersInChannel(channelName).then((chatters) => this.addUsersToUserWasInChannelObj(channelName, chatters))
       return true
     }
-    let chatters = await this.bot.api.other.getAllUsersInChannel(channelName)
+    let chatters = await this.bot.api.other.constructor.getAllUsersInChannel(channelName)
     this.addUsersToUserWasInChannelObj(channelName, chatters)
     return this.userWasInChannelObj[channelName].has(userName)
   }

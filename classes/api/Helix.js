@@ -3,13 +3,6 @@ const Logger = require('../helper/Logger')
 const axios = require('axios')
 const util = require('util')
 
-const BASEOBJECT_HELIX = {
-  host: "api.twitch.tv",
-  path: "/helix/",
-  method: 'GET',
-  headers: {}
-}
-
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 class Helix {

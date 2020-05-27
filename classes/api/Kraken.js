@@ -333,7 +333,7 @@ class Kraken {
       followtimeMon: -1,
       followtimeY: -1
     }
-    if (response && response.hasOwnProperty("created_at")) {
+    if (response && Object.prototype.hasOwnProperty.call(response, "created_at")) {
       returnObj.followDate = new Date(response.created_at)
       returnObj.followTimeMs = Date.now() - returnObj.followDate
       returnObj.followTimeS = Math.floor(returnObj.followTimeMs / 1000)

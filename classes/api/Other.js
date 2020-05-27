@@ -4,21 +4,6 @@ const axios = require('axios')
 const util = require('util')
 const configOption = require('../../config')
 
-const TWITCH_API_KRAKEN = {
-  url: "https://api.twitch.tv/kraken/",
-  method: 'GET',
-  headers: {
-    'Accept': 'application/vnd.twitchtv.v5+json',
-  }
-}
-
-const TWITCH_API_HELIX = {
-  host: "api.twitch.tv",
-  path: "/helix/",
-  method: 'GET',
-  headers: {}
-}
-
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 class Other {

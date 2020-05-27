@@ -16,34 +16,121 @@ const ChatLimit = require("../../ENUMS/ChatLimit")
 const UPDATE_ALL_CHANNELS_INTERVAL = 120000 //ms
 
 class Irc {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
+
+    /**
+     * @type {PrivMsg}
+     * @private
+     */
+    this._privMsg = undefined
+    /**
+     * @type {UserNotice}
+     * @private
+     */
+    this._userNotice = undefined
+    /**
+     * @type {ClearChat}
+     * @private
+     */
+    this._clearChat = undefined
+    /**
+     * @type {ClearMsg}
+     * @private
+     */
+    this._clearMsg = undefined
+    /**
+     * @type {UserState}
+     * @private
+     */
+    this._userState = undefined
+    /**
+     * @type {Queue}
+     * @private
+     */
+    this._queue = undefined
 
     Logger.info(`Setting up bot: ${this.bot.userId} (${this.bot.userName})`)
 
     this.rateLimitUser = ChatLimit.NORMAL
     this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
-    this.TwitchIRCConnection = new TwitchIRCConnection(this.bot)
+    this.twitchIrcConnection = new TwitchIRCConnection(this.bot)
     //create empty channel array to chat object
     this.channels = {}
 
     this.updateBotRatelimits().then(this.onUpdateBotRatelimits.bind(this))
   }
 
-  onUpdateBotRatelimits () {
-    //Connecting the bot to the twich servers
-    Logger.info(`### Connecting: ${this.bot.userId} (${this.bot.userName})`)
-    this.TwitchIRCConnection.connect().then(this.onConnected.bind(this))
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**
-   * Callback for this.TwitchIRCConnection.connect()
+   * @return {PrivMsg}
+   */
+  get privMsg () {
+    return this._privMsg
+  }
+
+  // noinspection JSUnusedGlobalSymbols
+  /**
+   * @return {UserNotice}
+   */
+  get userNotice () {
+    return this._userNotice
+  }
+
+  // noinspection JSUnusedGlobalSymbols
+  /**
+   * @return {ClearChat}
+   */
+  get clearChat () {
+    return this._clearChat
+  }
+
+  // noinspection JSUnusedGlobalSymbols
+  /**
+   * @return {ClearMsg}
+   */
+  get clearMsg () {
+    return this._clearMsg
+  }
+
+  // noinspection JSUnusedGlobalSymbols
+  /**
+   * @return {UserState}
+   */
+  get userState () {
+    return this._userState
+  }
+
+  /**
+   * @return {Queue}
+   */
+  get queue () {
+    return this._queue
+  }
+
+  onUpdateBotRatelimits () {
+    //Connecting the bot to the twich servers
+    Logger.info(`### Connecting: ${this.bot.userId} (${this.bot.userName})`)
+    this.twitchIrcConnection.connect().then(this.onConnected.bind(this))
+  }
+
+  /**
+   * Callback for this.twitchIrcConnection.connect()
    * Don't forget .bind(this)!
    */
   onConnected () {
     Logger.info(`### Connected: ${this.bot.userId} (${this.bot.userName})`)
-    this.queue = new Queue(this.bot)
+    this._queue = new Queue(this.bot)
 
     SqlChannels.getChannelData(this.bot.userId).then(this.onChannelData.bind(this))
   }
@@ -71,11 +158,11 @@ class Irc {
    */
   onUpdatedChannels () {
     //OnX modules
-    this.privMsg = new PrivMsg(this.bot)
-    this.userNotice = new UserNotice(this.bot)
-    this.clearChat = new ClearChat(this.bot)
-    this.clearMsg = new ClearMsg(this.bot)
-    this.userState = new UserState(this.bot)
+    this._privMsg = new PrivMsg(this.bot)
+    this._userNotice = new UserNotice(this.bot)
+    this._clearChat = new ClearChat(this.bot)
+    this._clearMsg = new ClearMsg(this.bot)
+    this._userState = new UserState(this.bot)
 
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
@@ -104,7 +191,7 @@ class Irc {
         //part
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
-          this.TwitchIRCConnection.leave(channelName)
+          this.twitchIrcConnection.leave(channelName)
           Logger.info(this.bot.userName + " Parted: #" + channelName)
         }
       }
@@ -130,7 +217,7 @@ class Irc {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
           //Logger.info(this.bot.userName + " Joining: #" + channelName)
           if (channelName !== null) {
-            this.TwitchIRCConnection.join(channelName)
+            this.twitchIrcConnection.join(channelName)
             Logger.info(this.bot.userName + " Joined: #" + channelName)
           } else {
             Logger.warn(`${this.bot.userName} failed to join banned channel: ${channelId}`)

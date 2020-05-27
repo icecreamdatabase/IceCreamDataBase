@@ -95,7 +95,7 @@ class DiscordLog {
    * @param footerIconUrl
    */
   static twitchMessageCustom (webhookName, title, description, timestamp, colorHex, footerText, footerIconUrl) {
-    if (options.hasOwnProperty("discord") && options.discord.hasOwnProperty(webhookName)) {
+    if (Object.prototype.hasOwnProperty.call(options, "discord") && Object.prototype.hasOwnProperty.call(options.discord, webhookName)) {
       this.twitchMessageManual(options.discord[webhookName].id, options.discord[webhookName].token, title, description, timestamp, colorHex, footerText, footerIconUrl)
     }
   }
@@ -234,7 +234,7 @@ async function sendToWebhook (messageQueueObj) {
   return new Promise((resolve, reject) => {
     //Logger.info(JSON.stringify(messageQueueObj, null, 2))
     if (messageQueueObj.webhookName === "custom"
-      || options.hasOwnProperty("discord") && options.discord.hasOwnProperty(messageQueueObj.webhookName)) {
+      || Object.prototype.hasOwnProperty.call(options, "discord") && Object.prototype.hasOwnProperty.call(options.discord, messageQueueObj.webhookName)) {
       let request = Object.assign({}, WEBHOOK)
       if (messageQueueObj.webhookName === "custom") {
         request.path += messageQueueObj.id + "/" + messageQueueObj.token

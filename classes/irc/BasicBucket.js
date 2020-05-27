@@ -4,6 +4,9 @@ const Logger = require('../helper/Logger')
 const TICKET_RETURN_TIMEOUT = 30000
 
 class BasicBucket {
+  /**
+   * @param {number} limit
+   */
   constructor (limit) {
     this.usedTickets = 0
     this._limit = limit || 20

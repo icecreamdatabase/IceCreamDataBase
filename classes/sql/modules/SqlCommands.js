@@ -13,12 +13,12 @@ class SqlCommands {
    */
   static resultDataFromResults (resultsNormal, resultsRegex) {
     for (let index in resultsNormal) {
-      if (resultsNormal.hasOwnProperty(index) && resultsNormal[index].hasOwnProperty("command")) {
+      if (Object.prototype.hasOwnProperty.call(resultsNormal, index) && Object.prototype.hasOwnProperty.call(resultsNormal[index], "command")) {
         resultsNormal[index].command = resultsNormal[index].command.toLowerCase()
       }
     }
     for (let index in resultsRegex) {
-      if (resultsRegex.hasOwnProperty(index) && resultsRegex[index].hasOwnProperty("command")) {
+      if (Object.prototype.hasOwnProperty.call(resultsRegex, index) && Object.prototype.hasOwnProperty.call(resultsRegex[index], "command")) {
         resultsRegex[index].regExp = new RegExp(resultsRegex[index].command, "i")
       }
     }

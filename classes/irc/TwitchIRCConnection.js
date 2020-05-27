@@ -12,9 +12,12 @@ const reconnectMultiplier = 2000
 const reconnectJitter = 500
 
 class TwitchIRCConnection extends EventEmitter {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
     super()
-    this.bot = bot
+    this._bot = bot
     this.forceDisconnect = false
     this.reconnectionAttempts = 0
     this.interval = null
@@ -31,6 +34,13 @@ class TwitchIRCConnection extends EventEmitter {
       this.commandsPer30 = 0
       this._sendPing()
     }, 30 * 1000)
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**

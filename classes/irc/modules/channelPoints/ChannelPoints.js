@@ -10,8 +10,11 @@ const CustomCommands = require("./CustomCommands")
 const UPDATE_INTERVAL = 30000//ms
 
 class ChannelPoints {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
     /**
      *
@@ -25,11 +28,25 @@ class ChannelPoints {
 
     setTimeout(this.updateChannelPointSettings.bind(this), 2000)
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
+  }
 
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
+  }
+
+  get channelPointsSettings () {
+    return this._channelPointsSettings
   }
 
   hasSettingsForChannelID (roomId) {
-    return Object.prototype.hasOwnProperty.call(this._channelPointsSettings, roomId)
+    return Object.prototype.hasOwnProperty.call(this.channelPointsSettings, roomId)
+  }
+
+  getSettingObj (roomId) {
+    return this.channelPointsSettings[roomId]
   }
 
   /**
