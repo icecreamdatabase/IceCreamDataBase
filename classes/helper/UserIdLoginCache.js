@@ -24,6 +24,11 @@ class UserIdLoginCache {
     return this._bot
   }
 
+  /**
+   *
+   * @param {string[]|number[]} ids
+   * @return {Promise<void>}
+   */
   async prefetchListOfIds (ids) {
     let users = await this.bot.api.kraken.userDataFromIds(ids)
     for (let user of users) {
@@ -32,6 +37,11 @@ class UserIdLoginCache {
     }
   }
 
+  /**
+   *
+   * @param {string|number} id
+   * @return {Promise<null|string>}
+   */
   async idToName (id) {
     if (!Object.prototype.hasOwnProperty.call(userInfosById, id)) {
       let users = await this.bot.api.kraken.userDataFromIds([id])
@@ -48,6 +58,11 @@ class UserIdLoginCache {
     return userInfosById[id].name
   }
 
+  /**
+   *
+   * @param {string} name
+   * @return {Promise<null|number|string>}
+   */
   async nameToId (name) {
     name = name.toLowerCase().trim()
     //Get rid of channelnamne #
