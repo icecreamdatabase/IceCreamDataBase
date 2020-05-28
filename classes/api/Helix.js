@@ -1,20 +1,21 @@
 "use strict"
-const Logger = require('../helper/Logger')
 const axios = require('axios')
-const util = require('util')
-
-const BASEOBJECT_HELIX = {
-  host: "api.twitch.tv",
-  path: "/helix/",
-  method: 'GET',
-  headers: {}
-}
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 class Helix {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   async request (pathAppend, method = 'GET') {
@@ -28,9 +29,9 @@ class Helix {
           'Authorization': this.bot.authentication.accessToken,
         }
       })
-
+      return result.data
     } catch (e) {
-
+      //ignore
     }
   }
 

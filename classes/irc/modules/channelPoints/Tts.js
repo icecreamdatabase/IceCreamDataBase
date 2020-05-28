@@ -1,7 +1,5 @@
 "use strict"
-const util = require('util')
 //CLASSES
-const Logger = require('../../../helper/Logger')
 const SqlChannels = require('../../../sql/main/SqlChannels')
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 const DiscordLog = require('../../../helper/DiscordLog')
@@ -13,22 +11,24 @@ const ttsCommandCooldownMs = 3000
 
 class Tts {
   /**
-   *
    * @param {Bot} bot
    */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
     this.lastTts = {}
     this.ttsCommandLastUsage = {}
   }
 
-  get channelPointsSettings () {
-    return this.bot.irc.privMsg.channelPoints._channelPointsSettings
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
-  set channelPointsSettings (value) {
-    this.bot.irc.privMsg.channelPoints._channelPointsSettings = value
+  get channelPointsSettings () {
+    return this.bot.irc.privMsg.channelPoints.channelPointsSettings
   }
 
   /**
@@ -524,7 +524,6 @@ class Tts {
               settingObj.timeoutCheckTime,
               settingObj.maxMessageTime
             )
-            //Logger.log("Was sent: " + wasSent)
             if (wasSent) {
               //Accept
               responseMessage = ttsStrings.redemeResponse.acceptMessage

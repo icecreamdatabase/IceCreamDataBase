@@ -1,12 +1,12 @@
 "use strict"
-const util = require('util')
 //CLASSES
-const Logger = require('./Logger')
 const TimeConversion = require("../../ENUMS/TimeConversion")
 
 class TimeConversionHelper {
+  /**
+   * @private
+   */
   constructor () {
-
   }
 
   /**
@@ -57,7 +57,6 @@ class TimeConversionHelper {
     /* eslint-disable no-multi-spaces */
     let hours = Math.floor(secNum / TimeConversion.HOURTOSECONDS)
     let minutes = Math.floor((secNum - hours * TimeConversion.HOURTOSECONDS) / TimeConversion.MINUTETOSECONDS)
-    let seconds = Math.floor(secNum - hours * TimeConversion.HOURTOSECONDS - minutes * TimeConversion.MINUTETOSECONDS)
     /* eslint-enable no-multi-spaces */
 
     return this.valuesToString(fullUnit, 0, minutes, hours)

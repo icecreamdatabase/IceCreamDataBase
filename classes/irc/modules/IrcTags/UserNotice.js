@@ -12,20 +12,29 @@ const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "mi
 const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
 
 class UserNotice {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
-    this.notificationData = {}
+    this._bot = bot
+    this._notificationData = {}
 
     //.bind(this) is required so the functions can access not only the `bot.chat` object
-    // but the `bot` object and the `notificationData` array.
+    // but the `bot` object and the `_notificationData` array.
 
-    this.bot.irc.TwitchIRCConnection.on('USERNOTICE', this.onUsernotice.bind(this))
+    this.bot.irc.twitchIrcConnection.on('USERNOTICE', this.onUsernotice.bind(this))
 
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
     this.updateNotificationData.bind(this)()
   }
 
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
+  }
 
   /**
    * Method from bot.TwitchIRCconnection event emitter 'USERNOTICE'.
@@ -33,7 +42,7 @@ class UserNotice {
    * @returns {Promise<void>}
    */
   async onUsernotice (usernoticeObj) {
-    if (Object.prototype.hasOwnProperty.call(this.notificationData, usernoticeObj.tags["room-id"])) {
+    if (Object.prototype.hasOwnProperty.call(this._notificationData, usernoticeObj.tags["room-id"])) {
 
       if (this.bot.isUserIdInBlacklist(usernoticeObj["user-id"])) {
         Logger.debug(`User on blacklist: ${usernoticeObj["user-id"]} - ${usernoticeObj["room-id"]}`)
@@ -42,7 +51,7 @@ class UserNotice {
 
       let userNoticeType = UserNotice.methodToEnum(usernoticeObj)
       if (userNoticeType) {
-        let notificationObj = this.notificationData[usernoticeObj.tags["room-id"]]
+        let notificationObj = this._notificationData[usernoticeObj.tags["room-id"]]
         if (Object.prototype.hasOwnProperty.call(notificationObj, userNoticeType)) {
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
@@ -141,11 +150,11 @@ class UserNotice {
   }
 
   /**
-   * Update UserNotice.notificationData from the Database
+   * Update UserNotice._notificationData from the Database
    * @returns {Promise<void>}
    */
   async updateNotificationData () {
-    this.notificationData = await Sql.getNotificationData(this.bot.userId)
+    this._notificationData = await Sql.getNotificationData(this.bot.userId)
   }
 }
 

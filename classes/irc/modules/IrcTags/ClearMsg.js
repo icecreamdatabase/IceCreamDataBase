@@ -1,8 +1,4 @@
 "use strict"
-const util = require('util')
-//CLASSES
-const Logger = require('../../../helper/Logger')
-const DiscordLog = require('../../../helper/DiscordLog')
 
 // 5 minutes
 const CLEAR_OLD_ENTIRES_INTERVAL = 30000
@@ -10,12 +6,22 @@ const KEEP_OLD_ENTRY_AMOUNT = 100
 let deletedMsgIds = []
 
 class ClearMsg {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
-    this.bot.irc.TwitchIRCConnection.on('CLEARMSG', this.onClearMsg.bind(this))
+    this.bot.irc.twitchIrcConnection.on('CLEARMSG', this.onClearMsg.bind(this))
 
     setInterval(ClearMsg.clearOldEntries, CLEAR_OLD_ENTIRES_INTERVAL)
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**

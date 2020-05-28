@@ -1,5 +1,4 @@
 "use strict"
-const util = require('util')
 const EventEmitter = require('eventemitter3')
 //CLASSES
 const Logger = require('../helper/Logger')
@@ -14,15 +13,25 @@ const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Tts.js as well!
 
 
 class Queue {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
-    this.messageQueue = []
-    this.queueEmitter = new EventEmitter()
+    this._messageQueue = []
+    this._queueEmitter = new EventEmitter()
 
-    this.privmsgModeratorbucket = new BasicBucket(this.bot.irc.rateLimitModerator)
-    this.privsgUserBucket = new BasicBucket(this.bot.irc.rateLimitUser)
-    this.queueEmitter.on('event', this.checkQueue.bind(this))
+    this._privmsgModeratorbucket = new BasicBucket(this.bot.irc.rateLimitModerator)
+    this._privsgUserBucket = new BasicBucket(this.bot.irc.rateLimitUser)
+    this._queueEmitter.on('event', this.checkQueue.bind(this))
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**
@@ -80,7 +89,6 @@ class Queue {
       message = message.replace(/[\r\n]/g, '')
     }
 
-
     //TODO make this nicer
     //handle newline
     let messageArray = message.split(NEWLINE_SEPERATOR)
@@ -94,7 +102,7 @@ class Queue {
 
       //is message not just an empty string
       if (messageElement) {
-        this.messageQueue.push({
+        this._messageQueue.push({
           checked: false,
           isBeingChecked: false,
           channelId,
@@ -102,9 +110,9 @@ class Queue {
           message: messageElement,
           userId
         })
-        this.queueEmitter.emit('event')
+        this._queueEmitter.emit('event')
       }
-      this.queueEmitter.emit('event')
+      this._queueEmitter.emit('event')
     }
   }
 
@@ -130,16 +138,16 @@ class Queue {
   }
 
   /**
-   * Check the messageQueue for a new message and handle said message.
+   * Check the _messageQueue for a new message and handle said message.
    * If queue is not empty it will call this function until the queue is empty.
-   * Use like this: this.queueEmitter.on('event', this.checkQueue.bind(this))
+   * Use like this: this._queueEmitter.on('event', this.checkQueue.bind(this))
    * @returns {Promise<void>}
    */
   async checkQueue () {
-    if (this.messageQueue.length <= 0) {
+    if (this._messageQueue.length <= 0) {
       return
     }
-    let msgObj = this.messageQueue[0]
+    let msgObj = this._messageQueue[0]
     if (msgObj.isBeingChecked) {
       return
     }
@@ -155,26 +163,26 @@ class Queue {
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
       await sleep(channel.lastMessageTimeMillis - currentTimeMillis + 1000 + TIMEOUT_OFFSET)
       msgObj.isBeingChecked = false
-      this.queueEmitter.emit('event')
+      this._queueEmitter.emit('event')
       return
     }
     channel.lastMessageTimeMillis = currentTimeMillis
     if (botStatus < UserLevels.VIP) {
-      if (!this.privsgUserBucket.takeTicket()) {
+      if (!this._privsgUserBucket.takeTicket()) {
         DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied uzser ticket")
         Logger.info("Denied user ticket")
         await sleep(1500)
         msgObj.isBeingChecked = false
-        this.queueEmitter.emit('event')
+        this._queueEmitter.emit('event')
         return
       }
     }
-    if (!this.privmsgModeratorbucket.takeTicket()) {
+    if (!this._privmsgModeratorbucket.takeTicket()) {
       DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied moderator ticket")
       Logger.info("Denied moderator ticket")
       await sleep(1500)
       msgObj.isBeingChecked = false
-      this.queueEmitter.emit('event')
+      this._queueEmitter.emit('event')
       return
     }
     if (msgObj.message === channel.lastMessage) {
@@ -182,11 +190,11 @@ class Queue {
     }
     channel.lastMessage = msgObj.message
 
-    this.bot.irc.TwitchIRCConnection.say(msgObj.channelName, msgObj.message)
+    this.bot.irc.twitchIrcConnection.say(msgObj.channelName, msgObj.message)
 
-    this.messageQueue.shift()
+    this._messageQueue.shift()
     //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
-    this.queueEmitter.emit('event')
+    this._queueEmitter.emit('event')
   }
 }
 

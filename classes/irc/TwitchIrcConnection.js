@@ -1,4 +1,4 @@
-const util = require('util')
+"use strict"
 const net = require('net')
 const EventEmitter = require('eventemitter3')
 const ircMessage = require('irc-message')
@@ -11,10 +11,13 @@ const port = 6667
 const reconnectMultiplier = 2000
 const reconnectJitter = 500
 
-class TwitchIRCConnection extends EventEmitter {
+class TwitchIrcConnection extends EventEmitter {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
     super()
-    this.bot = bot
+    this._bot = bot
     this.forceDisconnect = false
     this.reconnectionAttempts = 0
     this.interval = null
@@ -31,6 +34,13 @@ class TwitchIRCConnection extends EventEmitter {
       this.commandsPer30 = 0
       this._sendPing()
     }, 30 * 1000)
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**
@@ -80,12 +90,12 @@ class TwitchIRCConnection extends EventEmitter {
           Logger.error(e)
         }
       })
-    this.client.on('close', (err) => {
+    this.client.on('close', () => {
       this.connected = false
       this.handleDisconnect()
       this.emit('disconnect')
     })
-    this.client.on('error', (err) => {
+    this.client.on('error', () => {
       this.connected = false
       this.handleDisconnect()
       this.emit('disconnect')
@@ -224,4 +234,4 @@ class TwitchIRCConnection extends EventEmitter {
   }
 }
 
-module.exports = TwitchIRCConnection
+module.exports = TwitchIrcConnection

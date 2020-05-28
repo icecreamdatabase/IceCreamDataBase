@@ -1,5 +1,6 @@
 "use strict"
 const util = require('util')
+// noinspection JSUnusedLocalSymbols
 const si = require('systeminformation')
 //CLASSES
 const Api = require('../../../api/Api')
@@ -9,9 +10,18 @@ const UserLevels = require("../../../../ENUMS/UserLevels")
 const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
 
 class Hardcoded {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
+  }
 
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**
@@ -53,7 +63,7 @@ class Hardcoded {
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<s ")) {
 
-      this.bot.irc.TwitchIRCConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
+      this.bot.irc.twitchIrcConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
@@ -66,7 +76,7 @@ class Hardcoded {
         || messageObj.message.startsWith("<q ")
       )
     ) {
-      this.bot.api.other.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
+      this.bot.api.other.constructor.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
         this.bot.irc.queue.sayWithMsgObj(messageObj, "Query returned: " + message)
       })
       return true
@@ -81,9 +91,11 @@ class Hardcoded {
       //Logger.log(evalString)
       if (evalString) {
         try {
+          // noinspection JSUnusedLocalSymbols
           let ss = (x) => {
             this.bot.irc.queue.sayWithMsgObj(messageObj, x.toString())
           }
+          // noinspection JSUnusedLocalSymbols
           let so = (x) => {
             this.bot.irc.queue.sayWithMsgObj(messageObj, util.inspect(x))
           }

@@ -1,5 +1,4 @@
 "use strict"
-const util = require('util')
 const Logger = require('../helper/Logger')
 const axios = require('axios')
 const SqlAuth = require('../sql/main/SqlAuth')
@@ -11,14 +10,25 @@ const VALIDATE_INTERVAL = 900000 // 15 minutes
 const UPDATE_INTERVAL = 300000 // 5 minutes
 
 class Authentication {
+  /**
+   * @param {Bot} bot
+   * @param {number} userId
+   */
   constructor (bot, userId) {
-    this.bot = bot
+    this._bot = bot
     this._userId = userId
     this._authData = {}
     setInterval(this.validate.bind(this), VALIDATE_INTERVAL)
     setInterval(this.update.bind(this), UPDATE_INTERVAL)
 
     this.bot.refreshEmmitter.on('refresh', this.update.bind(this))
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   get userId () {
@@ -28,6 +38,7 @@ class Authentication {
   get userName () {
     return this._authData["userName"]
   }
+
   get clientId () {
     return this._authData["clientID"]
   }
@@ -106,11 +117,11 @@ class Authentication {
 
   async revoke () {
     try {
-      let result = await axios({
+      await axios({
         method: 'post',
         url: 'https://id.twitch.tv/oauth2/revoke',
         params: {
-          'client_id': this.clientID,
+          'client_id': this.clientId,
           'token': this.accessToken
         }
       })

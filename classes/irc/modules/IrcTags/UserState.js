@@ -1,16 +1,21 @@
 "use strict"
-const util = require('util')
-//CLASSES
-const Logger = require('../../../helper/Logger')
-const DiscordLog = require('../../../helper/DiscordLog')
-//ENUMS
 const UserLevels = require('../../../../ENUMS/UserLevels.js')
 
 class UserState {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
-    this.bot.irc.TwitchIRCConnection.on('USERSTATE', this.onUserState.bind(this))
+    this.bot.irc.twitchIrcConnection.on('USERSTATE', this.onUserState.bind(this))
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   /**

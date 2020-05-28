@@ -1,5 +1,4 @@
 "use strict"
-const util = require('util')
 const Logger = require('./Logger')
 
 const CLEANUPINTERVAL = 10800000 //3 hours
@@ -8,13 +7,28 @@ let userInfosById = {}
 let userInfosByName = {}
 
 class UserIdLoginCache {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
     setTimeout(this.updateMaps.bind(this), 10000)
   }
 
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
+  }
+
+  /**
+   *
+   * @param {string[]|number[]} ids
+   * @return {Promise<void>}
+   */
   async prefetchListOfIds (ids) {
     let users = await this.bot.api.kraken.userDataFromIds(ids)
     for (let user of users) {
@@ -23,6 +37,11 @@ class UserIdLoginCache {
     }
   }
 
+  /**
+   *
+   * @param {string|number} id
+   * @return {Promise<null|string>}
+   */
   async idToName (id) {
     if (!Object.prototype.hasOwnProperty.call(userInfosById, id)) {
       let users = await this.bot.api.kraken.userDataFromIds([id])
@@ -39,6 +58,11 @@ class UserIdLoginCache {
     return userInfosById[id].name
   }
 
+  /**
+   *
+   * @param {string} name
+   * @return {Promise<null|number|string>}
+   */
   async nameToId (name) {
     name = name.toLowerCase().trim()
     //Get rid of channelnamne #

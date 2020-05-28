@@ -97,7 +97,7 @@ class SqlChannels {
     //make sure the index is the channelID
     let channels = {}
     for (let index in results) {
-      if (results.hasOwnProperty(index)) {
+      if (Object.prototype.hasOwnProperty.call(results, index)) {
         channels[results[index].channelID] = results[index]
       }
     }

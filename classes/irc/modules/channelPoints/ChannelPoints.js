@@ -2,16 +2,17 @@
 const util = require('util')
 //CLASSES
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
-const Logger = require('../../../helper/Logger')
-const DiscordLog = require('../../../helper/DiscordLog')
 const Tts = require("./Tts")
 const CustomCommands = require("./CustomCommands")
 
 const UPDATE_INTERVAL = 30000//ms
 
 class ChannelPoints {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
     /**
      *
@@ -25,11 +26,25 @@ class ChannelPoints {
 
     setTimeout(this.updateChannelPointSettings.bind(this), 2000)
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
+  }
 
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
+  }
+
+  get channelPointsSettings () {
+    return this._channelPointsSettings
   }
 
   hasSettingsForChannelID (roomId) {
-    return Object.prototype.hasOwnProperty.call(this._channelPointsSettings, roomId)
+    return Object.prototype.hasOwnProperty.call(this.channelPointsSettings, roomId)
+  }
+
+  getSettingObj (roomId) {
+    return this.channelPointsSettings[roomId]
   }
 
   /**
@@ -56,8 +71,11 @@ class ChannelPoints {
       case 'redemption-status-update':
         console.log(`Status update: \n${util.inspect(event.message.data.redemption)}`)
         break
+      case 'custom-reward-updated':
+        console.log(`Reward updated: \n${util.inspect(event.message.data.updated_reward)}`)
+        break
       default:
-        console.log(`Default: \n${util.inspect(event)}`)
+        console.log(`Default: \n${util.inspect(event, {showHidden: false, depth: null})}`)
         break
     }
   }
@@ -69,8 +87,8 @@ class ChannelPoints {
    */
   async updateChannelPointSettings () {
     this._channelPointsSettings = await SqlChannelPoints.getChannelPointsSettings(this.bot.userId)
-    for (let channelId in this._channelPointsSettings) {
-      if (this._channelPointsSettings[channelId].listenOnPubSub) {
+    for (let channelId in this.channelPointsSettings) {
+      if (this.channelPointsSettings[channelId].listenOnPubSub) {
         this.bot.pubSub.subscribe(`community-points-channel-v1.${channelId}`, this.handlePubSub.bind(this))
       }
     }

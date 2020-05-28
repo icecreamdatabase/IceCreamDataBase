@@ -1,8 +1,4 @@
 "use strict"
-const util = require('util')
-
-const Logger = require('../helper/Logger')
-const DiscordLog = require('../helper/DiscordLog')
 const TwitchPubSubConnection = require('./TwitchPubSubConnection')
 
 const maxTopicsPerConnection = 50

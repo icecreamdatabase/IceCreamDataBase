@@ -1,11 +1,13 @@
 "use strict"
-const Logger = require('../../helper/Logger')
 
 /*
   This entire file is pretty much taken from here:
   https://taskinoz.com/gdq/js/script.js
  */
 class Gdq {
+  /**
+   * @private
+   */
   constructor () {
   }
 
@@ -26,7 +28,7 @@ class Gdq {
   static generateText () {
     //Get date for AGDQ/SGDQ toggle
     let d = new Date()
-    let year = d.getFullYear()
+    //let year = d.getFullYear()
     let month = d.getMonth()
 
     //Check the date to see if AGDQ or SGDQ is on

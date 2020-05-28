@@ -3,7 +3,7 @@ const util = require('util')
 //CLASSES
 const Logger = require('../../../helper/Logger')
 const DiscordLog = require('../../../helper/DiscordLog')
-const HardCoded = require('../commands/Hardcoded')
+const Hardcoded = require('../commands/Hardcoded')
 const Commands = require('../commands/Commands')
 const ChannelPoints = require('../channelPoints/ChannelPoints')
 const Helper = require('../commands/Helper')
@@ -13,15 +13,53 @@ const UserLevels = require('../../../../ENUMS/UserLevels.js')
 const options = require('../../../../config.json')
 
 class PrivMsg {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
 
-    this.hardcoded = new HardCoded(this.bot)
-    this.commands = new Commands(this.bot)
-    this.channelPoints = new ChannelPoints(this.bot)
-    this.helper = new Helper(this.bot)
+    this._hardcoded = new Hardcoded(this.bot)
+    this._commands = new Commands(this.bot)
+    this._channelPoints = new ChannelPoints(this.bot)
+    this._helper = new Helper(this.bot)
 
-    this.bot.irc.TwitchIRCConnection.on('PRIVMSG', this.onChat.bind(this))
+    this.bot.irc.twitchIrcConnection.on('PRIVMSG', this.onChat.bind(this))
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
+  }
+
+  /**
+   * @return {Hardcoded}
+   */
+  get hardcoded () {
+    return this._hardcoded
+  }
+
+  /**
+   * @return {Commands}
+   */
+  get commands () {
+    return this._commands
+  }
+
+  /**
+   * @return {ChannelPoints}
+   */
+  get channelPoints () {
+    return this._channelPoints
+  }
+
+  /**
+   * @return {Helper}
+   */
+  get helper () {
+    return this._helper
   }
 
   /**
@@ -87,13 +125,13 @@ class PrivMsg {
    * @param messageObj Object to set userLevel in
    */
   static findAndSetUserLevel (messageObj) {
-    if (options.hasOwnProperty("botowners")
+    if (Object.prototype.hasOwnProperty.call(options, "botowners")
       && options.botowners.includes(messageObj.userId)) {
       messageObj.userLevel = UserLevels.BOTOWNER
-    } else if (options.hasOwnProperty("botadmins")
+    } else if (Object.prototype.hasOwnProperty.call(options, "botadmins")
       && options.botadmins.includes(messageObj.userId)) {
       messageObj.userLevel = UserLevels.BOTADMIN
-    } else if (messageObj.raw.tags.hasOwnProperty("badges")) {
+    } else if (Object.prototype.hasOwnProperty.call(messageObj.raw.tags, "badges")) {
       let badges = messageObj.raw.tags.badges
       if (badges !== true) {
         let badgeSplit = badges.split(",")

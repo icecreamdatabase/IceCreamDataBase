@@ -1,14 +1,23 @@
 "use strict"
 const Logger = require('../helper/Logger')
 const axios = require('axios')
-const util = require('util')
 const TimeConversion = require("../../ENUMS/TimeConversion")
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 class Kraken {
+  /**
+   * @param {Bot} bot
+   */
   constructor (bot) {
-    this.bot = bot
+    this._bot = bot
+  }
+
+  /**
+   * @return {Bot}
+   */
+  get bot () {
+    return this._bot
   }
 
   async request (pathAppend, method = 'GET') {
@@ -323,7 +332,7 @@ class Kraken {
       followtimeMon: -1,
       followtimeY: -1
     }
-    if (response && response.hasOwnProperty("created_at")) {
+    if (response && Object.prototype.hasOwnProperty.call(response, "created_at")) {
       returnObj.followDate = new Date(response.created_at)
       returnObj.followTimeMs = Date.now() - returnObj.followDate
       returnObj.followTimeS = Math.floor(returnObj.followTimeMs / 1000)

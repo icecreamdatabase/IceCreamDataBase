@@ -1,7 +1,9 @@
 "use strict"
-const util = require('util')
 
 class Logger {
+  /**
+   * @private
+   */
   constructor () {
   }
 

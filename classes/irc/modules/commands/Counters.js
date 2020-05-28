@@ -1,13 +1,13 @@
 "use strict"
-const util = require('util')
-//CLASSES
-const Logger = require('../../../helper/Logger')
 const SqlCounters = require('../../../sql/modules/SqlCounters')
 
 const counterRegExp = new RegExp(/\${counter(Inc|Get)?=([^}]+)}/, 'i')
 const counterInc = "Inc"
 
 class Counters {
+  /**
+   * @private
+   */
   constructor () {
   }
 
