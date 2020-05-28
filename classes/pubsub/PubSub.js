@@ -31,16 +31,29 @@ class PubSub {
   }
 
   async onWhisper (event) {
-    //Logger.info(util.inspect(event))
+    //Logger.info(util.inspect(event, {showHidden: false, depth: null}))
     switch (event.message.type) {
       case 'whisper_sent':
+
+        if (this.bot.authentication.enableWhisperLog) {
+          let userInfo = await this.bot.api.kraken.userDataFromIds([event.message["data_object"]["from_id"]])
+          DiscordLog.twitchMessageCustom("whisper-log",
+            `SENT: #${event.message["data_object"].tags.login} --> #${event.message["data_object"].recipient["display_name"]}`,
+            event.message["data_object"].body,
+            new Date().toISOString(),
+            event.message["data_object"].tags.color,
+            event.message["data_object"].tags.login,
+            userInfo[0].logo
+          )
+        }
+
         break
       case 'whisper_received':
 
         if (this.bot.authentication.enableWhisperLog) {
           let userInfo = await this.bot.api.kraken.userDataFromIds([event.message["data_object"]["from_id"]])
           DiscordLog.twitchMessageCustom("whisper-log",
-            `#${event.message["data_object"].recipient["display_name"]}`,
+            `RECEIVED: #${event.message["data_object"].recipient["display_name"]} <-- #${event.message["data_object"].tags.login}`,
             event.message["data_object"].body,
             new Date().toISOString(),
             event.message["data_object"].tags.color,
