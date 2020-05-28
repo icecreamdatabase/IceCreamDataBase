@@ -39,8 +39,8 @@ class ClearChat {
     // Detect perm ban of own bot account
     if (parseInt(clearChatObj.tags["target-user-id"]) === this.bot.userId
       && !Object.prototype.hasOwnProperty.call(clearChatObj.tags, "ban-duration")) {
-      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}`)
-      Logger.info(`${this.bot.userName} got banned in #${channelName}`)
+      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}\nhasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)}`)
+      Logger.info(`${this.bot.userName} got banned in #${channelName} ----- hasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)}`)
       //TODO: check if the bot is joined for being TTS bot ... this isn't perfect ...
       if (this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)) {
         await SqlChannelPoints.dropChannel(this.bot.userId, clearChatObj.roomId)
