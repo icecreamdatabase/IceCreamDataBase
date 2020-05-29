@@ -15,7 +15,7 @@
       "command": "register",
       "response": {
         "success": "Successfully registered. Please use \"!tts help\" command in your own channel.",
-        "fail": "You need to be a parter or an affiliate to use channelpoints."
+        "fail": "You need to be a partner or an affiliate to use channelpoints."
       }
     },
     "handleUnregister": {
