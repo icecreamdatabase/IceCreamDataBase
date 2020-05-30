@@ -40,7 +40,7 @@ class ChannelPoints {
   }
 
   hasSettingsForChannelID (roomId) {
-    return Object.prototype.hasOwnProperty.call(this.channelPointsSettings, roomId)
+    return Object.prototype.hasOwnProperty.call(this.channelPointsSettings, roomId.toString())
   }
 
   getSettingObj (roomId) {
