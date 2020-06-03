@@ -166,6 +166,7 @@ class TtsWebSocket {
             privMsgObj.roomId,
             privMsgObj.userId,
             privMsgObj.message,
+            voice,
             privMsgObj.userLevel,
             false
           )
@@ -176,6 +177,7 @@ class TtsWebSocket {
             privMsgObj.roomId,
             privMsgObj.userId,
             privMsgObj.message,
+            voice,
             privMsgObj.userLevel,
             true
           )

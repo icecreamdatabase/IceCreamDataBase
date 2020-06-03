@@ -89,6 +89,7 @@ create table channelPointsSettings
     ttsJson                   longtext collate utf8mb4_bin default '{}'                                                                   not null,
     commandJson               longtext collate utf8mb4_bin default '{}'                                                                   not null,
     allowCommandNewLines      bit                          default b'0'                                                                   not null,
+    listenOnPubSub            bit                          default b'0'                                                                   not null,
     ttsCustomRewardId         varchar(45)                                                                                                 null,
     ttsAcceptMessage          varchar(512)                                                                                                null,
     ttsRejectUserLevelMessage varchar(512)                 default 'Your TTS message has not been sent. You are not a subscriber.'        null,
@@ -157,6 +158,7 @@ create table ttsLog
     roomId     int                                   not null,
     userId     int                                   not null,
     rawMessage varchar(512)                          not null,
+    voice      varchar(45)                           null,
     wasSent    bit       default b'1'                not null,
     userLevel  tinyint                               null,
     TIMESTAMP  timestamp default current_timestamp() not null,
@@ -168,6 +170,9 @@ create index ttsLog_roomId_index
 
 create index ttsLog_userId_index
     on ttsLog (userId);
+
+create index ttsLog_voice_index
+    on ttsLog (voice);
 
 create index ttsLog_wasSent_index
     on ttsLog (wasSent);

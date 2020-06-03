@@ -279,13 +279,14 @@ class SqlChannelPoints {
    * @param roomId
    * @param userId
    * @param rawMessage
+   * @param voice
    * @param userLevel
    * @param wasSent
    */
-  static async ttsLog (messageId, roomId, userId, rawMessage, userLevel, wasSent) {
-    await sqlPool.query(`INSERT INTO ttsLog (messageId, roomId, userId, rawMessage, userLevel, wasSent)
-                         VALUES (?, ?, ?, ?, ?, ?)
-    ;`, [messageId, roomId, userId, rawMessage, userLevel, wasSent])
+  static async ttsLog (messageId, roomId, userId, rawMessage, voice, userLevel, wasSent) {
+    await sqlPool.query(`INSERT INTO ttsLog (messageId, roomId, userId, rawMessage, voice, userLevel, wasSent)
+                         VALUES (?, ?, ?, ?, ?, ?, ?)
+    ;`, [messageId, roomId, userId, rawMessage, voice, userLevel, wasSent])
   }
 
   /**
