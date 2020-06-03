@@ -509,7 +509,7 @@ class Tts {
     if (Object.prototype.hasOwnProperty.call(privMsgObj.raw.tags, "custom-reward-id")) {
       let responseMessage
       let settingObj = this.channelPointsSettings[privMsgObj.roomId]
-      if (settingObj.subOnly ? UserLevels.SUB : UserLevels.DEFAULT <= privMsgObj.userLevel) {
+      if ((settingObj.subOnly ? UserLevels.SUB : UserLevels.DEFAULT) <= privMsgObj.userLevel) {
         if (settingObj.cooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
