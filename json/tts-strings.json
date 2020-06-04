@@ -14,7 +14,7 @@
       "ignoreCooldown": true,
       "command": "register",
       "response": {
-        "success": "Successfully registered. Please use \"!tts help\" command in your own channel.",
+        "success": "Successfully registered. Please type the \"!tts help\" command into your own chat.",
         "fail": "You need to be a partner or an affiliate to use channelpoints."
       }
     },
@@ -51,7 +51,7 @@
       "ignoreCooldown": false,
       "command": "voices",
       "response": {
-        "general": "Check available voices here: https://supinic.com/stream/tts",
+        "general": "Check available voices here: https://supinic.com/stream/tts A moderator can change the voice by typing \"!tts settings voice XXXX\" where XXXX is the name of a voice.",
         "noConversation": "Conversation mode is disabled. Only the default voice is available! You can still check the list of voices here: https://supinic.com/stream/tts"
       }
     },
