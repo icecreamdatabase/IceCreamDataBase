@@ -26,13 +26,16 @@ class Hardcoded {
 
   /**
    * Handles hardcoded commands
-   * @param messageObj created in PrivMsg.createRawMessageObj
+   * @param {privMsgObj} messageObj
    * @returns {boolean} don't allow further commands
    */
   handle (messageObj) {
     if (messageObj.userLevel >= UserLevels.BOTADMIN
       && messageObj.message.startsWith("<t ")) {
-      TtsWebSocket.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), true, false, true)
+      let ttsSettingsObject = this.bot.irc.privMsg.channelPoints.getSettingObj(messageObj.roomId)
+      if (ttsSettingsObject) {
+        TtsWebSocket.sendTts(messageObj.channel, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), ttsSettingsObject)
+      }
       return true
     }
 

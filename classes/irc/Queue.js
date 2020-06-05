@@ -35,6 +35,15 @@ class Queue {
   }
 
   /**
+   *
+   * @param {string} targetUser
+   * @param {string} message
+   */
+  sendWhisper (targetUser, message) {
+    this.sayWithBoth(this.bot.userId, this.bot.userName, `.w ${targetUser} ${message}`)
+  }
+
+  /**
    * Send a message with the channelId
    * Does an api call to get channelName! Avoid this function if possible.
    * @param channelId

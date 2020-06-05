@@ -135,7 +135,7 @@ class ChannelPoints {
 
   /**
    * Handle the privMsgObj by checking for all channelpoint related triggers.
-   * @param privMsgObj created in PrivMsg.js
+   * @param {privMsgObj} privMsgObj
    * @returns {Promise<boolean>}
    */
   async handlePrivMsg (privMsgObj) {

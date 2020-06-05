@@ -58,7 +58,7 @@ class Irc {
     this.rateLimitUser = ChatLimit.NORMAL
     this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
-    this.twitchIrcConnection = new TwitchIrcConnection(this.bot)
+    this._twitchIrcConnection = new TwitchIrcConnection(this.bot)
     //create empty channel array to chat object
     this.channels = {}
 
@@ -116,6 +116,14 @@ class Irc {
    */
   get queue () {
     return this._queue
+  }
+
+  /**
+   *
+   * @return {TwitchIrcConnection}
+   */
+  get twitchIrcConnection () {
+    return this._twitchIrcConnection
   }
 
   onUpdateBotRatelimits () {

@@ -14,6 +14,49 @@ const options = require('../../../../config.json')
 
 class PrivMsg {
   /**
+   * @typedf {object} rawPrivMsgObjTags
+   * @property {string} [badge-info]
+   * @property {string} [badges]
+   * @property {string} [color]
+   * @property {string} [custom-reward-id]
+   * @property {string} [display-name]
+   * @property {boolean|string} [emotes]
+   * @property {boolean|string} [flags]
+   * @property {string} [flags]
+   * @property {string} [id]
+   * @property {string} [mod]
+   * @property {string} [room-id]
+   * @property {string} [subscriber]
+   * @property {string} [tmi-sent-ts]
+   * @property {string} [turbo]
+   * @property {string} [user-id]
+   * @property {boolean|string} [user-type]
+   */
+
+  /**
+   * Raw object coming from TwitchIRCconnection.on('PRIVMSG', ...).
+   * @typedef {object} rawPrivMsgObj
+   * @property {createRawMessageObj} tags
+   * @property {"PRIVMSG"} command
+   * @property {string} prefix
+   * @property {string} param
+   * @property {string} trailing
+   */
+
+  /**
+   * @typedef {object} privMsgObj
+   * @property {rawPrivMsgObj} raw
+   * @property {number|string} roomId
+   * @property {string} channel
+   * @property {number|string} userId
+   * @property {string} username
+   * @property {string} message
+   * @property {boolean} isACTION
+   * @property {UserLevel} userLevel
+   */
+
+
+  /**
    * @param {Bot} bot
    */
   constructor (bot) {
@@ -122,7 +165,7 @@ class PrivMsg {
 
   /**
    * Determines and sets userlevel inside of messageObj
-   * @param messageObj Object to set userLevel in
+   * @param {privMsgObj} messageObj
    */
   static findAndSetUserLevel (messageObj) {
     if (Object.prototype.hasOwnProperty.call(options, "botowners")
@@ -144,8 +187,8 @@ class PrivMsg {
 
   /**
    * Creates the raw none handled messageObj from the raw irc object
-   * @param obj irc input
-   * @returns {{channel: *, raw: *, isACTION: boolean, message: *, userId: *, roomId: *, username: *}}
+   * @param {rawPrivMsgObj} obj irc input
+   * @returns {privMsgObj}
    */
   static createRawMessageObj (obj) {
     return {
@@ -164,7 +207,7 @@ class PrivMsg {
    * Handles ACTION /me messages
    * removes the leading and trailing indicator
    * sets isACTION inside the messageObj to true
-   * @param messageObj by reference and created through createRawMessageObj(obj)
+   * @param {privMsgObj} messageObj
    */
   static handleACTION (messageObj) {
     if (messageObj.message.startsWith("\u0001ACTION")) {

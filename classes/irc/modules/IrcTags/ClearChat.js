@@ -31,6 +31,7 @@ class ClearChat {
   async onClearChat (clearChatObj) {
     let channelName = clearChatObj.param.substring(1)
     let userName = clearChatObj.trailing.toLowerCase()
+    let roomId = clearChatObj.tags["room-id"]
     if (!Object.prototype.hasOwnProperty.call(lastTimeoutObj, channelName)) {
       lastTimeoutObj[channelName] = {}
     }
@@ -39,11 +40,12 @@ class ClearChat {
     // Detect perm ban of own bot account
     if (parseInt(clearChatObj.tags["target-user-id"]) === this.bot.userId
       && !Object.prototype.hasOwnProperty.call(clearChatObj.tags, "ban-duration")) {
-      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}\nhasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)}`)
-      Logger.info(`${this.bot.userName} got banned in #${channelName} ----- hasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)}`)
+      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}\nhasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)}`)
+      Logger.info(`${this.bot.userName} got banned in #${channelName} ----- hasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)}`)
       //TODO: check if the bot is joined for being TTS bot ... this isn't perfect ...
-      if (this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(clearChatObj.roomId)) {
-        await SqlChannelPoints.dropChannel(this.bot.userId, clearChatObj.roomId)
+      if (this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)) {
+        await SqlChannelPoints.dropChannel(this.bot.userId, roomId)
+        this.bot.irc.queue.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to register again.`)
       }
     }
   }

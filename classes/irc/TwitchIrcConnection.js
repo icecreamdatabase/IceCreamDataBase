@@ -128,6 +128,15 @@ class TwitchIrcConnection extends EventEmitter {
   }
 
   /**
+   * Rejoins a channel
+   * @param channel
+   */
+  rejoin (channel) {
+    this.leave(channel)
+    this.join(channel)
+  }
+
+  /**
    * Connect to the twitch IRC server, login and send CAP REQ
    * @returns {Promise<void>}
    */
