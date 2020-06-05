@@ -21,6 +21,11 @@ class CustomCommands {
     return this.bot.irc.privMsg.channelPoints.channelPointsSettings
   }
 
+  /**
+   *
+   * @param {privMsgObj} privMsgObj
+   * @return {Promise<void>}
+   */
   async handlePrivMsg (privMsgObj) {
     await this.handleSetup(privMsgObj)
 
@@ -30,13 +35,18 @@ class CustomCommands {
   }
 
   // noinspection JSUnusedLocalSymbols
+  /**
+   *
+   * @param {privMsgObj} privMsgObj
+   * @return {Promise<void>}
+   */
   async handleSetup (privMsgObj) {
 
   }
 
   /**
    * Handle the privMsgObj by checking for all TTS redemption related triggers.
-   * @param privMsgObj created in PrivMsg.js
+   * @param {privMsgObj} privMsgObj
    * @returns {Promise<boolean>}
    */
   async handleTtsRedeem (privMsgObj) {

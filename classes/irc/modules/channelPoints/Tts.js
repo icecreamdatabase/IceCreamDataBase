@@ -27,13 +27,16 @@ class Tts {
     return this._bot
   }
 
+  /**
+   * @return {SqlChannelPoints[]}
+   */
   get channelPointsSettings () {
     return this.bot.irc.privMsg.channelPoints.channelPointsSettings
   }
 
   /**
    * Handle the privMsgObj by checking for all TTS related triggers.
-   * @param privMsgObj created in PrivMsg.js
+   * @param {privMsgObj} privMsgObj
    * @returns {Promise<boolean>}
    */
   async handlePrivMsg (privMsgObj) {
@@ -58,7 +61,7 @@ class Tts {
   /**
    * Handle the privMsgObj by checking for all TTS register related triggers.
    * Stuff like: !tts register, !tts help, ...
-   * @param privMsgObj created in PrivMsg.js
+   * @param {privMsgObj} privMsgObj
    * @returns {Promise<boolean>}
    */
   async handleTtsCommands (privMsgObj) {
@@ -101,7 +104,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts register command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {Promise<string>}
@@ -137,7 +140,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts unregister command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {Promise<string>}
@@ -169,7 +172,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts help command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {string}
@@ -189,7 +192,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts link command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {Promise<string>}
@@ -216,7 +219,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts stats command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {string}
@@ -253,7 +256,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts skip command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {string}
@@ -269,7 +272,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts reload command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {string}
@@ -285,7 +288,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts voices command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {string}
@@ -301,7 +304,7 @@ class Tts {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts settings command
-   * @param privMsgObj
+   * @param {privMsgObj} privMsgObj
    * @param optionObj
    * @param parameter
    * @returns {Promise<string>}
@@ -501,7 +504,7 @@ class Tts {
 
   /**
    * Handle the privMsgObj by checking for all TTS redemption related triggers.
-   * @param privMsgObj created in PrivMsg.js
+   * @param {privMsgObj} privMsgObj
    * @returns {Promise<boolean>}
    */
   async handleTtsRedeem (privMsgObj) {
@@ -514,16 +517,7 @@ class Tts {
           this.lastTts[privMsgObj.roomId] = Date.now()
 
           if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
-            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(
-              privMsgObj,
-              settingObj.conversation,
-              settingObj.queue,
-              settingObj.allowCustomPlaybackrate,
-              settingObj.volume,
-              settingObj.defaultVoiceName,
-              settingObj.timeoutCheckTime,
-              settingObj.maxMessageTime
-            )
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj)
             if (wasSent) {
               //Accept
               responseMessage = ttsStrings.redemeResponse.acceptMessage

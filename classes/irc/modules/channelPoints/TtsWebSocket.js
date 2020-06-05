@@ -138,76 +138,69 @@ class TtsWebSocket {
 
   /**
    * Send a TTS message with the "was user timed out for TTS message" check
-   * @param privMsgObj
-   * @param conversation
-   * @param queue
-   * @param allowCustomPlaybackrate
-   * @param volume 0 - 100
-   * @param voice
-   * @param waitForTimeoutLength
-   * @param maxMessageTime
-   * @returns {Promise<unknown>}
+   * @param {privMsgObj} privMsgObj
+   * @param {SqlChannelPoints} settingObj
+   * @returns {Promise<boolean>}
    */
-  sendTtsWithTimeoutCheck (privMsgObj, conversation = false, queue = false, allowCustomPlaybackrate = false, volume = 100, voice = defaultVoice, waitForTimeoutLength = 5, maxMessageTime = 0) {
-    return new Promise((resolve) => {
-      setTimeout(async (channel, username, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, color) => {
-        // * 2 so we are also checking a bit before "now"
-        if (ClearChat.wasTimedOut(channel, username, waitForTimeoutLength * 2) || ClearMsg.wasDeleted(privMsgObj.raw.tags.id)) {
-          let userInfo = await Api.apiFallbackObject.kraken.userDataFromLogins([username]) //TODO: test this
-          DiscordLog.twitchMessageCustom("tts-message-log",
-            "Failed in: " + channel,
-            message,
-            new Date().toISOString(),
-            color,
-            username,
-            userInfo[0].logo
-          )
-          await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
-            privMsgObj.roomId,
-            privMsgObj.userId,
-            privMsgObj.message,
-            voice,
-            privMsgObj.userLevel,
-            false
-          )
-          resolve(false)
-        } else {
-          this.sendTts(channel, message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime)
-          await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
-            privMsgObj.roomId,
-            privMsgObj.userId,
-            privMsgObj.message,
-            voice,
-            privMsgObj.userLevel,
-            true
-          )
-          resolve(true)
-        }
-      }, waitForTimeoutLength * 1000, privMsgObj.channel, privMsgObj.username, privMsgObj.message, conversation, queue, allowCustomPlaybackrate, volume, voice, maxMessageTime, privMsgObj.raw.tags.color)
-    })
+  async sendTtsWithTimeoutCheck (privMsgObj, settingObj) {
+    await sleep(settingObj.timeoutCheckTime * 1000)
+
+    // * 2 so we are also checking a bit before "now"
+    if (ClearChat.wasTimedOut(privMsgObj.channel, privMsgObj.username, settingObj.timeoutCheckTime * 2) || ClearMsg.wasDeleted(privMsgObj.raw.tags.id)) {
+      let userInfo = await Api.apiFallbackObject.kraken.userDataFromLogins([privMsgObj.username])
+      DiscordLog.twitchMessageCustom("tts-message-log",
+        "Failed in: " + privMsgObj.channel,
+        privMsgObj.message,
+        new Date().toISOString(),
+        privMsgObj.raw.tags.color,
+        privMsgObj.username,
+        userInfo[0].logo
+      )
+      await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
+        privMsgObj.roomId,
+        privMsgObj.userId,
+        privMsgObj.message,
+        settingObj.defaultVoiceName,
+        privMsgObj.userLevel,
+        false
+      )
+      return false
+    } else {
+      this.sendTts(privMsgObj.channel, privMsgObj.message, settingObj)
+      await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
+        privMsgObj.roomId,
+        privMsgObj.userId,
+        privMsgObj.message,
+        settingObj.defaultVoiceName,
+        privMsgObj.userLevel,
+        true
+      )
+      return true
+    }
   }
 
   /**
    * Send a TTS message to all clients, which have registered with the same channel.
-   * @param channel
-   * @param message
-   * @param conversation
-   * @param queue
-   * @param allowCustomPlaybackrate
-   * @param volume 0 - 100
-   * @param voice
-   * @param maxMessageTime
+   * @param {string} channel
+   * @param {string} message
+   * @param {SqlChannelPoints} settingObj
    */
-  sendTts (channel, message, conversation = false, queue = false, allowCustomPlaybackrate = false, volume = 100, voice = fallbackVoice, maxMessageTime = 0) {
+  sendTts (channel, message, settingObj) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    let data = {channel: channel, data: [], queue: queue, volume: volume, maxMessageTime: maxMessageTime}
+    let data = {
+      channel: channel,
+      data: [],
+      queue: settingObj.queue,
+      volume: settingObj.volume,
+      maxMessageTime: settingObj.maxMessageTime
+    }
 
-    if (conversation) {
-      data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, voice, allowCustomPlaybackrate)
+    if (settingObj.conversation) {
+      data.data = this.createTTSArray(message, useCaseSensitiveVoiceMatching, settingObj.defaultVoiceName, settingObj.allowCustomPlaybackrate)
     } else {
-      data.data[0] = {voice: voice, message: message}
+      data.data[0] = {voice: settingObj.defaultVoiceName, message: message}
     }
     this.sendToWebsocket("tts", channel, data)
   }
@@ -263,6 +256,7 @@ class TtsWebSocket {
     let output = [{voice: defaultVoice, message: "", playbackrate: defaultPlaybackrate}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
+      let newVoiceStart = false
       if (word.endsWith(":")) {
         let match = word.match(regExpTtsArray)
         if (match && match[1]) {
@@ -274,9 +268,11 @@ class TtsWebSocket {
             playbackrate = Math.min(PLAYBACKRATEMAX, Math.max(PLAYBACKRATEMIN, playbackrate))
             output[outputIndex]["playbackrate"] = allowCustomPlaybackrate ? playbackrate : defaultPlaybackrate
             output[outputIndex]["message"] = ""
+            newVoiceStart = true
           }
         }
-      } else {
+      }
+      if (!newVoiceStart) {
         output[outputIndex]["message"] += " " + word
       }
     }
@@ -314,3 +310,14 @@ class TtsWebSocket {
 }
 
 module.exports = TtsWebSocket
+
+/**
+ *
+ * @param {number} ms
+ * @return {Promise<unknown>}
+ */
+async function sleep (ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms)
+  })
+}
