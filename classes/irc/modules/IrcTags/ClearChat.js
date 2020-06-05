@@ -45,6 +45,7 @@ class ClearChat {
       //TODO: check if the bot is joined for being TTS bot ... this isn't perfect ...
       if (this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)) {
         await SqlChannelPoints.dropChannel(this.bot.userId, roomId)
+        this.bot.irc.queue.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to register again.`)
       }
     }
   }
