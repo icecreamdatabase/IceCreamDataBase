@@ -236,18 +236,19 @@ class Tts {
     let linkedIds = Object.keys(this.channelPointsSettings)
     let linkedCount = linkedIds.length
 
-    let channelInfos = await this.bot.api.kraken.channelInfosFromIds(linkedIds)
-    let broadCasterTypeCount = {partner: 0, affiliate: 0, "": 0}
-    channelInfos.forEach(x => broadCasterTypeCount[x.broadcaster_type]++)
+    //let channelInfos = await this.bot.api.kraken.channelInfosFromIds(linkedIds)
+    //let broadCasterTypeCount = {partner: 0, affiliate: 0, "": 0}
+    //channelInfos.forEach(x => broadCasterTypeCount[x.broadcaster_type]++)
 
     let usageInfo = await SqlChannelPoints.ttsUsageStats()
 
     let response = optionObj.response.toString()
     response = response.replace("${linkedCount}", linkedCount.toString())
     response = response.replace("${websocketclientCount}", websocketClientCount.toString())
-    response = response.replace("${partnerCount}", broadCasterTypeCount.partner.toString())
-    response = response.replace("${affiliateCount}", broadCasterTypeCount.affiliate.toString())
-    response = response.replace("${neitherCount}", broadCasterTypeCount[""].toString())
+    //response = response.replace("${partnerCount}", broadCasterTypeCount.partner.toString())
+    //response = response.replace("${affiliateCount}", broadCasterTypeCount.affiliate.toString())
+    //response = response.replace("${neitherCount}", broadCasterTypeCount[""].toString())
+    // TODO add this again: (${partnerCount} partners and ${affiliateCount} affiliates)
 
     console.log(usageInfo.hour.toString())
     response = response.replace("${messageCountPastMinute}", usageInfo.minute.toString())
