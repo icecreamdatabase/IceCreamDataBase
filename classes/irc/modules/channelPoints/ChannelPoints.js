@@ -129,6 +129,10 @@ class ChannelPoints {
     return Object.prototype.hasOwnProperty.call(this.channelPointsSettings, roomId.toString())
   }
 
+  /**
+   * @param roomId
+   * @return {SqlChannelPoints|undefined}
+   */
   getSettingObj (roomId) {
     return this.channelPointsSettings[roomId]
   }

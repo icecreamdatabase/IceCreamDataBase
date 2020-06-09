@@ -69,6 +69,12 @@ class Tts {
       && (this.bot.irc.channels[privMsgObj.roomId].useChannelPoints
         || this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled)
     ) {
+
+      let channelPointsObj = this.bot.irc.privMsg.channelPoints.getSettingObj(privMsgObj.roomId)
+      if (channelPointsObj && channelPointsObj.muted && privMsgObj.userLevel < UserLevels.BROADCASTER) {
+        return false
+      }
+
       let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1).trim().toLowerCase()
       let responseMessage = ""
 

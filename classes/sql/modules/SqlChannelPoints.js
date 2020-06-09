@@ -44,6 +44,7 @@ class SqlChannelPoints {
     this._customRewardId = ttsCustomRewardId
     this._allowCommandNewLines = allowCommandNewLines
     this._listenOnPubSub = listenOnPubSub
+    this._muted = false
   }
 
   get channelId () {
@@ -78,6 +79,21 @@ class SqlChannelPoints {
 
   set listenOnPubSub (value) {
     this._listenOnPubSub = value
+    //TODO: sync with DB
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get muted () {
+    return this._muted
+  }
+
+  /**
+   * @param {boolean} value
+   */
+  set muted (value) {
+    this._muted = value
     //TODO: sync with DB
   }
 
