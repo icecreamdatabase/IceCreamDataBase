@@ -23,6 +23,7 @@
 <audio id="player" controls="" style="display:none">
   <source id="source" type="audio/wav">
 </audio>
+<div id="notifications" style="display:none;"><span id="notifyRedeemer"></span><span id="notifyContent"></span></div>
 
 <script>
   const sleep = (ms) => {
@@ -54,9 +55,11 @@
       return
     }
 
-    currentMessage = arr.shift()
+	currentMessage = arr.shift() // In here the "msgVoices" go inside.
     let msgObj = currentMessage.shift()
     if (msgObj) {
+	  startNotifications(); // create notifications
+	  sendToNotifications(msgObj);
       audioPlaying = true
       clearTimeout(currentMessageTimeoutId)
       if (maxMessageTime > 0) {
@@ -71,6 +74,7 @@
   document.getElementById("player").addEventListener("ended", async () => {
     if (currentMessage.length > 0) {
       let msgObj = currentMessage.shift()
+	  sendToNotifications(msgObj);
       await speak(msgObj.message, msgObj.voice, msgObj.playbackrate)
       return
     }
@@ -78,16 +82,19 @@
     // Delay between messages
     await sleep(1000)
 
-    if (msgQueue.length > 0) {
+    // If there are more messages queued after "currentMessage voices" then this is being runned.
+	if (msgQueue.length > 0) {
       currentMessage = msgQueue.shift()
       let msgObj = currentMessage.shift()
       if (msgObj) {
+		sendToNotifications(msgObj);
         await speak(msgObj.message, msgObj.voice, msgObj.playbackrate)
         return
       }
     }
 
-    audioPlaying = false
+    endNotifications(); // clear and end notifications
+	audioPlaying = false
   })
 
   function findGetParameter (parameterName) {
@@ -102,6 +109,7 @@
           result = decodeURIComponent(tmp[1])
         }
       })
+	console.log(result)
     return result
   }
 
@@ -161,8 +169,11 @@
     player.dispatchEvent(new Event("ended"))
   }
 
+  //let socket;
+  
   function connect () {
     let socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://ws.icecreamdatabase.com')
+	//socket = new WebSocket(findGetParameter('local') ? 'ws://localhost:4700' : 'wss://echo.websocket.org')
     // Connection opened
     socket.addEventListener('open', event => {
       console.log("Connected")
@@ -181,6 +192,11 @@
         } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
           volume = obj.data.volume || volume
           maxMessageTime = obj.data.maxMessageTime || maxMessageTime
+		  
+		  obj.data.data.forEach(function(data) { 
+			data.redeemer = obj.data.redeemer; // Add redeemer to "msgVoice" queues
+		  });
+		  
           msgQueue.push(obj.data.data)
           useQueue = !!obj.data.queue
         }
@@ -200,3 +216,4 @@
   connect()
 
 </script>
+<script src="notifications.js"></script>
