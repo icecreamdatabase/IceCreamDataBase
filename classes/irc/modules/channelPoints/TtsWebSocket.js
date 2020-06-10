@@ -166,7 +166,7 @@ class TtsWebSocket {
       )
       return false
     } else {
-      this.sendTts(privMsgObj.channel, privMsgObj.message, settingObj)
+      this.sendTts(privMsgObj.channel, privMsgObj.username, privMsgObj.message, settingObj)
       await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
         privMsgObj.roomId,
         privMsgObj.userId,
@@ -182,15 +182,17 @@ class TtsWebSocket {
   /**
    * Send a TTS message to all clients, which have registered with the same channel.
    * @param {string} channel
+   * @param {string} username
    * @param {string} message
    * @param {SqlChannelPoints} settingObj
    */
-  sendTts (channel, message, settingObj) {
+  sendTts (channel, username, message, settingObj) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
     let data = {
       channel: channel,
+      username: username,
       data: [],
       queue: settingObj.queue,
       volume: settingObj.volume,
