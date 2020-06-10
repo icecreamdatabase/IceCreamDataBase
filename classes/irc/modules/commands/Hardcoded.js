@@ -34,7 +34,7 @@ class Hardcoded {
       && messageObj.message.startsWith("<t ")) {
       let ttsSettingsObject = this.bot.irc.privMsg.channelPoints.getSettingObj(messageObj.roomId)
       if (ttsSettingsObject) {
-        TtsWebSocket.sendTts(messageObj.channel, messageObj.username, messageObj.message.substr(messageObj.message.indexOf(" ") + 1), ttsSettingsObject)
+        TtsWebSocket.sendTts(messageObj, ttsSettingsObject, messageObj.message.substr(messageObj.message.indexOf(" ") + 1))
       }
       return true
     }

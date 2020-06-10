@@ -12,6 +12,7 @@ const WEBSOCKETPINGINTERVAL = 15000
 const regExpTtsArray = new RegExp(/(\w+)(?:\(x?(\d*\.?\d*)\))?:/)
 const PLAYBACKRATEMIN = 0.1
 const PLAYBACKRATEMAX = 10.0
+const WS_SENT_VERSION = "2.2.0"
 
 const voices = require('../../../../json/se-voices.json')
 const fallbackVoice = "Brian"
@@ -166,7 +167,7 @@ class TtsWebSocket {
       )
       return false
     } else {
-      this.sendTts(privMsgObj.channel, privMsgObj.username, privMsgObj.message, settingObj)
+      this.sendTts(privMsgObj, settingObj, privMsgObj.message)
       await SqlChannelPoints.ttsLog(privMsgObj.raw.tags.id,
         privMsgObj.roomId,
         privMsgObj.userId,
@@ -181,22 +182,23 @@ class TtsWebSocket {
 
   /**
    * Send a TTS message to all clients, which have registered with the same channel.
-   * @param {string} channel
-   * @param {string} username
-   * @param {string} message
+   * @param {privMsgObj} privMsgObj
    * @param {SqlChannelPoints} settingObj
+   * @param {string} message
    */
-  sendTts (channel, username, message, settingObj) {
-    if (channel.startsWith("#")) {
-      channel = channel.substring(1)
-    }
+  sendTts (privMsgObj, settingObj, message) {
     let data = {
-      channel: channel,
-      username: username,
+      channel: privMsgObj.channel,
+      redeemer: privMsgObj.username,
+      //id: privMsgObj.raw.tags.id,
       data: [],
       queue: settingObj.queue,
       volume: settingObj.volume,
       maxMessageTime: settingObj.maxMessageTime
+    }
+
+    if (data.channel.startsWith("#")) {
+      data.channel = data.channel.substring(1)
     }
 
     if (settingObj.conversation) {
@@ -204,7 +206,7 @@ class TtsWebSocket {
     } else {
       data.data[0] = {voice: settingObj.defaultVoiceName, message: message}
     }
-    this.sendToWebsocket("tts", channel, data)
+    this.sendToWebsocket("tts", data.channel, data)
   }
 
   /**
@@ -236,7 +238,7 @@ class TtsWebSocket {
           channel === null || channel.toLowerCase() === (client.channel || "").toLowerCase()
         )) {
         try {
-          client.send(JSON.stringify({cmd: cmd, data: data}))
+          client.send(JSON.stringify({cmd: cmd, data: data, version: WS_SENT_VERSION}))
         } catch (e) {
           Logger.error(__filename + "\nsend failed\n" + e)
         }

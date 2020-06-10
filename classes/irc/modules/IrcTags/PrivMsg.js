@@ -14,7 +14,7 @@ const options = require('../../../../config.json')
 
 class PrivMsg {
   /**
-   * @typedf {object} rawPrivMsgObjTags
+   * @typedef {object} rawPrivMsgObjTags
    * @property {string} [badge-info]
    * @property {string} [badges]
    * @property {string} [color]
@@ -36,7 +36,7 @@ class PrivMsg {
   /**
    * Raw object coming from TwitchIRCconnection.on('PRIVMSG', ...).
    * @typedef {object} rawPrivMsgObj
-   * @property {createRawMessageObj} tags
+   * @property {rawPrivMsgObjTags} tags
    * @property {"PRIVMSG"} command
    * @property {string} prefix
    * @property {string} param
