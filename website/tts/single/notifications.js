@@ -43,9 +43,7 @@ function startNotifications() {
 }
 
 function sendToNotifications(information) {
-	if (isNotifyEnabled() != true) {
-		return;
-	}
+	if (isNotifyEnabled() != true) { return; }
 	
 	//console.log(JSON.stringify(information));
 	
@@ -54,9 +52,7 @@ function sendToNotifications(information) {
 }
 
 function endNotifications() {
-	if (isNotifyEnabled() != true) {
-		return;
-	}
+	if (isNotifyEnabled() != true) { return; }
 	
 	notifyElement.style.display = "none"; // Disable
 }
