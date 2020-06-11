@@ -43,35 +43,47 @@ function startNotifications() {
 }
 
 function sendToNotifications(information) {
-	console.log(JSON.stringify(information));
+	if (isNotifyEnabled() != true) {
+		return;
+	}
+	
+	//console.log(JSON.stringify(information));
 	
 	notifyRedeemer.innerHTML = (information.redeemer);
 	notifyContent.innerHTML = (": " + information.message);
 }
 
 function endNotifications() {
+	if (isNotifyEnabled() != true) {
+		return;
+	}
+	
 	notifyElement.style.display = "none"; // Disable
 }
 
 
 // Notifications styles
-if (tts_notifyWidth == null) {
-	tts_notifyWidth = "630px";
-}
-if (tts_fontSize == null) {
-	tts_fontSize = "13px";
-}
-notifyElement.style.width = tts_notifyWidth;
-notifyElement.style.fontSize = tts_fontSize;
-notifyElement.style.fontFamily = "Arial, sans-serif";
+if (isNotifyEnabled() == true) {
+	
+	if (tts_notifyWidth == null) {
+		tts_notifyWidth = "630px";
+	}
+	if (tts_fontSize == null) {
+		tts_fontSize = "13px";
+	}
+	notifyElement.style.width = tts_notifyWidth;
+	notifyElement.style.fontSize = tts_fontSize;
+	notifyElement.style.fontFamily = "Arial, sans-serif";
 
-if (tts_textRedeemerColor == null) {
-	tts_textRedeemerColor = "#9147ff";
-}
-notifyRedeemer.style.color = tts_textRedeemerColor;
-notifyRedeemer.style.fontWeight = "bold";
+	if (tts_textRedeemerColor == null) {
+		tts_textRedeemerColor = "#9147ff";
+	}
+	notifyRedeemer.style.color = tts_textRedeemerColor;
+	notifyRedeemer.style.fontWeight = "bold";
 
-if (tts_textContentColor == null) {
-	tts_textContentColor = "white";
+	if (tts_textContentColor == null) {
+		tts_textContentColor = "white";
+	}
+	notifyContent.style.color = tts_textContentColor;
+	
 }
-notifyContent.style.color = tts_textContentColor;
