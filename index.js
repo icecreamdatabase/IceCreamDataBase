@@ -21,7 +21,7 @@ global.VERSION.REVISION = require('child_process')
   .execSync('git rev-parse HEAD')
   .toString().trim()
 */
-/*
+
 function hookStderr (callback) {
   let oldWrite = process.stderr.write
 
@@ -43,7 +43,7 @@ const unhook = hookStderr((string, encoding, fd) => {
 process.on('unhandledRejection', (reason, p) => {
   Logger.warn('Unhandled Rejection at promise:\n\n' + util.inspect(p) + '\n\nreason:\n' + util.inspect(reason))
 })
-*/
+
 
 SqlAuth.getIdList().then(ids => ids.forEach(id => {
  bots[id] = new Bot(id)
