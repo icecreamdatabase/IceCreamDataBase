@@ -120,6 +120,16 @@ class Hardcoded {
       this.bot.irc.queue.sayWithMsgObj(messageObj, msg)
     }
 
+    /* batchsay */
+    if (messageObj.userLevel >= UserLevels.BOTOWNER
+      && messageObj.message.startsWith("<batchsay ")) {
+      let url = messageObj.message.split(' ')[1]
+      if (url) {
+        this.bot.api.other.constructor.getWebsiteContent(url).then(body =>
+          this.bot.irc.queue.batchSay(messageObj.roomId, messageObj.channel, body.split(/(?:\n|\r\n)+/g)))
+      }
+    }
+
     return false
   }
 }

@@ -11,6 +11,9 @@ const TIMEOUT_OFFSET = 100 //ms
 const MIN_MESSAGE_CUT_LENGTH_FACTOR = 0.75
 const NEWLINE_SEPERATOR = "{nl}" //Make sure to change it in Tts.js as well!
 
+const BATCH_MAX_FACTOR = 0.8 // limit of 100 * 0.8 = 80 messages per chunk
+const BATCH_DELAY_BETWEEN_CHUNKS = 30000 //m
+const BATCH_DEFAULT_LIMIT = 250
 
 class Queue {
   /**
@@ -78,16 +81,13 @@ class Queue {
 
   /**
    * Send a message with both the channelId and the channelName.
-   * channelId and channelName have to match else there might be unpredictable problems
-   * @param channelId
-   * @param channelName
-   * @param message
-   * @param userId
+   * channelId and channelName have to match else there might be unpredictable problems.
+   * @param {string|number} channelId
+   * @param {string} channelName
+   * @param {string} message
+   * @param {string|number} userId
    */
-  sayWithBoth (channelId, channelName, message, userId) {
-    //if userId paramter is missing just set it to "-1"
-    userId = userId || "-1"
-
+  sayWithBoth (channelId, channelName, message, userId = -1) {
     if (!message) {
       return
     }
@@ -204,6 +204,53 @@ class Queue {
     this._messageQueue.shift()
     //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
     this._queueEmitter.emit('event')
+  }
+
+  /**
+   * Say an array of strings.
+   * @param {string|number} roomId
+   * @param {string} channelName
+   * @param {string[]} messages
+   * @param {number} batchLimit
+   * @return {Promise<void>}
+   */
+  async batchSay (roomId, channelName, messages, batchLimit = BATCH_DEFAULT_LIMIT) {
+    let channelObj = this.bot.irc.channels[roomId]
+    let botStatus = channelObj.botStatus || UserLevels.DEFAULT
+    let messageInChunkCount = 0
+    let currentLimit = botStatus >= UserLevels.VIP
+      ? this.bot.irc.rateLimitModerator
+      : this.bot.irc.rateLimitUser
+    currentLimit = Math.min(currentLimit * BATCH_MAX_FACTOR, batchLimit)
+    let totalMessagesSent = 0
+
+    Logger.info(`New limit: ${currentLimit}`)
+    for (let message of messages) {
+      if (messageInChunkCount >= currentLimit) {
+        messageInChunkCount = 0
+
+        // update limit
+        channelObj = this.bot.irc.channels[roomId]
+        botStatus = channelObj.botStatus || UserLevels.DEFAULT
+        currentLimit = botStatus >= UserLevels.VIP
+          ? this.bot.irc.rateLimitModerator
+          : this.bot.irc.rateLimitUser
+        currentLimit = Math.min(currentLimit * BATCH_MAX_FACTOR, batchLimit)
+
+        Logger.info(`New limit: ${currentLimit}`)
+        Logger.info(`${totalMessagesSent}/${messages.length} sent`)
+        Logger.info(`Starting pause for: ${BATCH_DELAY_BETWEEN_CHUNKS / 1000}s`)
+        await sleep(BATCH_DELAY_BETWEEN_CHUNKS)
+        while (this._messageQueue.length > 0) {
+          await sleep(100)
+        }
+      }
+
+      this.sayWithBoth(roomId, channelName, message, this.bot.userId)
+      messageInChunkCount++
+      totalMessagesSent++
+    }
+    Logger.info("Done")
   }
 }
 
