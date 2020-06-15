@@ -135,7 +135,7 @@ class Tts {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
         await this.bot.irc.updateBotChannels()
-        this.bot.irc.twitchIrcConnection.rejoin(privMsgObj.channel.substr(1))
+        this.bot.irc.twitchIrcConnection.rejoin(username)
         return optionObj.response.success
       } else {
         return optionObj.response.fail

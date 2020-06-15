@@ -4,6 +4,7 @@ const SqlAuth = require('./classes/sql/main/SqlAuth')
 const Bot = require('./classes/Bot.js')
 const DiscordLog = require('./classes/helper/DiscordLog')
 const Logger = require('./classes/helper/Logger')
+const config = require('./config.json')
 
 let bots = {}
 
@@ -21,7 +22,7 @@ global.VERSION.REVISION = require('child_process')
   .execSync('git rev-parse HEAD')
   .toString().trim()
 */
-/*
+
 function hookStderr (callback) {
   let oldWrite = process.stderr.write
 
@@ -35,16 +36,17 @@ function hookStderr (callback) {
   }
 }
 
-// noinspection JSUnusedLocalSymbols
-const unhook = hookStderr((string, encoding, fd) => {
-  DiscordLog.error(string)
-})
+if (config.logDiscord) {
+  // noinspection JSUnusedLocalSymbols
+  const unhook = hookStderr((string, encoding, fd) => {
+    DiscordLog.error(string)
+  })
 
-process.on('unhandledRejection', (reason, p) => {
-  Logger.warn('Unhandled Rejection at promise:\n\n' + util.inspect(p) + '\n\nreason:\n' + util.inspect(reason))
-})
-*/
+  process.on('unhandledRejection', (reason, p) => {
+    Logger.warn('Unhandled Rejection at promise:\n\n' + util.inspect(p) + '\n\nreason:\n' + util.inspect(reason))
+  })
+}
 
 SqlAuth.getIdList().then(ids => ids.forEach(id => {
- bots[id] = new Bot(id)
+  bots[id] = new Bot(id)
 }))

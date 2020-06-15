@@ -1,4 +1,5 @@
 {
+  "logDiscord": true,
   "discord": {
     "bot-log": {
       "id": "xxxxxxxxxxxxxxxxxx",
