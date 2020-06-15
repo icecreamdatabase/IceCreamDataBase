@@ -66,7 +66,7 @@ class Hardcoded {
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<s ")) {
 
-      this.bot.irc.twitchIrcConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
+      this.bot.irc.ircConnectionPool.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)

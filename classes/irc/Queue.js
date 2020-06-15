@@ -199,7 +199,7 @@ class Queue {
     }
     channel.lastMessage = msgObj.message
 
-    this.bot.irc.twitchIrcConnection.say(msgObj.channelName, msgObj.message)
+    this.bot.irc.ircConnectionPool.say(msgObj.channelName, msgObj.message)
 
     this._messageQueue.shift()
     //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)

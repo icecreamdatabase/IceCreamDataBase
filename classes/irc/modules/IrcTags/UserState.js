@@ -8,7 +8,7 @@ class UserState {
   constructor (bot) {
     this._bot = bot
 
-    this.bot.irc.twitchIrcConnection.on('USERSTATE', this.onUserState.bind(this))
+    this.bot.irc.ircConnectionPool.on('USERSTATE', this.onUserState.bind(this))
   }
 
   /**

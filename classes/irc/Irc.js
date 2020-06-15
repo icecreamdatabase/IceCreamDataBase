@@ -2,7 +2,7 @@
 //CLASSES
 const Logger = require('../helper/Logger')
 const SqlChannels = require('../sql/main/SqlChannels.js')
-const TwitchIrcConnection = require('./TwitchIrcConnection.js')
+const IrcConnectionPool = require('./IrcConnectionPool')
 const PrivMsg = require('./modules/IrcTags/PrivMsg.js')
 const UserNotice = require('./modules/IrcTags/UserNotice.js')
 const ClearChat = require('./modules/IrcTags/ClearChat.js')
@@ -58,11 +58,15 @@ class Irc {
     this.rateLimitUser = ChatLimit.NORMAL
     this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
-    this._twitchIrcConnection = new TwitchIrcConnection(this.bot)
+    /**
+     * @type IrcConnectionPool
+     * @private
+     */
+    this._ircConnectionPool = undefined
     //create empty channel array to chat object
     this.channels = {}
 
-    this.updateBotRatelimits().then(this.onUpdateBotRatelimits.bind(this))
+    this.updateBotRatelimits().then(this.setupIrc.bind(this))
   }
 
   /**
@@ -119,52 +123,25 @@ class Irc {
   }
 
   /**
-   *
-   * @return {TwitchIrcConnection}
+   * @return {IrcConnectionPool}
    */
-  get twitchIrcConnection () {
-    return this._twitchIrcConnection
+  get ircConnectionPool () {
+    return this._ircConnectionPool
   }
 
-  onUpdateBotRatelimits () {
-    //Connecting the bot to the twich servers
+  async setupIrc () {
     Logger.info(`### Connecting: ${this.bot.userId} (${this.bot.userName})`)
-    this.twitchIrcConnection.connect().then(this.onConnected.bind(this))
-  }
 
-  /**
-   * Callback for this.twitchIrcConnection.connect()
-   * Don't forget .bind(this)!
-   */
-  onConnected () {
-    Logger.info(`### Connected: ${this.bot.userId} (${this.bot.userName})`)
+    this._ircConnectionPool = new IrcConnectionPool(this.bot)
+
     this._queue = new Queue(this.bot)
 
-    SqlChannels.getChannelData(this.bot.userId).then(this.onChannelData.bind(this))
-  }
+    let data = await SqlChannels.getChannelData(this.bot.userId)
+    console.log(data)
 
-  /**
-   * Callback for Sql.getChannelData(this.bot.userId)
-   * Don't forget .bind(this)!
-   */
-  onChannelData (data) {
     let ids = Object.values(data).map(x => x.channelID)
-    this.bot.userIdLoginCache.prefetchListOfIds(ids).then(this.onDataPrefetched.bind(this))
-  }
+    await this.bot.userIdLoginCache.prefetchListOfIds(ids)
 
-  /**
-   * Callback for this.bot.userIdLoginCache.prefetchListOfIds(ids)
-   * Don't forget .bind(this)!
-   */
-  onDataPrefetched () {
-    this.updateBotChannels().then(this.onUpdatedChannels.bind(this))
-  }
-
-  /**
-   * Callback for this.updateBotChannels()
-   * Don't forget .bind(this)!
-   */
-  onUpdatedChannels () {
     //OnX modules
     this._privMsg = new PrivMsg(this.bot)
     this._userNotice = new UserNotice(this.bot)
@@ -172,6 +149,7 @@ class Irc {
     this._clearMsg = new ClearMsg(this.bot)
     this._userState = new UserState(this.bot)
 
+    await this.updateBotChannels()
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
     Logger.info("### Fully setup: " + this.bot.userId + " (" + this.bot.userName + ")")
@@ -200,7 +178,7 @@ class Irc {
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
           if (channelName) {
-            this.twitchIrcConnection.leave(channelName)
+            this.ircConnectionPool.leaveChannel(channelName)
             Logger.info(this.bot.userName + " Parted: #" + channelName)
           }
         }
@@ -226,7 +204,7 @@ class Irc {
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
           if (channelName) {
-            this.twitchIrcConnection.join(channelName)
+            await this.ircConnectionPool.joinChannel(channelName)
             Logger.info(this.bot.userName + " Joined: #" + channelName)
           }
           allChannelData[channelId].botStatus = null

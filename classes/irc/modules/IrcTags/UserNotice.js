@@ -22,7 +22,7 @@ class UserNotice {
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `_notificationData` array.
 
-    this.bot.irc.twitchIrcConnection.on('USERNOTICE', this.onUsernotice.bind(this))
+    this.bot.irc.ircConnectionPool.on('USERNOTICE', this.onUsernotice.bind(this))
 
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
