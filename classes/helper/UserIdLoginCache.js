@@ -40,7 +40,7 @@ class UserIdLoginCache {
   /**
    *
    * @param {string|number} id
-   * @return {Promise<null|string>}
+   * @return {Promise<undefined|string>}
    */
   async idToName (id) {
     if (!Object.prototype.hasOwnProperty.call(userInfosById, id)) {
@@ -50,8 +50,8 @@ class UserIdLoginCache {
         userInfosById[user["_id"]] = user
         userInfosByName[user["name"].toLowerCase()] = user
       } else {
-        Logger.warn(`idToName failed with id: ${id}`)
-        return null
+        Logger.warn(`idToName failed with id: ${id}\nChannel is probably banned.`)
+        return undefined
       }
     }
 

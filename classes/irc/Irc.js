@@ -199,8 +199,10 @@ class Irc {
         //part
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
-          this.twitchIrcConnection.leave(channelName)
-          Logger.info(this.bot.userName + " Parted: #" + channelName)
+          if (channelName) {
+            this.twitchIrcConnection.leave(channelName)
+            Logger.info(this.bot.userName + " Parted: #" + channelName)
+          }
         }
       }
     }
@@ -223,12 +225,9 @@ class Irc {
         //join
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
-          //Logger.info(this.bot.userName + " Joining: #" + channelName)
-          if (channelName !== null) {
+          if (channelName) {
             this.twitchIrcConnection.join(channelName)
             Logger.info(this.bot.userName + " Joined: #" + channelName)
-          } else {
-            Logger.warn(`${this.bot.userName} failed to join banned channel: ${channelId}`)
           }
           allChannelData[channelId].botStatus = null
           allChannelData[channelId].lastMessage = ""
