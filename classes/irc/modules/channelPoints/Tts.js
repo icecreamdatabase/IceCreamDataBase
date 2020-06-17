@@ -134,8 +134,9 @@ class Tts {
       if (["partner", "affiliate"].includes(channelInfo["broadcaster_type"])) {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
-        await this.bot.irc.updateBotChannels()
-        await this.bot.irc.ircConnectionPool.rejoinChannel(username)
+        this.bot.irc.updateBotChannels().then(()=> {
+          this.bot.irc.ircConnectionPool.rejoinChannel(username).then()
+        })
         return optionObj.response.success
       } else {
         return optionObj.response.fail

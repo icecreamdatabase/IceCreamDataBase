@@ -3,7 +3,7 @@ const TwitchIrcConnection = require('./TwitchIrcConnection')
 const ChatLimit = require('./../../ENUMS/ChatLimit')
 const Logger = require('./../helper/Logger')
 
-const maxChannelsPerConnection = 100
+const maxChannelsPerConnection = 50
 
 const SEND_CONNECTION_COUNT_VERIFIED = 5
 const SEND_CONNECTION_COUNT_ELSE = 2
