@@ -14,8 +14,8 @@
       "ignoreCooldown": true,
       "command": "register",
       "response": {
-        "success": "Successfully registered. Please type the \"!tts help\" command into your own chat.",
-        "fail": "You need to be a partner or an affiliate to use channelpoints."
+        "success": "Successfully registered. Please type the \"!tts help\" command into your own chat. {nl}If you are using subscriber only mode or are blocking links it is advisable to type \"/vip channelpoints_tts\" into your own chat!",
+        "fail": "You need to be a twitch partner or an affiliate to use channelpoints."
       }
     },
     "handleUnregister": {
