@@ -5,8 +5,8 @@ const Logger = require('./../helper/Logger')
 
 const maxChannelsPerConnection = 100
 
-const SEND_CONNECTION_COUNT_VERIFIED = 2
-const SEND_CONNECTION_COUNT_ELSE = 5
+const SEND_CONNECTION_COUNT_VERIFIED = 1
+const SEND_CONNECTION_COUNT_ELSE = 1
 
 class IrcConnectionPool {
   constructor (bot) {
