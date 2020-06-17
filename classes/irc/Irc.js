@@ -137,7 +137,6 @@ class Irc {
     this._queue = new Queue(this.bot)
 
     let data = await SqlChannels.getChannelData(this.bot.userId)
-    console.log(data)
 
     let ids = Object.values(data).map(x => x.channelID)
     await this.bot.userIdLoginCache.prefetchListOfIds(ids)

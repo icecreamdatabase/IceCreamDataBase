@@ -43,7 +43,6 @@ class IrcConnectionPool {
 
   say (channel, message) {
     if (this.sendConnections.length > 0) {
-      console.log(`Current send connection id: ${this.sendConnectionsNextIndex}`)
       this.sendConnections[this.sendConnectionsNextIndex].say(channel, message)
       this.sendConnectionsNextIndex = ++this.sendConnectionsNextIndex % this.sendConnections.length
     } else {
