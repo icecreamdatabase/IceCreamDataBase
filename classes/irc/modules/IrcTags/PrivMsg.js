@@ -131,8 +131,8 @@ class PrivMsg {
     let channelObj = this.bot.irc.channels[messageObj.roomId]
 
     if (!channelObj) {
-      DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}\n\n${util.inspect(messageObj)}`)
-      return true
+      //DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}\n\n${util.inspect(messageObj)}`)
+      return false
     }
 
     // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
