@@ -67,7 +67,7 @@ class PrivMsg {
     this._channelPoints = new ChannelPoints(this.bot)
     this._helper = new Helper(this.bot)
 
-    this.bot.irc.twitchIrcConnection.on('PRIVMSG', this.onChat.bind(this))
+    this.bot.irc.ircConnectionPool.on('PRIVMSG', this.onChat.bind(this))
   }
 
   /**

@@ -13,7 +13,7 @@ class ClearChat {
   constructor (bot) {
     this._bot = bot
 
-    this.bot.irc.twitchIrcConnection.on('CLEARCHAT', this.onClearChat.bind(this))
+    this.bot.irc.ircConnectionPool.on('CLEARCHAT', this.onClearChat.bind(this))
   }
 
   /**

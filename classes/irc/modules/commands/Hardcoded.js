@@ -66,7 +66,7 @@ class Hardcoded {
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<s ")) {
 
-      this.bot.irc.twitchIrcConnection.say(messageObj.channel, "Shutting down FeelsBadMan")
+      this.bot.irc.ircConnectionPool.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
@@ -118,6 +118,16 @@ class Hardcoded {
         msg = messageObj.username + ", Nothing to eval given..."
       }
       this.bot.irc.queue.sayWithMsgObj(messageObj, msg)
+    }
+
+    /* batchsay */
+    if (messageObj.userLevel >= UserLevels.BOTOWNER
+      && messageObj.message.startsWith("<batchsay ")) {
+      let url = messageObj.message.split(' ')[1]
+      if (url) {
+        this.bot.api.other.constructor.getWebsiteContent(url).then(body =>
+          this.bot.irc.queue.batchSay(messageObj.roomId, messageObj.channel, body.split(/(?:\n|\r\n)+/g)))
+      }
     }
 
     return false

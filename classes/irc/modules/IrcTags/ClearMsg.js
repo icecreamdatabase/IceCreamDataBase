@@ -12,7 +12,7 @@ class ClearMsg {
   constructor (bot) {
     this._bot = bot
 
-    this.bot.irc.twitchIrcConnection.on('CLEARMSG', this.onClearMsg.bind(this))
+    this.bot.irc.ircConnectionPool.on('CLEARMSG', this.onClearMsg.bind(this))
 
     setInterval(ClearMsg.clearOldEntries, CLEAR_OLD_ENTIRES_INTERVAL)
   }

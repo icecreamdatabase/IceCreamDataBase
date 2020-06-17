@@ -107,6 +107,18 @@ class Other {
     }
     return false
   }
+
+  /**
+   * @param {string} url
+   * @return {Promise<string>}
+   */
+  static async getWebsiteContent (url) {
+    try {
+      return (await axios(url)).data
+    } catch (e) {
+      return e.response.data.toString()
+    }
+  }
 }
 
 module.exports = Other

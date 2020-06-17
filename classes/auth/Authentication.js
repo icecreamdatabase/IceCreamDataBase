@@ -85,12 +85,16 @@ class Authentication {
         await this.refresh()
       }
     } catch (e) {
-      //if unauthorized (expired or wrong token) also this.refresh()
-      if (e.response.status === 401) {
-        Logger.info(`Unauthorized. Needs to refresh for ${this.bot.userName}`)
-        await this.refresh()
+      if (Object.prototype.hasOwnProperty.call(e, "response")) {
+        //if unauthorized (expired or wrong token) also this.refresh()
+        if (e.response.status === 401) {
+          Logger.info(`Unauthorized. Needs to refresh for ${this.bot.userName}`)
+          await this.refresh()
+        } else {
+          Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.response.statusText}`)
+        }
       } else {
-        Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.response.statusText}`)
+        Logger.error(`Token validate failed:\n${JSON.stringify(e)}`)
       }
     }
   }
