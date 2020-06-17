@@ -15,7 +15,6 @@ class UserIdLoginCache {
     this._bot = bot
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
-    setTimeout(this.checkNameChanges.bind(this), 10000) // 10 sec
   }
 
   /**
@@ -47,6 +46,7 @@ class UserIdLoginCache {
       }
     }
     await this.prefetchFromDatabase()
+    await this.bot.irc.updateBotChannels()
   }
 
   /**

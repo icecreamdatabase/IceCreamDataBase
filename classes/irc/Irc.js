@@ -146,6 +146,8 @@ class Irc {
     this._userState = new UserState(this.bot)
 
     await this.updateBotChannels()
+    Logger.info("### Connected: " + this.bot.userId + " (" + this.bot.userName + ")")
+    await this.bot.userIdLoginCache.checkNameChanges()
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
     Logger.info("### Fully setup: " + this.bot.userId + " (" + this.bot.userName + ")")
@@ -166,6 +168,11 @@ class Irc {
         for (let currentChannelId in allChannelData) {
           if (Object.prototype.hasOwnProperty.call(allChannelData, currentChannelId)) {
             if (allChannelData[currentChannelId].channelID === this.channels[channelId].channelID) {
+              if (allChannelData[currentChannelId].channelName !== this.channels[channelId].channelName) {
+                //user has changed their name. Leave the old channel and join the new one.
+                this.ircConnectionPool.leaveChannel(this.channels[channelId].channelName)
+                await this.ircConnectionPool.joinChannel(allChannelData[currentChannelId].channelName)
+              }
               contains = true
             }
           }
