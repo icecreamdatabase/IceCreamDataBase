@@ -1,8 +1,9 @@
 "use strict"
 const TwitchIrcConnection = require('./TwitchIrcConnection')
 const ChatLimit = require('./../../ENUMS/ChatLimit')
+const Logger = require('./../helper/Logger')
 
-const maxChannelsPerConnection = 250
+const maxChannelsPerConnection = 100
 
 const SEND_CONNECTION_COUNT_VERIFIED = 2
 const SEND_CONNECTION_COUNT_ELSE = 5
@@ -23,7 +24,6 @@ class IrcConnectionPool {
      * @type {{event:string, fn:function(string), context:any}[]}
      */
     this.events = []
-
 
     this.connectSendConnections()
   }
@@ -140,6 +140,9 @@ class IrcConnectionPool {
       newConnection.on(event.event, event.fn, event.context)
     }
     this.receiveConnections.push(newConnection)
+    Logger.debug(`##############################`)
+    Logger.debug(`New amount of Pools: ${this.receiveConnections.length}`)
+    Logger.debug(`##############################`)
     return newConnection
   }
 }
