@@ -22,6 +22,18 @@ class Queue {
   constructor (bot) {
     this._bot = bot
 
+    /**
+     * @type {{
+     *         checked:boolean,
+     *         isBeingChecked: boolean,
+     *         channelId: number,
+     *         channelName: string,
+     *         message: string,
+     *         userId: number,
+     *         useSameSendConnectionAsPrevious: boolean
+     * }[]}
+     * @private
+     */
     this._messageQueue = []
     this._queueEmitter = new EventEmitter()
 
@@ -52,9 +64,10 @@ class Queue {
    * @param channelId
    * @param message
    * @param userId
+   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
    * @returns {Promise<void>}
    */
-  async sayWithChannelId (channelId, message, userId) {
+  async sayWithChannelId (channelId, message, userId, useSameSendConnectionAsPrevious) {
     this.sayWithBoth(channelId, await this.bot.userIdLoginCache.idToName(channelId), message, userId)
   }
 
@@ -64,9 +77,10 @@ class Queue {
    * @param channelName
    * @param message
    * @param userId
+   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
    * @returns {Promise<void>}
    */
-  async sayWithChannelName (channelName, message, userId) {
+  async sayWithChannelName (channelName, message, userId, useSameSendConnectionAsPrevious) {
     this.sayWithBoth(await this.bot.userIdLoginCache.nameToId(channelName), channelName, message, userId)
   }
 
@@ -74,9 +88,10 @@ class Queue {
    * Send a message with the msgObj
    * @param msgObj
    * @param message
+   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
    */
-  sayWithMsgObj (msgObj, message) {
-    this.sayWithBoth(msgObj.roomId, msgObj.channel, message, msgObj.userId)
+  sayWithMsgObj (msgObj, message, useSameSendConnectionAsPrevious) {
+    this.sayWithBoth(msgObj.roomId, msgObj.channel, message, msgObj.userId, useSameSendConnectionAsPrevious)
   }
 
   /**
@@ -86,8 +101,9 @@ class Queue {
    * @param {string} channelName
    * @param {string} message
    * @param {string|number} userId
+   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
    */
-  sayWithBoth (channelId, channelName, message, userId = -1) {
+  sayWithBoth (channelId, channelName, message, userId = -1, useSameSendConnectionAsPrevious = undefined) {
     if (!message) {
       return
     }
@@ -106,6 +122,10 @@ class Queue {
     message = messageArray.join(NEWLINE_SEPERATOR)
     messageArray = message.split(NEWLINE_SEPERATOR)
 
+    if (useSameSendConnectionAsPrevious === undefined) {
+      useSameSendConnectionAsPrevious = messageArray.length > 1
+    }
+
     for (let messageElement of messageArray) {
       messageElement = messageElement.trim()
 
@@ -117,7 +137,8 @@ class Queue {
           channelId,
           channelName,
           message: messageElement,
-          userId
+          userId,
+          useSameSendConnectionAsPrevious
         })
         this._queueEmitter.emit('event')
       }
@@ -199,7 +220,7 @@ class Queue {
     }
     channel.lastMessage = msgObj.message
 
-    this.bot.irc.ircConnectionPool.say(msgObj.channelName, msgObj.message)
+    this.bot.irc.ircConnectionPool.say(msgObj.channelName, msgObj.message, msgObj.useSameSendConnectionAsPrevious)
 
     this._messageQueue.shift()
     //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
@@ -212,9 +233,10 @@ class Queue {
    * @param {string} channelName
    * @param {string[]} messages
    * @param {number} batchLimit
+   * @param {boolean} useSameSendConnectionForAllMessages
    * @return {Promise<void>}
    */
-  async batchSay (roomId, channelName, messages, batchLimit = BATCH_DEFAULT_LIMIT) {
+  async batchSay (roomId, channelName, messages, batchLimit = BATCH_DEFAULT_LIMIT, useSameSendConnectionForAllMessages = false) {
     let channelObj = this.bot.irc.channels[roomId]
     let botStatus = channelObj.botStatus || UserLevels.DEFAULT
     let messageInChunkCount = 0
@@ -246,7 +268,7 @@ class Queue {
         }
       }
 
-      this.sayWithBoth(roomId, channelName, message, this.bot.userId)
+      this.sayWithBoth(roomId, channelName, message, this.bot.userId, useSameSendConnectionForAllMessages)
       messageInChunkCount++
       totalMessagesSent++
     }

@@ -123,10 +123,18 @@ class Hardcoded {
     /* batchsay */
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<batchsay ")) {
-      let url = messageObj.message.split(' ')[1]
+      let msgSplit = messageObj.message.split(' ')
+      let url = msgSplit[1]
+      let sameConnection = false
+      try {
+        sameConnection = JSON.parse(msgSplit[2])
+      } catch (e) {
+        //ignore
+      }
+
       if (url) {
         this.bot.api.other.constructor.getWebsiteContent(url).then(body =>
-          this.bot.irc.queue.batchSay(messageObj.roomId, messageObj.channel, body.split(/(?:\n|\r\n)+/g)))
+          this.bot.irc.queue.batchSay(messageObj.roomId, messageObj.channel, body.split(/(?:\n|\r\n)+/g), undefined, sameConnection))
       }
     }
 

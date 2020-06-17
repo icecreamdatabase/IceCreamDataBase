@@ -5,8 +5,8 @@ const Logger = require('./../helper/Logger')
 
 const maxChannelsPerConnection = 100
 
-const SEND_CONNECTION_COUNT_VERIFIED = 1
-const SEND_CONNECTION_COUNT_ELSE = 1
+const SEND_CONNECTION_COUNT_VERIFIED = 5
+const SEND_CONNECTION_COUNT_ELSE = 2
 
 class IrcConnectionPool {
   constructor (bot) {
@@ -15,7 +15,7 @@ class IrcConnectionPool {
      * @type {TwitchIrcConnection[]}
      */
     this.sendConnections = []
-    this.sendConnectionsNextIndex = 0
+    this.sendConnectionLastIndex = 0
     /**
      * @type {TwitchIrcConnection[]}
      */
@@ -41,10 +41,12 @@ class IrcConnectionPool {
     }
   }
 
-  say (channel, message) {
+  say (channel, message, useSameSendConnectionAsPrevious = false) {
     if (this.sendConnections.length > 0) {
-      this.sendConnections[this.sendConnectionsNextIndex].say(channel, message)
-      this.sendConnectionsNextIndex = ++this.sendConnectionsNextIndex % this.sendConnections.length
+      if (!useSameSendConnectionAsPrevious) {
+        this.sendConnectionLastIndex = ++this.sendConnectionLastIndex % this.sendConnections.length
+      }
+      this.sendConnections[this.sendConnectionLastIndex].say(channel, message)
     } else {
       Logger.warn("No send connection yet")
     }
