@@ -91,8 +91,6 @@ class IrcConnectionPool {
       let connection = this.getConnectionByChannel(channel)
       if (connection) {
         connection.leave(channel)
-      } else {
-        throw Error(`Couldn't leave channel ${channel}`)
       }
     }
   }
