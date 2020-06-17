@@ -1,5 +1,6 @@
 "use strict"
 const Logger = require('./Logger')
+const SqlChannels = require('./../sql/main/SqlChannels')
 
 const CLEANUPINTERVAL = 10800000 //3 hours
 
@@ -14,7 +15,7 @@ class UserIdLoginCache {
     this._bot = bot
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
-    setTimeout(this.updateMaps.bind(this), 10000)
+    setTimeout(this.checkNameChanges.bind(this), 10000) // 10 sec
   }
 
   /**
@@ -22,6 +23,30 @@ class UserIdLoginCache {
    */
   get bot () {
     return this._bot
+  }
+
+  async prefetchFromDatabase () {
+    let channels = await SqlChannels.getChannelData(this.bot.userId)
+    for (let currentId in channels) {
+      if (Object.prototype.hasOwnProperty.call(channels, currentId)) {
+        let channel = channels[currentId]
+        userInfosById[channel.channelID] = channel.channelName
+        userInfosByName[channel.channelName.toLowerCase()] = channel.channelID
+      }
+    }
+  }
+
+  async checkNameChanges () {
+    let channelIdsFromDb = Object.keys(await SqlChannels.getChannelData(this.bot.userId))
+    let users = await this.bot.api.kraken.userDataFromIds(channelIdsFromDb)
+    for (let user of users) {
+      if (userInfosById[user._id] !== user.name) {
+        // Person must have changed their name
+        Logger.debug(`${user._id} changed their name: ${userInfosById[user._id]} --> ${user.name}`)
+        await SqlChannels.updateUserNameIfExists(user._id, user.name)
+      }
+    }
+    await this.prefetchFromDatabase()
   }
 
   /**
@@ -32,8 +57,8 @@ class UserIdLoginCache {
   async prefetchListOfIds (ids) {
     let users = await this.bot.api.kraken.userDataFromIds(ids)
     for (let user of users) {
-      userInfosById[user["_id"]] = user
-      userInfosByName[user["name"].toLowerCase()] = user
+      userInfosById[user["_id"]] = user.name
+      userInfosByName[user["name"].toLowerCase()] = user["_id"]
     }
   }
 
@@ -47,15 +72,15 @@ class UserIdLoginCache {
       let users = await this.bot.api.kraken.userDataFromIds([id])
       if (users.length > 0) {
         let user = users[0]
-        userInfosById[user["_id"]] = user
-        userInfosByName[user["name"].toLowerCase()] = user
+        userInfosById[user._id] = user.name
+        userInfosByName[user.name.toLowerCase()] = user._id
       } else {
         Logger.warn(`idToName failed with id: ${id}\nChannel is probably banned.`)
         return undefined
       }
     }
 
-    return userInfosById[id].name
+    return userInfosById[id]
   }
 
   /**
@@ -73,22 +98,24 @@ class UserIdLoginCache {
       let users = await this.bot.api.kraken.userDataFromLogins([name])
       if (users.length > 0) {
         let user = users[0]
-        userInfosById[user["_id"]] = user
-        userInfosByName[user["name"].toLowerCase()] = user
+        userInfosById[user._id] = user.name
+        userInfosByName[user.name.toLowerCase()] = user._id
       } else {
         Logger.warn(`nameToId failed with name: ${name}`)
         return null
       }
     }
 
-    return userInfosByName[name]["_id"]
+    return userInfosByName[name]
   }
 
-  updateMaps () {
+  async updateMaps () {
     let currentIds = Object.keys(userInfosById)
     userInfosById = {}
     userInfosByName = {}
-    this.prefetchListOfIds(currentIds).then(() => Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(userInfosById).length} ids.`))
+    await this.prefetchListOfIds(currentIds)
+    await this.checkNameChanges()
+    Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(userInfosById).length} ids.`)
   }
 }
 

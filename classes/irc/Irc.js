@@ -136,10 +136,7 @@ class Irc {
 
     this._queue = new Queue(this.bot)
 
-    let data = await SqlChannels.getChannelData(this.bot.userId)
-
-    let ids = Object.values(data).map(x => x.channelID)
-    await this.bot.userIdLoginCache.prefetchListOfIds(ids)
+    await this.bot.userIdLoginCache.prefetchFromDatabase()
 
     //OnX modules
     this._privMsg = new PrivMsg(this.bot)

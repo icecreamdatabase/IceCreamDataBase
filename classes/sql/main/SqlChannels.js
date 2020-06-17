@@ -8,10 +8,21 @@ class SqlChannels {
 
   /**
    * Add a channel to the database.
+   * Update name if id duplicate after e.g. namechange.
+   * @param channelId
+   * @param channelName
+   * @return {Promise<void>}
+   */
+  static async updateUserNameIfExists (channelId, channelName) {
+    await sqlPool.query(`UPDATE IGNORE channels SET channelName = ? WHERE ID = ?;`, [channelName, channelId])
+  }
+
+  /**
+   * Add a channel and connection to the database.
    * channels: ignore
    * connection: update
    * @param botID
-   * @param channelID
+   * @param channelId
    * @param channelName
    * @param logMessages
    * @param shouldModerate
@@ -22,10 +33,10 @@ class SqlChannels {
    * @param ttsRegisterEnabled
    * @returns {Promise<void>}
    */
-  static async addChannel (botID, channelID, channelName, logMessages = false, shouldModerate = false, useCommands = false, useHardcodedCommands = true, shouldAnnounceSubs = false, useChannelPoints = false, ttsRegisterEnabled = false) {
+  static async addChannel (botID, channelId, channelName, logMessages = false, shouldModerate = false, useCommands = false, useHardcodedCommands = true, shouldAnnounceSubs = false, useChannelPoints = false, ttsRegisterEnabled = false) {
     await sqlPool.query(`INSERT INTO channels(ID, channelName, enabled)
                          VALUES (?, ?, b'1')
-                         ON DUPLICATE KEY UPDATE channelName = VALUES(channelName);`, [channelID, channelName])
+                         ON DUPLICATE KEY UPDATE channelName = VALUES(channelName);`, [channelId, channelName])
 
     await sqlPool.query(`INSERT INTO connections(botID, channelID, logMessages, shouldModerate, useCommands,
                                                  useHardcodedCommands, shouldAnnounceSubs, useChannelPoints,
@@ -38,13 +49,13 @@ class SqlChannels {
                                                  shouldAnnounceSubs   = shouldAnnounceSubs,
                                                  useChannelPoints     = useChannelPoints,
                                                  ttsRegisterEnabled   = ttsRegisterEnabled`,
-      [botID, channelID, logMessages, shouldModerate, useCommands, useHardcodedCommands, shouldAnnounceSubs, useChannelPoints, ttsRegisterEnabled])
+      [botID, channelId, logMessages, shouldModerate, useCommands, useHardcodedCommands, shouldAnnounceSubs, useChannelPoints, ttsRegisterEnabled])
   }
 
   /**
    * Get all channel data about a singular bot
    * @param  botID Database id of the bot in question
-   * @return {Promise<Object.<string, {botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown}>>} All data about the channel
+   * @return {Promise<Object.<string, {botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown, botStatus, lastMessage, lastMessageTimeMillis}>>} All data about the channel
    */
   static async getChannelData (botID) {
     let results = await sqlPool.query(`SELECT botID,
@@ -91,7 +102,10 @@ class SqlChannels {
         useChannelPoints,
         ttsRegisterEnabled,
         maxMessageLength,
-        minCooldown
+        minCooldown,
+        botStatus: undefined,
+        lastMessage: undefined,
+        lastMessageTimeMillis: undefined
       }
     })
 
