@@ -7,6 +7,10 @@ const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const ttsStrings = require("../../../../json/tts-strings")
 
+/**
+ *
+ * @type {number}
+ */
 const ttsCommandCooldownMs = 3000
 
 class Tts {
@@ -134,7 +138,7 @@ class Tts {
       if (["partner", "affiliate"].includes(channelInfo["broadcaster_type"])) {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
-        this.bot.irc.updateBotChannels().then(()=> {
+        this.bot.irc.updateBotChannels().then(() => {
           this.bot.irc.ircConnectionPool.rejoinChannel(username).then()
         })
         return optionObj.response.success
