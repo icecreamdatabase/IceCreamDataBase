@@ -176,6 +176,7 @@ class TwitchIrcConnection extends EventEmitter {
     if (channel.charAt(0) !== '#') {
       channel = '#' + channel
     }
+    //Logger.debug(`++> PRIVMSG ${channel} :${message}`)
     this.send(`PRIVMSG ${channel} :${message}`)
   }
 

@@ -41,7 +41,9 @@ class UserIdLoginCache {
     for (let user of users) {
       if (userInfosById[user._id] !== user.name) {
         // Person must have changed their name
+        Logger.debug(`############################################################`)
         Logger.debug(`${user._id} changed their name: ${userInfosById[user._id]} --> ${user.name}`)
+        Logger.debug(`############################################################`)
         await SqlChannels.updateUserNameIfExists(user._id, user.name)
       }
     }

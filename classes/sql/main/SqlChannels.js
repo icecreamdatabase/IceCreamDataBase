@@ -36,7 +36,7 @@ class SqlChannels {
   static async addChannel (botID, channelId, channelName, logMessages = false, shouldModerate = false, useCommands = false, useHardcodedCommands = true, shouldAnnounceSubs = false, useChannelPoints = false, ttsRegisterEnabled = false) {
     await sqlPool.query(`INSERT INTO channels(ID, channelName, enabled)
                          VALUES (?, ?, b'1')
-                         ON DUPLICATE KEY UPDATE channelName = VALUES(channelName);`, [channelId, channelName])
+                         ON DUPLICATE KEY UPDATE channelName = VALUES(channelName);`, [channelId, channelName.toLowerCase()])
 
     await sqlPool.query(`INSERT INTO connections(botID, channelID, logMessages, shouldModerate, useCommands,
                                                  useHardcodedCommands, shouldAnnounceSubs, useChannelPoints,
