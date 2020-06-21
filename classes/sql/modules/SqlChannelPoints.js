@@ -150,7 +150,9 @@ class SqlChannelPoints {
    * @return {number}
    */
   get volume () {
-    return this._ttsJson.volume || ttsStrings.options.handleSettings.options.handleSettingVolume.default
+    return this._ttsJson.volume !== undefined
+      ? this._ttsJson.volume
+      : ttsStrings.options.handleSettings.options.handleSettingVolume.default
   }
 
   set volume (value) {
@@ -163,7 +165,9 @@ class SqlChannelPoints {
    * @return {string}
    */
   get defaultVoiceName () {
-    return this._ttsJson.defaultVoiceName || ttsStrings.options.handleSettings.options.handleSettingVoice.default
+    return this._ttsJson.defaultVoiceName !== undefined
+      ? this._ttsJson.defaultVoiceName
+      : ttsStrings.options.handleSettings.options.handleSettingVoice.default
   }
 
   set defaultVoiceName (value) {
@@ -176,7 +180,9 @@ class SqlChannelPoints {
    * @return {number}
    */
   get cooldown () {
-    return this._ttsJson.cooldown || ttsStrings.options.handleSettings.options.handleSettingCooldown.default
+    return this._ttsJson.cooldown !== undefined
+      ? this._ttsJson.cooldown
+      : ttsStrings.options.handleSettings.options.handleSettingCooldown.default
   }
 
   set cooldown (value) {
@@ -204,7 +210,9 @@ class SqlChannelPoints {
    * @return {number}
    */
   get timeoutCheckTime () {
-    return this._ttsJson.timeoutCheckTime || ttsStrings.options.handleSettings.options.handleSettingTimeoutCheckTime.default
+    return this._ttsJson.timeoutCheckTime !== undefined
+      ? this._ttsJson.timeoutCheckTime
+      : ttsStrings.options.handleSettings.options.handleSettingTimeoutCheckTime.default
   }
 
   set timeoutCheckTime (value) {
@@ -217,7 +225,9 @@ class SqlChannelPoints {
    * @return {number}
    */
   get maxMessageTime () {
-    return this._ttsJson.maxMessageTime || ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default
+    return this._ttsJson.maxMessageTime !== undefined
+      ? this._ttsJson.maxMessageTime
+      : ttsStrings.options.handleSettings.options.handleSettingMaxMessageTime.default
   }
 
   set maxMessageTime (value) {
