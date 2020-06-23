@@ -39,7 +39,8 @@ class UserIdLoginCache {
     let channelIdsFromDb = Object.keys(await SqlChannels.getChannelData(this.bot.userId))
     let users = await this.bot.api.kraken.userDataFromIds(channelIdsFromDb)
     for (let user of users) {
-      if (userInfosById[user._id] !== user.name) {
+      if (userInfosById[user._id] !== undefined
+        && userInfosById[user._id] !== user.name) {
         // Person must have changed their name
         Logger.debug(`############################################################`)
         Logger.debug(`${user._id} changed their name: ${userInfosById[user._id]} --> ${user.name}`)
