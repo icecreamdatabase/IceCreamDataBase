@@ -40,12 +40,17 @@ class ClearChat {
     // Detect perm ban of own bot account
     if (parseInt(clearChatObj.tags["target-user-id"]) === this.bot.userId
       && !Object.prototype.hasOwnProperty.call(clearChatObj.tags, "ban-duration")) {
-      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}\nhasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)}`)
-      Logger.info(`${this.bot.userName} got banned in #${channelName} ----- hasSettingForChannelID: ${this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)}`)
-      //TODO: check if the bot is joined for being TTS bot ... this isn't perfect ...
-      if (this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(roomId)) {
+      DiscordLog.info(`${this.bot.userName} got banned in #${channelName}`)
+      Logger.info(`${this.bot.userName} got banned in #${channelName}`)
+
+      // Check if the bot is joined for being a TTS bot
+      if (Object.prototype.hasOwnProperty.call(this.bot.irc.channels, roomId)
+        && this.bot.irc.channels[roomId].useChannelPoints) {
+        DiscordLog.custom("tts-status-log", "Ban:", channelName, DiscordLog.getDecimalFromHexString("#FFFF00"))
         await SqlChannelPoints.dropChannel(this.bot.userId, roomId)
-        this.bot.irc.queue.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to register again.`)
+        await this.bot.irc.updateBotChannels()
+        this.bot.irc.queue.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to unban it, wait one minute and register again.`)
+        DiscordLog.custom("tts-status-log", "Part:", channelName, DiscordLog.getDecimalFromHexString("#FF0000"))
       }
     }
   }

@@ -2,6 +2,24 @@
 const sqlPool = require('../Sql').pool
 
 class SqlChannels {
+  /**
+   * @typedef {object} SqlChannelObj
+   * @property {number} botID,
+   * @property {number} channelID,
+   * @property {string} channelName,
+   * @property {boolean} enabled,
+   * @property {boolean} logMessages,
+   * @property {boolean} shouldModerate,
+   * @property {boolean} useCommands,
+   * @property {boolean} useHardcodedCommands,
+   * @property {boolean} useChannelPoints,
+   * @property {boolean} ttsRegisterEnabled,
+   * @property {number} maxMessageLength,
+   * @property {number} minCooldown,
+   * @property {UserLevel|null} botStatus,
+   * @property {string} lastMessage,
+   * @property {number} lastMessageTimeMillis
+   */
   constructor () {
 
   }
@@ -14,7 +32,9 @@ class SqlChannels {
    * @return {Promise<void>}
    */
   static async updateUserNameIfExists (channelId, channelName) {
-    await sqlPool.query(`UPDATE IGNORE channels SET channelName = ? WHERE ID = ?;`, [channelName, channelId])
+    await sqlPool.query(`UPDATE IGNORE channels
+                         SET channelName = ?
+                         WHERE ID = ?;`, [channelName, channelId])
   }
 
   /**
@@ -55,7 +75,7 @@ class SqlChannels {
   /**
    * Get all channel data about a singular bot
    * @param  botID Database id of the bot in question
-   * @return {Promise<Object.<string, {botID, channelID, channelName, enabled, logMessages, shouldModerate, useCommands, useHardcodedCommands, useChannelPoints, maxMessageLength, minCooldown, botStatus, lastMessage, lastMessageTimeMillis}>>} All data about the channel
+   * @return {Promise<SqlChannelObj[]>} All data about the channel
    */
   static async getChannelData (botID) {
     let results = await sqlPool.query(`SELECT botID,
@@ -76,38 +96,6 @@ class SqlChannels {
                                          AND channels.ID = channelID
                                          AND channels.enabled = B'1'
                                          AND bots.ID = ?`, botID)
-
-    results = results.map((row) => {
-      let botID = row.botID || -1
-      let channelID = row.channelID || -1
-      //get channelname through userIdLoginCache instead of storing in db
-      let channelName = row.channelName || -1
-      let logMessages = row.logMessages || false
-      let shouldModerate = row.shouldModerate || false
-      let useCommands = row.useCommands || false
-      let useHardcodedCommands = row.useHardcodedCommands || false
-      let useChannelPoints = row.useChannelPoints || false
-      let ttsRegisterEnabled = row.ttsRegisterEnabled || false
-      let maxMessageLength = row.maxMessageLength || 500
-      let minCooldown = row.minCooldown || 0
-
-      return {
-        botID,
-        channelID,
-        channelName,
-        logMessages,
-        shouldModerate,
-        useCommands,
-        useHardcodedCommands,
-        useChannelPoints,
-        ttsRegisterEnabled,
-        maxMessageLength,
-        minCooldown,
-        botStatus: undefined,
-        lastMessage: undefined,
-        lastMessageTimeMillis: undefined
-      }
-    })
 
     //make sure the index is the channelID
     let channels = {}

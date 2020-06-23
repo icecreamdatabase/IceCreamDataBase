@@ -63,8 +63,10 @@ class Irc {
      * @private
      */
     this._ircConnectionPool = undefined
-    //create empty channel array to chat object
-    this.channels = {}
+    /**
+     * @type {SqlChannelObj[]}
+     */
+    this.channels = []
 
     this.updateBotRatelimits().then(this.setupIrc.bind(this))
   }
