@@ -113,7 +113,7 @@ class TwitchPubSubConnection extends EventEmitter {
 
   reconnect () {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) reconnecting to PubSub`)
-    setTimeout(connect, reconnectInterval)
+    setTimeout(this.connect.bind(this), reconnectInterval)
   }
 
   heartbeat () {
