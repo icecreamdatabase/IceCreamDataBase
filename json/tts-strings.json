@@ -26,7 +26,7 @@
     "handleStats": {
       "ignoreCooldown": false,
       "command": "stats",
-      "response": "${linkedCount} streamers have linked a reward. ${websocketclientCount} clients are currently connected. ${messageCountPastHour} messages have been sent in the past hour. More stats are coming soon!"
+      "response": "${linkedCount} streamers have linked a reward. ${linksInPastDay} linked in the past 24 hours. ${websocketclientCount} clients are currently connected. ${messageCountPastHour} messages have been sent in the past hour. More stats are coming soon!"
     },
     "handleSkip": {
       "ignoreCooldown": false,

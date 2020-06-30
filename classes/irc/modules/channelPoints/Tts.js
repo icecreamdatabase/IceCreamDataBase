@@ -255,12 +255,14 @@ class Tts {
     //response = response.replace("${neitherCount}", broadCasterTypeCount[""].toString())
     // TODO add this again: (${partnerCount} partners and ${affiliateCount} affiliates)
 
-    console.log(usageInfo.hour.toString())
-    response = response.replace("${messageCountPastMinute}", usageInfo.minute.toString())
-    response = response.replace("${messageCountPastHour}", usageInfo.hour.toString())
-    response = response.replace("${messageCountPastDay}", usageInfo.day.toString())
-    response = response.replace("${messageCountPastWeek}", usageInfo.week.toString())
-    response = response.replace("${messageCountPastMonth}", usageInfo.month.toString())
+    //response = response.replace("${messageCountPastMinute}", usageInfo.ttsInPastMinute.toString())
+    response = response.replace("${messageCountPastHour}", usageInfo.ttsInPastHour.toString())
+    //response = response.replace("${messageCountPastDay}", usageInfo.ttsInPastDay.toString())
+    //response = response.replace("${messageCountPastWeek}", usageInfo.ttsInPastWeek.toString())
+    //response = response.replace("${messageCountPastMonth}", usageInfo.ttsInPastMonth.toString())
+
+    response = response.replace("${linksInPastDay}", usageInfo.linksInPastDay.toString())
+
 
     return response
   }
