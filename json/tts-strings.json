@@ -7,7 +7,7 @@
     "acceptMessage": "",
     "rejectUserLevelMessage": "Your TTS message has not been sent. You are not a subscriber.",
     "rejectCooldownMessage": "Your TTS message has not been sent. The cooldown is not over.",
-    "rejectTimeoutMessage": "Your TTS message has not been sent. Your message has been timed out."
+    "rejectTimeoutMessage": "Your TTS message has not been sent. Your message has been timed out or deleted."
   },
   "options": {
     "handleRegister": {

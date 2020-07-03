@@ -536,7 +536,7 @@ class Tts {
               responseMessage = ttsStrings.redemeResponse.acceptMessage
             } else {
               //Reject timeout
-              responseMessage = ttsStrings.redemeResponse.time
+              responseMessage = ttsStrings.redemeResponse.rejectTimeoutMessage
             }
             hasTakenAction = true
           }
