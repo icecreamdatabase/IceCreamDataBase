@@ -12,7 +12,7 @@
   "options": {
     "handleRegister": {
       "ignoreCooldown": true,
-      "command": "register",
+      "commands": ["register", "join", "signup"],
       "response": {
         "success": "Successfully registered. Please type the \"!tts help\" command into your own chat. {nl}If you are using subscriber only mode or are blocking links it is advisable to type \"/vip channelpoints_tts\" into your own chat!",
         "fail": "You need to be a twitch partner or an affiliate to use channelpoints."
@@ -20,27 +20,27 @@
     },
     "handleUnregister": {
       "ignoreCooldown": true,
-      "command": "unregister",
+      "commands": ["unregister", "leave"],
       "response": "Successfully unregistered. The bot is leaving the channel in 5 seconds."
     },
     "handleStats": {
       "ignoreCooldown": false,
-      "command": "stats",
+      "commands": ["stats", "stat"],
       "response": "${linkedCount} streamers have linked a reward. ${linksInPastDay} linked in the past 24 hours. ${websocketclientCount} clients are currently connected. ${messageCountPastHour} messages have been sent in the past hour. More stats are coming soon!"
     },
     "handleSkip": {
       "ignoreCooldown": false,
-      "command": "skip",
+      "commands": ["skip"],
       "response": "Skipped the currently playing messages."
     },
     "handleReload": {
       "ignoreCooldown": false,
-      "command": "reload",
+      "commands": ["reload"],
       "response": "Reloaded all clients."
     },
     "handleLink": {
       "ignoreCooldown": false,
-      "command": "link",
+      "commands": ["link"],
       "response": {
         "alreadyLinked": "Use the following link as an OBS browser source with \"Shutdown source when not visible\" enabled: https://tts.icecreamdatabase.com/single?channel=",
         "notLinked": "Please link a reward by using this command inside the TTS textfield. (Use the reward by putting \"!tts link\" into the message box.) https://i.nuuls.com/EqeM5.png --> https://i.nuuls.com/ISENe.png",
@@ -49,7 +49,7 @@
     },
     "handleVoices": {
       "ignoreCooldown": false,
-      "command": "voices",
+      "commands": ["voices", "voice"],
       "response": {
         "general": "Check available voices here: https://supinic.com/stream/tts A moderator can change the voice by typing \"!tts settings voice XXXX\" where XXXX is the name of a voice.",
         "noConversation": "Conversation mode is disabled. Only the default voice is available! You can still check the list of voices here: https://supinic.com/stream/tts A moderator can change the voice by typing \"!tts settings voice XXXX\" where XXXX is the name of a voice."
@@ -57,7 +57,7 @@
     },
     "handleHelp": {
       "ignoreCooldown": false,
-      "command": "help",
+      "commands": ["help"],
       "response": {
         "general": "Use your channel points to play a TTS message.",
         "conversation": "Use your channel points to play a TTS message. You can use multiple voices in your message by prefixing their text like this: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\". To check available voices: \"!tts voices\"",
@@ -66,7 +66,7 @@
     },
     "handleSettings": {
       "ignoreCooldown": false,
-      "command": "settings",
+      "commands": ["settings", "setting"],
       "response": {
         "successful": "Updating successful.",
         "failNotAnOption": "Updating failed. That is not an available option.",
@@ -76,55 +76,55 @@
       },
       "options": {
         "handleSettingConversation": {
-          "command": "conversation",
+          "commands": ["conversation"],
           "description": "Allows users to use multiple voices in one message: \"Brian: Kappa Kappa Keepo Justin: Wow what a memer\"",
           "options": "true / false",
           "default": true
         },
         "handleSettingSubscriber": {
-          "command": "sub",
+          "commands": ["sub", "subonly", "subscriber", "subscriberonly"],
           "description": "Make the TTS subscriber only. It will still cost points for none subs but no TTS is played",
           "options": "true / false",
           "default": false
         },
         "handleSettingQueue": {
-          "command": "queue",
+          "commands": ["queue"],
           "description": "If disabled new messages skip currently playing messages.",
           "options": "true / false",
           "default": true
         },
         "handleSettingAllowCustomPlaybackrate": {
-          "command": "allowcustomplaybackrate",
+          "commands": ["allowcustomplaybackrate"],
           "description": "Allows viewers to set the TTS playbackrate for every message. Example: \"Brian(x2.0): I'm talking very fast Justin(x0.5): I'm talking very slowly\" (Requires conversation = true)",
           "options": "true / false",
           "default": false
         },
         "handleSettingVoice": {
-          "command": "voice",
+          "commands": ["voice", "voices"],
           "description": "Default voice name. Check available voices here: https://supinic.com/stream/tts",
           "options": "any voice name",
           "default": "Brian"
         },
         "handleSettingVolume": {
-          "command": "volume",
+          "commands": ["volume"],
           "description": "Volume in %",
           "options": "0 - 100",
           "default": 100
         },
         "handleSettingMaxMessageTime": {
-          "command": "maxmessagetime",
+          "commands": ["maxmessagetime"],
           "description": "Max duration in seconds of a single redemption. Using multiple voices counts as one message for this setting. (0 = unlimted)",
           "options": "0 - 300",
           "default": 0
         },
         "handleSettingCooldown": {
-          "command": "cooldown",
+          "commands": ["cooldown"],
           "description": "Time in seconds between TTS messages. It will still cost points! (0 = disabled)",
           "options": "0 - 300",
           "default": 0
         },
         "handleSettingTimeoutCheckTime": {
-          "command": "timeoutcheck",
+          "commands": ["timeoutcheck", "timeoutchecktime"],
           "description": "The bot doesn't play messages which have been timed out in that timeframe. / How many seconds the bot should wait before playing the TTS message.",
           "options": "0 - 30",
           "default": 2

@@ -89,7 +89,7 @@ class Tts {
       } else if (commands[0]) {
         for (let optionId in ttsStrings.options) {
           if (Object.prototype.hasOwnProperty.call(ttsStrings.options, optionId)
-            && commands[1] === ttsStrings.options[optionId].command
+            && ttsStrings.options[optionId].commands.includes(commands[1])
             && optionId in this && typeof this[optionId] === "function") {
             if (ttsStrings.options[optionId].ignoreCooldown || this.isCooldownOver(privMsgObj.roomId, privMsgObj.userLevel)) {
               try {
@@ -329,7 +329,7 @@ class Tts {
         let handled = false
         for (let optionId in optionObj.options) {
           if (Object.prototype.hasOwnProperty.call(optionObj.options, optionId)
-            && parameters[0] === optionObj.options[optionId].command
+            && optionObj.options[optionId].commands.includes(parameters[0])
             && optionId in this && typeof this[optionId] === "function") {
             let settingParameter = parameters.slice(1).join(' ')
             let newValue
