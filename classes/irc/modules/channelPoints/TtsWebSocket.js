@@ -1,6 +1,6 @@
 "use strict"
-const WebSocket = require('ws')
 //CLASSES
+const WebSocket = new (require('../../../WebSocket')) //singleton
 const Logger = require('../../../helper/Logger')
 const Api = require('../../../api/Api.js')
 const DiscordLog = require('../../../helper/DiscordLog')
@@ -8,11 +8,9 @@ const ClearChat = require("../IrcTags/ClearChat")
 const ClearMsg = require("../IrcTags/ClearMsg")
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 
-const WEBSOCKETPINGINTERVAL = 15000
 const regExpTtsArray = new RegExp(/(\w+)(?:\(x?(\d*\.?\d*)\))?:/)
 const PLAYBACKRATEMIN = 0.1
 const PLAYBACKRATEMAX = 10.0
-const WS_SENT_VERSION = "2.2.0"
 
 const voices = require('../../../../json/se-voices.json')
 const fallbackVoice = "Brian"
@@ -30,36 +28,13 @@ const voiceRandomObj = {
 const voicesWithRandom = voices.concat([voiceRandomObj])
 
 class TtsWebSocket {
-  constructor () {
-    if (TtsWebSocket.instance) {
-      return TtsWebSocket.instance
-    }
-    TtsWebSocket.instance = this
-
-    this.wss = new WebSocket.Server({port: 4700})
-    this.wss.on('connection', this.newConnection.bind(this))
-    setInterval(() => {
-      this.wss.clients.forEach(function each (client) {
-        if (client.readyState === WebSocket.OPEN) {
-          try {
-            client.ping()
-          } catch (e) {
-            Logger.error(__filename + "\nping failed\n" + e)
-          }
-        }
-      })
-    }, WEBSOCKETPINGINTERVAL)
-
-    return this
-  }
-
   /**
    * Get voice language in ISO code by voice name or id.
    * @param voice voice or id
    * @param useCase is case sensitivity
    * @returns {string} voice language
    */
-  getVoiceLang (voice, useCase = false) {
+  static getVoiceLang (voice, useCase = false) {
     let voiceLang = null
 
     voicesWithRandom.some(langElem => {
@@ -88,7 +63,7 @@ class TtsWebSocket {
    * @param useCase use case sensitivity
    * @returns {string} voice ID
    */
-  getVoiceID (voice, useCase = false) {
+  static getVoiceID (voice, useCase = false) {
     let voiceID = null
     voice = voice.trim()
 
@@ -110,40 +85,12 @@ class TtsWebSocket {
   }
 
   /**
-   * Handle a new incoming Websocket connection
-   * Use like this: this.wss.on('connection', this.newConnection.bind(this))
-   * @param ws websocket
-   * @param req request object
-   */
-  newConnection (ws, req) {
-    Logger.log(`°° WS connected. Current connections: ${ws._socket.server["_connections"]}`)
-    // req.connection.remoteAddress
-    ws.on('message', this.newMessage)
-    ws.ping()
-  }
-
-  /**
-   * Handles a new incoming Websocket message. and sets the channel.
-   * Do not use .bind(this) for this function. This needs to be the websocket connection not the TtsWebSocket.js class!
-   * @param message received message
-   */
-  newMessage (message) {
-    Logger.log(`°° WS received: ${message}`)
-    try {
-      this.channel = JSON.parse(message).channel.toLowerCase()
-    } catch (e) {
-      this.channel = ""
-      Logger.error("Websocket bad json: " + message)
-    }
-  }
-
-  /**
    * Send a TTS message with the "was user timed out for TTS message" check
    * @param {privMsgObj} privMsgObj
    * @param {SqlChannelPoints} settingObj
    * @returns {Promise<boolean>}
    */
-  async sendTtsWithTimeoutCheck (privMsgObj, settingObj) {
+  static async sendTtsWithTimeoutCheck (privMsgObj, settingObj) {
     await sleep(settingObj.timeoutCheckTime * 1000)
 
     // * 2 so we are also checking a bit before "now"
@@ -188,7 +135,7 @@ class TtsWebSocket {
    * @param {SqlChannelPoints} settingObj
    * @param {string} message
    */
-  sendTts (privMsgObj, settingObj, message) {
+  static sendTts (privMsgObj, settingObj, message) {
     let data = {
       channel: privMsgObj.channel,
       redeemer: privMsgObj.username,
@@ -208,44 +155,22 @@ class TtsWebSocket {
     } else {
       data.data[0] = {voice: settingObj.defaultVoiceName, message: message}
     }
-    this.sendToWebsocket("tts", data.channel, data)
+    WebSocket.sendToWebsocket("tts", data.channel, data)
   }
 
   /**
    * Send the skip next message to a specific channel
    * @param channel
    */
-  skip (channel) {
+  static skip (channel) {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    this.sendToWebsocket("skip", channel)
+    WebSocket.sendToWebsocket("skip", channel)
   }
 
-  reload () {
-    this.sendToWebsocket("reload")
-  }
-
-  /**
-   * Send data to the websocket clients. if channel != null only send to that specific channel
-   * @param cmd
-   * @param channel
-   * @param data
-   */
-  sendToWebsocket (cmd, channel = null, data = null) {
-    // save the channel you receive uppon connecting and only send to those
-    this.wss.clients.forEach(function each (client) {
-      if (client.readyState === WebSocket.OPEN
-        && (
-          channel === null || channel.toLowerCase() === (client.channel || "").toLowerCase()
-        )) {
-        try {
-          client.send(JSON.stringify({cmd: cmd, data: data, version: WS_SENT_VERSION}))
-        } catch (e) {
-          Logger.error(__filename + "\nsend failed\n" + e)
-        }
-      }
-    })
+  static reload () {
+    WebSocket.sendToWebsocket("reload")
   }
 
   /**
@@ -258,7 +183,7 @@ class TtsWebSocket {
    * @param defaultPlaybackrate
    * @returns {{voice: string, message: string, playbackrate: number}[]}
    */
-  createTTSArray (message, useCase = false, defaultVoice = fallbackVoice, allowCustomPlaybackrate = false, defaultPlaybackrate = 1.0) {
+  static createTTSArray (message, useCase = false, defaultVoice = fallbackVoice, allowCustomPlaybackrate = false, defaultPlaybackrate = 1.0) {
     let output = [{voice: defaultVoice, message: "", playbackrate: defaultPlaybackrate}]
     let outputIndex = 0
     for (let word of message.split(" ")) {
@@ -291,7 +216,7 @@ class TtsWebSocket {
     return output.filter(x => x.message)
   }
 
-  get randomVoice () {
+  static get randomVoice () {
     // noinspection JSUnresolvedVariable
     let languageArr = voices[Math.floor(Math.random() * voices.length)]
     // noinspection JSUnresolvedVariable
@@ -300,18 +225,8 @@ class TtsWebSocket {
     return voiceObj.id
   }
 
-  /**
-   * Current number of connected websocket clients that have registered a channel.
-   * @returns {number}
-   */
-  get websocketClientCount () {
-    let currentWebsocketClientCount = 0
-    this.wss.clients.forEach(function each (client) {
-      if (client.readyState === WebSocket.OPEN) {
-        currentWebsocketClientCount++
-      }
-    })
-    return currentWebsocketClientCount
+  static get websocketTtsClientCount () {
+    return WebSocket.websocketClientCount
   }
 }
 
