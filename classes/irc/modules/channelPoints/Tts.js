@@ -69,7 +69,10 @@ class Tts {
    * @returns {Promise<boolean>}
    */
   async handleTtsCommands (privMsgObj) {
-    if (privMsgObj.message.toLowerCase().startsWith(ttsStrings.prefix)
+    let responseMessage = ""
+    let commands = privMsgObj.message.trim().toLowerCase().split(' ')
+
+    if (commands[0] === ttsStrings.prefix
       && (this.bot.irc.channels[privMsgObj.roomId].useChannelPoints
         || this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled)
     ) {
@@ -79,19 +82,18 @@ class Tts {
         return false
       }
 
-      let command = privMsgObj.message.substr(ttsStrings.prefix.length + 1).trim().toLowerCase()
-      let responseMessage = ""
-
       let handled = false
-      if (command) {
+      if (commands.length === 1
+        && (ttsStrings.ignorecooldown || this.isCooldownOver(privMsgObj.roomId, privMsgObj.userLevel))) {
+        responseMessage = ttsStrings.response
+      } else if (commands[0]) {
         for (let optionId in ttsStrings.options) {
           if (Object.prototype.hasOwnProperty.call(ttsStrings.options, optionId)
-            && command.startsWith(ttsStrings.options[optionId].command)
+            && commands[1] === ttsStrings.options[optionId].command
             && optionId in this && typeof this[optionId] === "function") {
             if (ttsStrings.options[optionId].ignoreCooldown || this.isCooldownOver(privMsgObj.roomId, privMsgObj.userLevel)) {
-              let commandParameter = (command.substr(ttsStrings.options[optionId].command.length + 1)).trim().toLowerCase()
               try {
-                responseMessage = await this[optionId](privMsgObj, ttsStrings.options[optionId], commandParameter)
+                responseMessage = await this[optionId](privMsgObj, ttsStrings.options[optionId], commands.slice(2))
               } catch (e) {
                 // ignored
               }
@@ -99,9 +101,6 @@ class Tts {
             handled = true
           }
         }
-      }
-      if (!handled && (ttsStrings.ignorecooldown || this.isCooldownOver(privMsgObj.roomId, privMsgObj.userLevel))) {
-        responseMessage = ttsStrings.response
       }
       if (responseMessage) {
         this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
@@ -115,22 +114,22 @@ class Tts {
   /**
    * Handle the !tts register command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {Promise<string>}
    */
-  async handleRegister (privMsgObj, optionObj, parameter) {
+  async handleRegister (privMsgObj, optionObj, parameters) {
     if (this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled) {
       //channel and connection creating
       let userId = privMsgObj.userId
       let username = privMsgObj.username
       //botadmins can register for other users
       if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
-        if (parameter) {
-          let p1Id = await this.bot.userIdLoginCache.nameToId(parameter)
+        if (parameters[0]) {
+          let p1Id = await this.bot.userIdLoginCache.nameToId(parameters[0])
           if (p1Id !== '-1') {
             userId = p1Id
-            username = parameter
+            username = parameters[0]
           }
         }
       }
@@ -153,22 +152,22 @@ class Tts {
   /**
    * Handle the !tts unregister command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {Promise<string>}
    */
-  async handleUnregister (privMsgObj, optionObj, parameter) {
+  async handleUnregister (privMsgObj, optionObj, parameters) {
     if (privMsgObj.userLevel >= UserLevels.BROADCASTER) {
       //channel and connection creating
       let userId = privMsgObj.userId
       let username = privMsgObj.username
       //botadmins can register for other users
       if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
-        if (parameter) {
-          let p1Id = await this.bot.userIdLoginCache.nameToId(parameter)
+        if (parameters[0]) {
+          let p1Id = await this.bot.userIdLoginCache.nameToId(parameters[0])
           if (p1Id !== '-1') {
             userId = p1Id
-            username = parameter
+            username = parameters[0]
           }
         }
       }
@@ -185,11 +184,11 @@ class Tts {
   /**
    * Handle the !tts help command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {string}
    */
-  async handleHelp (privMsgObj, optionObj, parameter) {
+  async handleHelp (privMsgObj, optionObj, parameters) {
     if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
       if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].conversation) {
         return optionObj.response.conversation
@@ -205,11 +204,11 @@ class Tts {
   /**
    * Handle the !tts link command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {Promise<string>}
    */
-  async handleLink (privMsgObj, optionObj, parameter) {
+  async handleLink (privMsgObj, optionObj, parameters) {
     if (privMsgObj.userLevel >= UserLevels.MODERATOR) {
       if (Object.prototype.hasOwnProperty.call(privMsgObj.raw.tags, "custom-reward-id")) {
         //channelPointSettings creating / updating
@@ -232,11 +231,11 @@ class Tts {
   /**
    * Handle the !tts stats command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {string}
    */
-  async handleStats (privMsgObj, optionObj, parameter) {
+  async handleStats (privMsgObj, optionObj, parameters) {
     let websocketClientCount = TtsWebSocket.websocketClientCount
     let linkedIds = Object.keys(this.channelPointsSettings)
     let linkedCount = linkedIds.length
@@ -267,16 +266,15 @@ class Tts {
     return response
   }
 
-
   // noinspection JSUnusedGlobalSymbols
   /**
    * Handle the !tts skip command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {string}
    */
-  async handleSkip (privMsgObj, optionObj, parameter) {
+  async handleSkip (privMsgObj, optionObj, parameters) {
     if (privMsgObj.userLevel >= UserLevels.MODERATOR) {
       TtsWebSocket.skip(privMsgObj.channel)
       return optionObj.response
@@ -288,11 +286,11 @@ class Tts {
   /**
    * Handle the !tts reload command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {string}
    */
-  async handleReload (privMsgObj, optionObj, parameter) {
+  async handleReload (privMsgObj, optionObj, parameters) {
     if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
       TtsWebSocket.reload()
       return optionObj.response
@@ -304,11 +302,11 @@ class Tts {
   /**
    * Handle the !tts voices command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {string}
    */
-  async handleVoices (privMsgObj, optionObj, parameter) {
+  async handleVoices (privMsgObj, optionObj, parameters) {
     if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].conversation) {
       return optionObj.response.general
     } else {
@@ -320,20 +318,20 @@ class Tts {
   /**
    * Handle the !tts settings command
    * @param {privMsgObj} privMsgObj
-   * @param optionObj
-   * @param parameter
+   * @param {Object} optionObj
+   * @param {string[]} parameters
    * @returns {Promise<string>}
    */
-  async handleSettings (privMsgObj, optionObj, parameter) {
+  async handleSettings (privMsgObj, optionObj, parameters) {
     if (privMsgObj.userLevel >= UserLevels.MODERATOR) {
       let responseMessage = ""
-      if (parameter) {
+      if (parameters[0]) {
         let handled = false
         for (let optionId in optionObj.options) {
           if (Object.prototype.hasOwnProperty.call(optionObj.options, optionId)
-            && parameter.startsWith(optionObj.options[optionId].command)
+            && parameters[0] === optionObj.options[optionId].command
             && optionId in this && typeof this[optionId] === "function") {
-            let settingParameter = (parameter.substr(optionObj.options[optionId].command.length + 1)).trim().toLowerCase()
+            let settingParameter = parameters.slice(1).join(' ')
             let newValue
             try {
               newValue = await this[optionId](privMsgObj.roomId, settingParameter)

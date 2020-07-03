@@ -52,7 +52,7 @@
       "command": "voices",
       "response": {
         "general": "Check available voices here: https://supinic.com/stream/tts A moderator can change the voice by typing \"!tts settings voice XXXX\" where XXXX is the name of a voice.",
-        "noConversation": "Conversation mode is disabled. Only the default voice is available! You can still check the list of voices here: https://supinic.com/stream/tts"
+        "noConversation": "Conversation mode is disabled. Only the default voice is available! You can still check the list of voices here: https://supinic.com/stream/tts A moderator can change the voice by typing \"!tts settings voice XXXX\" where XXXX is the name of a voice."
       }
     },
     "handleHelp": {

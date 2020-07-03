@@ -64,7 +64,7 @@ class Queue {
    * @param channelId
    * @param message
    * @param userId
-   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
+   * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    * @returns {Promise<void>}
    */
   async sayWithChannelId (channelId, message, userId, useSameSendConnectionAsPrevious) {
@@ -77,7 +77,7 @@ class Queue {
    * @param channelName
    * @param message
    * @param userId
-   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
+   * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    * @returns {Promise<void>}
    */
   async sayWithChannelName (channelName, message, userId, useSameSendConnectionAsPrevious) {
@@ -88,7 +88,7 @@ class Queue {
    * Send a message with the msgObj
    * @param msgObj
    * @param message
-   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
+   * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
   sayWithMsgObj (msgObj, message, useSameSendConnectionAsPrevious) {
     this.sayWithBoth(msgObj.roomId, msgObj.channel, message, msgObj.userId, useSameSendConnectionAsPrevious)
@@ -101,7 +101,7 @@ class Queue {
    * @param {string} channelName
    * @param {string} message
    * @param {string|number} userId
-   * @param {boolean|undefined} useSameSendConnectionAsPrevious undefined = automatic detection based on message splitting.
+   * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
   sayWithBoth (channelId, channelName, message, userId = -1, useSameSendConnectionAsPrevious = undefined) {
     if (!message) {
