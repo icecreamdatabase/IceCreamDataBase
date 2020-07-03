@@ -35,7 +35,13 @@
     }
   }
 
-  let version = "2.2.0"
+  const version = "3.0.0"
+
+  const WS_CMD_TTS_CONNECT = "tts_connect"
+  const WS_CMD_TTS_MESSAGE = "tts_message"
+  const WS_CMD_TTS_SKIP = "tts_skip"
+  const WS_CMD_TTS_RELOAD = "tts_reload"
+
   let useQueue = true
   let audioPlaying = false
   let volume = 100
@@ -166,7 +172,17 @@
     // Connection opened
     socket.addEventListener('open', event => {
       console.log("Connected")
-      socket.send(JSON.stringify({channel: (findGetParameter("channel") || "").toLowerCase(), version: version}))
+      /**
+       * @type {WsDataReceive}
+       */
+      let data = {
+        cmd: WS_CMD_TTS_CONNECT,
+        data: {
+          channel: (findGetParameter("channel") || "").toLowerCase()
+        },
+        version: version
+      }
+      socket.send(JSON.stringify(data))
     })
 
     // Listen for messages
@@ -174,11 +190,14 @@
       let obj = JSON.parse(event.data)
       console.log(obj)
       if (obj.cmd) {
-        if (obj.cmd === "reload") {
+        if (obj.cmd === WS_CMD_TTS_RELOAD) {
           location.reload()
-        } else if (obj.cmd === "skip") {
+        } else if (obj.cmd === WS_CMD_TTS_SKIP) {
           skip()
-        } else if (obj.cmd === "tts" && obj.data && obj.data.channel && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
+        } else if (obj.cmd === WS_CMD_TTS_MESSAGE
+          && obj.data
+          && obj.data.channel
+          && obj.data.channel.toLowerCase() === (findGetParameter("channel") || "").toLowerCase()) {
           volume = obj.data.volume || volume
           maxMessageTime = obj.data.maxMessageTime || maxMessageTime
           msgQueue.push(obj.data.data)

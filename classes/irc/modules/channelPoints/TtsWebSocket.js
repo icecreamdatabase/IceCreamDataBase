@@ -155,7 +155,10 @@ class TtsWebSocket {
     } else {
       data.data[0] = {voice: settingObj.defaultVoiceName, message: message}
     }
-    WebSocket.sendToWebsocket("tts", data.channel, data)
+    WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_MESSAGE,
+      data,
+      rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && rxData.data.channel === data.channel
+    )
   }
 
   /**
@@ -166,11 +169,14 @@ class TtsWebSocket {
     if (channel.startsWith("#")) {
       channel = channel.substring(1)
     }
-    WebSocket.sendToWebsocket("skip", channel)
+    WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_SKIP,
+      undefined,
+      rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && rxData.data.channel === channel
+      )
   }
 
   static reload () {
-    WebSocket.sendToWebsocket("reload")
+    WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD)
   }
 
   /**
@@ -226,7 +232,7 @@ class TtsWebSocket {
   }
 
   static get websocketTtsClientCount () {
-    return WebSocket.websocketClientCount
+    return WebSocket.getWebsocketClientCount(WebSocket.WS_CMD_TTS_CONNECT)
   }
 }
 
