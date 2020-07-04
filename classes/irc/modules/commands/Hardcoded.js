@@ -7,7 +7,7 @@ const Api = require('../../../api/Api')
 const Logger = require('../../../helper/Logger')
 const DiscordLog = require('../../../helper/DiscordLog')
 const UserLevels = require("../../../../ENUMS/UserLevels")
-const TtsWebSocket = new (require('../channelPoints/TtsWebSocket')) //singleton
+const TtsWebSocket = require('../channelPoints/TtsWebSocket')
 
 class Hardcoded {
   /**

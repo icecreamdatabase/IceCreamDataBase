@@ -3,7 +3,7 @@
 const SqlChannels = require('../../../sql/main/SqlChannels')
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
 const DiscordLog = require('../../../helper/DiscordLog')
-const TtsWebSocket = new (require('./TtsWebSocket')) //singleton
+const TtsWebSocket = require('./TtsWebSocket')
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const ttsStrings = require("../../../../json/tts-strings")
 
@@ -236,7 +236,7 @@ class Tts {
    * @returns {string}
    */
   async handleStats (privMsgObj, optionObj, parameters) {
-    let websocketClientCount = TtsWebSocket.websocketClientCount
+    let websocketClientCount = TtsWebSocket.websocketTtsClientCount
     let linkedIds = Object.keys(this.channelPointsSettings)
     let linkedCount = linkedIds.length
 
