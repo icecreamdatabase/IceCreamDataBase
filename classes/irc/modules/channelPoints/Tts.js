@@ -291,13 +291,16 @@ class Tts {
    * @returns {string}
    */
   async handleReload (privMsgObj, optionObj, parameters) {
+    let reloadedClientCount
     if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
       if (parameters[0] === "all") {
-        TtsWebSocket.reload()
+        reloadedClientCount = TtsWebSocket.reload()
+      } else if (parameters[0] === "version") {
+        reloadedClientCount = TtsWebSocket.reloadOldVersions()
       } else {
-        TtsWebSocket.reload(privMsgObj.channel)
+        reloadedClientCount = TtsWebSocket.reload(privMsgObj.channel)
       }
-      return optionObj.response
+      return optionObj.response + reloadedClientCount
     }
     return ""
   }

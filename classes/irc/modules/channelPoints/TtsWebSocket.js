@@ -177,14 +177,25 @@ class TtsWebSocket {
 
   /**
    * @param {string} [channel]
+   * @return {number} How many clients have been reloaded
    */
   static reload (channel) {
     if (channel && channel.charAt(0) === '#') {
       channel = channel.substr(1)
     }
-    WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD,
+    return WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD,
       undefined,
       rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && (rxData.data.channel === channel || channel === undefined)
+    )
+  }
+
+  /**
+   * @return {number} How many clients have been reloaded
+   */
+  static reloadOldVersions () {
+    return WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD,
+      undefined,
+      rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && (rxData.version !== WebSocket.WS_SENT_VERSION)
     )
   }
 

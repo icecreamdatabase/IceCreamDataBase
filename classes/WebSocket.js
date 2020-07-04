@@ -6,7 +6,6 @@ const Logger = require('./helper/Logger')
 const DiscordLog = require('./helper/DiscordLog')
 
 const WEBSOCKETPINGINTERVAL = 15000
-const WS_SENT_VERSION = "3.0.1"
 
 class WebSocket {
   /**
@@ -46,6 +45,10 @@ class WebSocket {
     }, WEBSOCKETPINGINTERVAL)
 
     return this
+  }
+
+  get WS_SENT_VERSION () {
+    return "3.0.1"
   }
 
   get WS_CMD_TTS_CONNECT () {
@@ -129,13 +132,15 @@ class WebSocket {
    * @param {string} cmd
    * @param {object} data
    * @param {function(WsDataReceive): boolean} includeChannelChecker
+   * @return {number} How many clients has the message been sent to.
    */
   sendToWebsocket (cmd, data = undefined, includeChannelChecker = () => true) {
+    let clientsSentTo = 0
     this.wss.clients.forEach((client) => {
         if (client.readyState === Ws.OPEN) {
           if (Object.prototype.hasOwnProperty.call(client, "data")) {
             if (includeChannelChecker(client.data)) {
-              let version = WS_SENT_VERSION
+              let version = this.WS_SENT_VERSION
               try {
                 // dealing with old 2.2.0 structure
                 if (versionStrToArray(client.data.version)[0] === 2) {
@@ -154,6 +159,7 @@ class WebSocket {
                 }
 
 
+                clientsSentTo++
                 client.send(JSON.stringify({cmd: cmd.toLowerCase(), data: data, version: version}))
               } catch (e) {
                 Logger.error(__filename + "\nsend failed\n" + e)
@@ -165,6 +171,7 @@ class WebSocket {
         }
       }
     )
+    return clientsSentTo
   }
 
   /**
