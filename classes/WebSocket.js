@@ -6,7 +6,7 @@ const Logger = require('./helper/Logger')
 const DiscordLog = require('./helper/DiscordLog')
 
 const WEBSOCKETPINGINTERVAL = 15000
-const WS_SENT_VERSION = "3.0.0"
+const WS_SENT_VERSION = "3.0.1"
 
 class WebSocket {
   /**
