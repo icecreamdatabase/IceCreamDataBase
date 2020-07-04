@@ -137,36 +137,32 @@ class WebSocket {
   sendToWebsocket (cmd, data = undefined, includeChannelChecker = () => true) {
     let clientsSentTo = 0
     this.wss.clients.forEach((client) => {
-        if (client.readyState === Ws.OPEN) {
-          if (Object.prototype.hasOwnProperty.call(client, "data")) {
-            if (includeChannelChecker(client.data)) {
-              let version = this.WS_SENT_VERSION
-              try {
-                // dealing with old 2.2.0 structure
-                if (versionStrToArray(client.data.version)[0] === 2) {
-                  switch (cmd) {
-                    case this.WS_CMD_TTS_MESSAGE:
-                      cmd = "tts"
-                      break
-                    case this.WS_CMD_TTS_SKIP:
-                      cmd = "skip"
-                      break
-                    case this.WS_CMD_TTS_RELOAD:
-                      cmd = "reload"
-                      break
-                  }
-                  version = "2.2.0"
-                }
-
-
-                clientsSentTo++
-                client.send(JSON.stringify({cmd: cmd.toLowerCase(), data: data, version: version}))
-              } catch (e) {
-                Logger.error(__filename + "\nsend failed\n" + e)
+        if (client.readyState === Ws.OPEN
+          && Object.prototype.hasOwnProperty.call(client, "data") //this check is for "a client has connected but not sent any signup / connect data yet".
+          && includeChannelChecker(client.data)) {
+          let version = this.WS_SENT_VERSION
+          try {
+            // dealing with old 2.2.0 structure
+            if (versionStrToArray(client.data.version)[0] === 2) {
+              switch (cmd) {
+                case this.WS_CMD_TTS_MESSAGE:
+                  cmd = "tts"
+                  break
+                case this.WS_CMD_TTS_SKIP:
+                  cmd = "skip"
+                  break
+                case this.WS_CMD_TTS_RELOAD:
+                  cmd = "reload"
+                  break
               }
+              version = "2.2.0"
             }
-          } else {
-            Logger.warn(`Client doesn't have data: \n${util.inspect(client)}`)
+
+
+            clientsSentTo++
+            client.send(JSON.stringify({cmd: cmd.toLowerCase(), data: data, version: version}))
+          } catch (e) {
+            Logger.error(__filename + "\nsend failed\n" + e)
           }
         }
       }
