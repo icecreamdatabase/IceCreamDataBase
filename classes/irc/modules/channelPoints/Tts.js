@@ -532,30 +532,36 @@ class Tts {
     if (Object.prototype.hasOwnProperty.call(privMsgObj.raw.tags, "custom-reward-id")) {
       let responseMessage
       let settingObj = this.channelPointsSettings[privMsgObj.roomId]
-      if ((settingObj.subOnly ? UserLevels.SUB : UserLevels.DEFAULT) <= privMsgObj.userLevel) {
-        if (settingObj.cooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now() || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
-          this.lastTts[privMsgObj.roomId] = Date.now()
+      // check: reward id
+      if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
+        // check: subonly
+        if ((settingObj.subOnly ? UserLevels.SUB : UserLevels.DEFAULT) <= privMsgObj.userLevel) {
+          // check: cooldown
+          if (settingObj.cooldown === 0
+            || settingObj.cooldown * 1000 + (this.lastTts[privMsgObj.roomId] || 0) < Date.now()
+            || privMsgObj.userLevel >= UserLevels.BOTADMIN) {
+            this.lastTts[privMsgObj.roomId] = Date.now()
 
-          if (settingObj.ttsCustomRewardId === privMsgObj.raw.tags["custom-reward-id"]) {
+            // check: timed out / deleted
             let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj)
             if (wasSent) {
               //Accept
               responseMessage = ttsStrings.redemeResponse.acceptMessage
+              hasTakenAction = true
             } else {
               //Reject timeout
               responseMessage = ttsStrings.redemeResponse.rejectTimeoutMessage
             }
-            hasTakenAction = true
+          } else {
+            //Reject cooldown
+            responseMessage = ttsStrings.redemeResponse.rejectCooldownMessage
           }
         } else {
-          //Reject cooldown
-          responseMessage = ttsStrings.redemeResponse.rejectCooldownMessage
+          //Reject userlevel
+          responseMessage = ttsStrings.redemeResponse.rejectUserLevelMessage
         }
-      } else {
-        //Reject userlevel
-        responseMessage = ttsStrings.redemeResponse.rejectUserLevelMessage
-      }
 
+      }
       if (responseMessage) {
         this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
