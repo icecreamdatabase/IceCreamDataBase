@@ -153,33 +153,39 @@ class WebSocket {
    */
   sendToWebsocket (cmd, data = undefined, includeChannelChecker = () => true) {
     this.wss.clients.forEach((client) => {
-      if (client.readyState === Ws.OPEN && includeChannelChecker(client.data)) {
-        let version = WS_SENT_VERSION
-        try {
-          // dealing with old 2.2.0 structure
-          if (versionStrToArray(client.data.version)[0] === 2) {
-            switch (cmd) {
-              case this.WS_CMD_TTS_MESSAGE:
-                cmd = "tts"
-                break
-              case this.WS_CMD_TTS_SKIP:
-                cmd = "skip"
-                break
-              case this.WS_CMD_TTS_RELOAD:
-                cmd = "reload"
-                break
+        if (client.readyState === Ws.OPEN) {
+          if (Object.prototype.hasOwnProperty.call(client, "data")) {
+            if (includeChannelChecker(client.data)) {
+              let version = WS_SENT_VERSION
+              try {
+                // dealing with old 2.2.0 structure
+                if (versionStrToArray(client.data.version)[0] === 2) {
+                  switch (cmd) {
+                    case this.WS_CMD_TTS_MESSAGE:
+                      cmd = "tts"
+                      break
+                    case this.WS_CMD_TTS_SKIP:
+                      cmd = "skip"
+                      break
+                    case this.WS_CMD_TTS_RELOAD:
+                      cmd = "reload"
+                      break
+                  }
+                  version = "2.2.0"
+                }
+
+
+                client.send(JSON.stringify({cmd: cmd.toLowerCase(), data: data, version: version}))
+              } catch (e) {
+                Logger.error(__filename + "\nsend failed\n" + e)
+              }
             }
-            version = "2.2.0"
+          } else {
+            Logger.warn(`Client doesn't have data: \n${util.inspect(client)}`)
           }
-
-
-
-          client.send(JSON.stringify({cmd: cmd.toLowerCase(), data: data, version: version}))
-        } catch (e) {
-          Logger.error(__filename + "\nsend failed\n" + e)
         }
       }
-    })
+    )
   }
 
   /**
