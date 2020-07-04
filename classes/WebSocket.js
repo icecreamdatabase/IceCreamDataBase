@@ -87,6 +87,7 @@ class WebSocket {
   newMessage (message) {
     Logger.log(`°° WS received: ${message}`)
     try {
+      message = message.replace(/[\u034f\u2800\u{E0000}\u180e\ufeff\u2000-\u200d\u206D]/gu, '')
       let parsedMsg = JSON.parse(message)
       let version = versionStrToArray(parsedMsg.version)
 
@@ -115,35 +116,12 @@ class WebSocket {
           break
         default:
           // All other versions
-          Logger.warn(`Websocket with old version: ${message}`)
+          Logger.warn(`Websocket with old version. \nProbably running 3.0.0 with the \\u{E0000} issue. \nMessage: ${message}`)
       }
 
     } catch (e) {
       Logger.error(`Websocket bad json: ${message}`)
     }
-  }
-
-  /**
-   * Send data to the websocket clients. if channel != null only send to that specific ch.annel
-   * @param {string} cmd
-   * @param {string} channel
-   * @param {object} data
-   */
-  sendToWebsocketBasedOnTtsChannel (cmd, channel = undefined, data = undefined) {
-    // save the channel you receive uppon connecting and only send to those
-    this.wss.clients.forEach((client) => {
-      if (client.readyState === Ws.OPEN
-        && client.data.cmd === this.WS_CMD_TTS_CONNECT
-        && (
-          channel === undefined || channel.toLowerCase() === (client.data.channel || "").toLowerCase()
-        )) {
-        try {
-          client.send(JSON.stringify({cmd: cmd.toLowerCase(), data: data, version: WS_SENT_VERSION}))
-        } catch (e) {
-          Logger.error(__filename + "\nsend failed\n" + e)
-        }
-      }
-    })
   }
 
   /**

@@ -172,11 +172,20 @@ class TtsWebSocket {
     WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_SKIP,
       undefined,
       rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && rxData.data.channel === channel
-      )
+    )
   }
 
-  static reload () {
-    WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD)
+  /**
+   * @param {string} [channel]
+   */
+  static reload (channel) {
+    if (channel && channel.charAt(0) === '#') {
+      channel = channel.substr(1)
+    }
+    WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD,
+      undefined,
+      rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && (rxData.data.channel === channel || channel === undefined)
+    )
   }
 
   /**

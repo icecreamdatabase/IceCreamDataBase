@@ -215,10 +215,10 @@ class Tts {
         await SqlChannelPoints.addChannel(this.bot.userId, privMsgObj.roomId, privMsgObj.raw.tags["custom-reward-id"])
         await this.bot.irc.privMsg.channelPoints.updateChannelPointSettings()
         DiscordLog.custom("tts-status-log", "Link:", privMsgObj.channel.substr(1), DiscordLog.getDecimalFromHexString("#0000FF"))
-        return optionObj.response.justLinked + privMsgObj.channel.substr(1)
+        return optionObj.response.justLinked + privMsgObj.channel.substr(1) + " " // This space is important! Else we'll have issues with the \u{E0000} somehow FeelsDankMan
       } else {
         if (Object.prototype.hasOwnProperty.call(this.channelPointsSettings, privMsgObj.roomId) && this.channelPointsSettings[privMsgObj.roomId].ttsCustomRewardId) {
-          return optionObj.response.alreadyLinked + privMsgObj.channel.substr(1)
+          return optionObj.response.alreadyLinked + privMsgObj.channel.substr(1) + " " // This space is important! Else we'll have issues with the \u{E0000} somehow FeelsDankMan
         } else {
           return optionObj.response.notLinked
         }
@@ -292,7 +292,11 @@ class Tts {
    */
   async handleReload (privMsgObj, optionObj, parameters) {
     if (privMsgObj.userLevel >= UserLevels.BOTADMIN) {
-      TtsWebSocket.reload()
+      if (parameters[0] === "all") {
+        TtsWebSocket.reload()
+      } else {
+        TtsWebSocket.reload(privMsgObj.channel)
+      }
       return optionObj.response
     }
     return ""
