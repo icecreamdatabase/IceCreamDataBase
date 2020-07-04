@@ -36,7 +36,7 @@
     "handleReload": {
       "ignoreCooldown": false,
       "commands": ["reload"],
-      "response": "Reloaded all clients."
+      "response": "Reloaded client(s)."
     },
     "handleLink": {
       "ignoreCooldown": false,
