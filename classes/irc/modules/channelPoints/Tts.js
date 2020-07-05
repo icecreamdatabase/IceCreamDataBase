@@ -297,6 +297,8 @@ class Tts {
         reloadedClientCount = TtsWebSocket.reload()
       } else if (parameters[0] === "version") {
         reloadedClientCount = TtsWebSocket.reloadOldVersions()
+      } else if (parameters[0] === "auto") {
+        return "Auto reload: " + TtsWebSocket.reloadOldVersionsAutoToggle()
       } else {
         reloadedClientCount = TtsWebSocket.reload(privMsgObj.channel)
       }

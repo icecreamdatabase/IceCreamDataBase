@@ -27,6 +27,9 @@ const voiceRandomObj = {
 // noinspection JSUnresolvedFunction
 const voicesWithRandom = voices.concat([voiceRandomObj])
 
+const reloadOldVersionsIntervalTime = 120 * 1000 // 2 min
+let reloadOldVersionsIntervalId
+
 class TtsWebSocket {
   /**
    * Get voice language in ISO code by voice name or id.
@@ -193,10 +196,28 @@ class TtsWebSocket {
    * @return {number} How many clients have been reloaded
    */
   static reloadOldVersions () {
-    return WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD,
+    let reloadAmount = WebSocket.sendToWebsocket(WebSocket.WS_CMD_TTS_RELOAD,
       undefined,
       rxData => rxData.cmd === WebSocket.WS_CMD_TTS_CONNECT && (rxData.version !== WebSocket.WS_SENT_VERSION)
     )
+    if (reloadAmount > 0) {
+      Logger.log(`Reloaded ${reloadAmount} old clients!`)
+    }
+    return reloadAmount
+  }
+
+  /**
+   * @return {boolean} Auto reload is now on
+   */
+  static reloadOldVersionsAutoToggle () {
+    if (reloadOldVersionsIntervalId === undefined) {
+      reloadOldVersionsIntervalId = setInterval(this.reloadOldVersions, reloadOldVersionsIntervalTime)
+      this.reloadOldVersions()
+    } else {
+      clearInterval(reloadOldVersionsIntervalId)
+      reloadOldVersionsIntervalId = undefined
+    }
+    return reloadOldVersionsIntervalId !== undefined
   }
 
   /**
