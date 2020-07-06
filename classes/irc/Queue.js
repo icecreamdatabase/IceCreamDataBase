@@ -17,25 +17,35 @@ const BATCH_DEFAULT_LIMIT = 250
 
 class Queue {
   /**
+   * @typedef {Object} MessageQueueElement
+   * @property {boolean} checked
+   * @property {boolean} isBeingChecked
+   * @property {number} channelId
+   * @property {string} channelName
+   * @property {string} message
+   * @property {number} userId
+   * @property {boolean} useSameSendConnectionAsPrevious
+   */
+
+  /**
    * @param {Bot} bot
    */
   constructor (bot) {
     this._bot = bot
 
     /**
-     * @type {{
-     *         checked:boolean,
-     *         isBeingChecked: boolean,
-     *         channelId: number,
-     *         channelName: string,
-     *         message: string,
-     *         userId: number,
-     *         useSameSendConnectionAsPrevious: boolean
-     * }[]}
+     * @type {MessageQueueElement[]}
      * @private
      */
     this._messageQueue = []
     this._queueEmitter = new EventEmitter()
+    /**
+     * list of channelIds currently being processed in the queue.
+     * This allows multiple channels to be fed by a single _messageQueue.
+     * Simply skip all channels that are in this array.
+     * @type {number[]}
+     */
+    this._channelProcessing = []
 
     this._privmsgModeratorbucket = new BasicBucket(this.bot.irc.rateLimitModerator)
     this._privsgUserBucket = new BasicBucket(this.bot.irc.rateLimitUser)
@@ -168,6 +178,18 @@ class Queue {
   }
 
   /**
+   * Reset a MessageQueueElement and the corresponding channel.
+   * This allow it to be checked again.
+   * Run the _queueEmitter once to actually check.
+   * @param {MessageQueueElement} msgObj
+   */
+  resetItemInQueue (msgObj) {
+    msgObj.isBeingChecked = false
+    this._channelProcessing = this._channelProcessing.filter(c => c !== msgObj.channelId)
+    this._queueEmitter.emit('event')
+  }
+
+  /**
    * Check the _messageQueue for a new message and handle said message.
    * If queue is not empty it will call this function until the queue is empty.
    * Use like this: this._queueEmitter.on('event', this.checkQueue.bind(this))
@@ -177,11 +199,15 @@ class Queue {
     if (this._messageQueue.length <= 0) {
       return
     }
-    let msgObj = this._messageQueue[0]
-    if (msgObj.isBeingChecked) {
+    // get first msgObj from a channel currently not handled
+    let msgObj = this._messageQueue.find(x => !this._channelProcessing.includes(x.channelId))
+    if (!msgObj || msgObj.isBeingChecked) {
       return
     }
     msgObj.isBeingChecked = true
+    // This channel is currently getting processed
+    this._channelProcessing.push(msgObj.channelId)
+
     let channel = this.bot.irc.channels[msgObj.channelId]
     let botStatus = channel.botStatus || UserLevels.DEFAULT
     if (typeof botStatus === 'undefined' || botStatus === null) {
@@ -190,31 +216,30 @@ class Queue {
     }
 
     let currentTimeMillis = Date.now()
+    // 1 second global cooldown (if not VIP or higher) checker
     if (botStatus < UserLevels.VIP && currentTimeMillis < channel.lastMessageTimeMillis + 1000 + TIMEOUT_OFFSET) {
       await sleep(channel.lastMessageTimeMillis - currentTimeMillis + 1000 + TIMEOUT_OFFSET)
-      msgObj.isBeingChecked = false
-      this._queueEmitter.emit('event')
+      this.resetItemInQueue(msgObj)
       return
     }
     channel.lastMessageTimeMillis = currentTimeMillis
+    // Only take a pleb ticket if the bot is a pleb
     if (botStatus < UserLevels.VIP) {
       if (!this._privsgUserBucket.takeTicket()) {
-        DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied uzser ticket")
         Logger.info("Denied user ticket")
         await sleep(1500)
-        msgObj.isBeingChecked = false
-        this._queueEmitter.emit('event')
+        this.resetItemInQueue(msgObj)
         return
       }
     }
+    // always take a moderator ticket (even as a pleb)
     if (!this._privmsgModeratorbucket.takeTicket()) {
-      DiscordLog.debug(process.uptime() + "\nQueue state:\n Denied moderator ticket")
       Logger.info("Denied moderator ticket")
       await sleep(1500)
-      msgObj.isBeingChecked = false
-      this._queueEmitter.emit('event')
+      this.resetItemInQueue(msgObj)
       return
     }
+    // 30 seconds identical message preventer
     if (msgObj.message === channel.lastMessage) {
       msgObj.message += " \u{E0000}"
     }
@@ -222,9 +247,8 @@ class Queue {
 
     this.bot.irc.ircConnectionPool.say(msgObj.channelName, msgObj.message, msgObj.useSameSendConnectionAsPrevious)
 
-    this._messageQueue.shift()
-    //Logger.info("--> " + msgObj.channelName + " " + this.bot.userName + ": " + msgObj.message)
-    this._queueEmitter.emit('event')
+    this._messageQueue = this._messageQueue.filter(c => c !== msgObj)
+    this.resetItemInQueue(msgObj)
   }
 
   /**

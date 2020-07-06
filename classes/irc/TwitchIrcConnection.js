@@ -29,6 +29,8 @@ class TwitchIrcConnection extends EventEmitter {
     this.awaitingPong = false
     this.reconnectTimeout = null
     this.commandsPer30 = 0
+    this._lastPingDuration = -1
+    this._currentPingStart = 0
 
     this.interval = setInterval(() => {
       this.commandsPer30 = 0
@@ -44,6 +46,13 @@ class TwitchIrcConnection extends EventEmitter {
   }
 
   /**
+   * @return {number}
+   */
+  get lastPingDuration () {
+    return this._lastPingDuration
+  }
+
+  /**
    * Send ping to twitch servers and handle reconnect if not pong received.
    * @private
    */
@@ -55,6 +64,7 @@ class TwitchIrcConnection extends EventEmitter {
     }
     if (this.connected) {
       this.send('PING')
+      this._currentPingStart = Date.now()
       this.awaitingPong = true
     }
   }
@@ -69,6 +79,7 @@ class TwitchIrcConnection extends EventEmitter {
           return
         }
         if (parsed.command === 'PONG') {
+          this._lastPingDuration = Date.now() - this._currentPingStart
           this.awaitingPong = false
           return
         }

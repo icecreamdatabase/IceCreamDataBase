@@ -28,6 +28,48 @@ class IrcConnectionPool {
     this.connectSendConnections()
   }
 
+  /**
+   * Returns average pings of all connections rounded to two decimal places.
+   * NaN if no connection exists.
+   * @return {number}
+   */
+  get averagePing () {
+    const pings = this.allPingDurations
+    return Math.round(pings.reduce((a, b) => a + b, 0) / pings.length * 100) / 100
+  }
+
+  /**
+   * Returns max ping of all connections rounded to two decimal places.
+   * -Infinity if no connection exists.
+   * @return {number}
+   */
+  get maxPing () {
+    return Math.round(Math.max(...this.allPingDurations) * 100) / 100
+  }
+
+  /**
+   * Returns min ping of all connections rounded to two decimal places.
+   * Infinity if no connection exists.
+   * @return {number}
+   */
+  get minPing () {
+    return Math.round(Math.min(...this.allPingDurations) * 100 / 100)
+  }
+
+  /**
+   * @return {number[]}
+   */
+  get allPingDurations () {
+    let pings = []
+    for (let connection of this.receiveConnections) {
+      pings.push(connection.lastPingDuration)
+    }
+    for (let connection of this.sendConnections) {
+      pings.push(connection.lastPingDuration)
+    }
+    return pings
+  }
+
   connectSendConnections () {
     let connectionsSendCount = this.bot.irc.rateLimitModerator === ChatLimit.VERIFIED_MOD
       ? SEND_CONNECTION_COUNT_VERIFIED
