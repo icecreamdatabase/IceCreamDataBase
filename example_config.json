@@ -36,5 +36,6 @@
     "XXXXXXXX",
     "YYYYYYYY",
     "ZZZZZZZZ"
-  ]
+  ],
+  "wsPort": 4700
 }
