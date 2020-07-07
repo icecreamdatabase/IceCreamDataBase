@@ -41,7 +41,7 @@ class Queue {
     this._queueEmitter = new EventEmitter()
     /**
      * list of channelIds currently being processed in the queue.
-     * This allows multiple channels to be fed by a single _messageQueue.
+     * This allows multiple channels to be fed by a single _wsSendQueue.
      * Simply skip all channels that are in this array.
      * @type {number[]}
      */
@@ -190,7 +190,7 @@ class Queue {
   }
 
   /**
-   * Check the _messageQueue for a new message and handle said message.
+   * Check the _wsSendQueue for a new message and handle said message.
    * If queue is not empty it will call this function until the queue is empty.
    * Use like this: this._queueEmitter.on('event', this.checkQueue.bind(this))
    * @returns {Promise<void>}

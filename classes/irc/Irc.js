@@ -3,6 +3,7 @@
 const Logger = require('../helper/Logger')
 const SqlChannels = require('../sql/main/SqlChannels.js')
 const IrcConnectionPool = require('./IrcConnectionPool')
+const IrcConnector = require('./IrcConnector')
 const PrivMsg = require('./modules/IrcTags/PrivMsg.js')
 const UserNotice = require('./modules/IrcTags/UserNotice.js')
 const ClearChat = require('./modules/IrcTags/ClearChat.js')
@@ -59,10 +60,16 @@ class Irc {
     this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
     /**
-     * @type IrcConnectionPool
+     * @type {IrcConnectionPool}
      * @private
      */
     this._ircConnectionPool = undefined
+
+    /**
+     * @type {IrcConnector}
+     * @private
+     */
+    this._ircConnector = undefined
     /**
      * @type {SqlChannelObj[]}
      */
@@ -129,6 +136,13 @@ class Irc {
    */
   get ircConnectionPool () {
     return this._ircConnectionPool
+  }
+
+  /**
+   * @return {IrcConnector}
+   */
+  get ircConnector () {
+    return this._ircConnector
   }
 
   async setupIrc () {
