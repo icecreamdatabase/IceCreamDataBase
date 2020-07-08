@@ -22,7 +22,7 @@ class UserNotice {
     //.bind(this) is required so the functions can access not only the `bot.chat` object
     // but the `bot` object and the `_notificationData` array.
 
-    this.bot.irc.ircConnectionPool.on('USERNOTICE', this.onUsernotice.bind(this))
+    this.bot.irc.ircConnector.on('USERNOTICE', this.onUsernotice.bind(this))
 
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
@@ -56,7 +56,7 @@ class UserNotice {
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
             announcementMessage = UserNotice.notificationParameter(announcementMessage, usernoticeObj)
-            this.bot.irc.queue.sayWithBoth(usernoticeObj.tags["room-id"], usernoticeObj.param, announcementMessage, usernoticeObj.tags["user-id"])
+            this.bot.irc.ircConnector.sayWithBoth(usernoticeObj.tags["room-id"], usernoticeObj.param, announcementMessage, usernoticeObj.tags["user-id"])
           }
         }
       } else {

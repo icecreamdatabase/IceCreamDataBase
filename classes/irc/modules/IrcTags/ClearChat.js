@@ -13,7 +13,7 @@ class ClearChat {
   constructor (bot) {
     this._bot = bot
 
-    this.bot.irc.ircConnectionPool.on('CLEARCHAT', this.onClearChat.bind(this))
+    this.bot.irc.ircConnector.on('CLEARCHAT', this.onClearChat.bind(this))
   }
 
   /**
@@ -49,7 +49,7 @@ class ClearChat {
         DiscordLog.custom("tts-status-log", "Ban:", channelName, DiscordLog.getDecimalFromHexString("#FFFF00"))
         await SqlChannelPoints.dropChannel(this.bot.userId, roomId)
         await this.bot.irc.updateBotChannels()
-        this.bot.irc.queue.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to unban it, wait one minute and register again.`)
+        this.bot.irc.ircConnector.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to unban it, wait one minute and register again.`)
         DiscordLog.custom("tts-status-log", "Part:", channelName, DiscordLog.getDecimalFromHexString("#FF0000"))
       }
     }

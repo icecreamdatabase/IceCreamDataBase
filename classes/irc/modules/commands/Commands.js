@@ -37,7 +37,7 @@ class Commands {
       && messageObj.message.startsWith("<r ")) {
 
       this.updateCommandData.bind(this)()
-      this.bot.irc.queue.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
+      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
       return true
     }
 
@@ -90,7 +90,7 @@ class Commands {
         for (let commandMatch of commandArray) {
           if (Helper.checkLastCommandUsage(commandMatch, this.lastCommandUsageObject, messageObj.roomId, this.bot.irc.channels[messageObj.roomId].minCooldown, messageObj.userLevel)) {
             this.bot.irc.privMsg.helper.handleParameter(messageObj, commandMatch).then((response) => {
-              this.bot.irc.queue.sayWithMsgObj(messageObj, response)
+              this.bot.irc.ircConnector.sayWithMsgObj(messageObj, response)
               if (Object.prototype.hasOwnProperty.call(commandMatch, "ID")) {
                 SqlLocalCommands.increaseTimesUsed(commandMatch.ID)
               }

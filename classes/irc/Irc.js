@@ -2,14 +2,12 @@
 //CLASSES
 const Logger = require('../helper/Logger')
 const SqlChannels = require('../sql/main/SqlChannels.js')
-const IrcConnectionPool = require('./IrcConnectionPool')
 const IrcConnector = require('./IrcConnector')
 const PrivMsg = require('./modules/IrcTags/PrivMsg.js')
 const UserNotice = require('./modules/IrcTags/UserNotice.js')
 const ClearChat = require('./modules/IrcTags/ClearChat.js')
 const ClearMsg = require('./modules/IrcTags/ClearMsg')
 const UserState = require('./modules/IrcTags/UserState')
-const Queue = require('./Queue.js')
 
 const ChatLimit = require("../../ENUMS/ChatLimit")
 
@@ -48,11 +46,6 @@ class Irc {
      * @private
      */
     this._userState = undefined
-    /**
-     * @type {Queue}
-     * @private
-     */
-    this._queue = undefined
 
     Logger.info(`Setting up bot: ${this.bot.userId} (${this.bot.userName})`)
 
@@ -60,20 +53,14 @@ class Irc {
     this.rateLimitModerator = ChatLimit.NORMAL_MOD
 
     /**
-     * @type {IrcConnectionPool}
-     * @private
-     */
-    this._ircConnectionPool = undefined
-
-    /**
      * @type {IrcConnector}
      * @private
      */
     this._ircConnector = undefined
     /**
-     * @type {SqlChannelObj[]}
+     * @type {Object.<number, SqlChannelObj>}
      */
-    this.channels = []
+    this.channels = {}
 
     this.updateBotRatelimits().then(this.setupIrc.bind(this))
   }
@@ -125,20 +112,6 @@ class Irc {
   }
 
   /**
-   * @return {Queue}
-   */
-  get queue () {
-    return this._queue
-  }
-
-  /**
-   * @return {IrcConnectionPool}
-   */
-  get ircConnectionPool () {
-    return this._ircConnectionPool
-  }
-
-  /**
    * @return {IrcConnector}
    */
   get ircConnector () {
@@ -148,9 +121,7 @@ class Irc {
   async setupIrc () {
     Logger.info(`### Connecting: ${this.bot.userId} (${this.bot.userName})`)
 
-    this._ircConnectionPool = new IrcConnectionPool(this.bot)
-
-    this._queue = new Queue(this.bot)
+    this._ircConnector = new IrcConnector(this.bot)
 
     await this.bot.userIdLoginCache.prefetchFromDatabase()
 
@@ -186,8 +157,8 @@ class Irc {
             if (allChannelData[currentChannelId].channelID === this.channels[channelId].channelID) {
               if (allChannelData[currentChannelId].channelName !== this.channels[channelId].channelName) {
                 //user has changed their name. Leave the old channel and join the new one.
-                this.ircConnectionPool.leaveChannel(this.channels[channelId].channelName)
-                await this.ircConnectionPool.joinChannel(allChannelData[currentChannelId].channelName)
+                await this.ircConnector.leaveChannel(this.channels[channelId].channelName)
+                await this.ircConnector.joinChannel(allChannelData[currentChannelId].channelName)
               }
               contains = true
             }
@@ -197,7 +168,7 @@ class Irc {
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
           if (channelName) {
-            this.ircConnectionPool.leaveChannel(channelName)
+            await this.ircConnector.leaveChannel(channelName)
             Logger.info(this.bot.userName + " Parted: #" + channelName)
           }
         }
@@ -223,7 +194,7 @@ class Irc {
         if (!contains) {
           let channelName = await this.bot.userIdLoginCache.idToName(channelId)
           if (channelName) {
-            await this.ircConnectionPool.joinChannel(channelName)
+            await this.ircConnector.joinChannel(channelName)
             Logger.info(this.bot.userName + " Joined: #" + channelName)
           }
           allChannelData[channelId].botStatus = null

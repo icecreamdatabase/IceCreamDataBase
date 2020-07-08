@@ -67,7 +67,7 @@ class PrivMsg {
     this._channelPoints = new ChannelPoints(this.bot)
     this._helper = new Helper(this.bot)
 
-    this.bot.irc.ircConnectionPool.on('PRIVMSG', this.onChat.bind(this))
+    this.bot.irc.ircConnector.on('PRIVMSG', this.onChat.bind(this))
   }
 
   /**
@@ -124,7 +124,7 @@ class PrivMsg {
     if (messageObj.message.toLowerCase().startsWith("<gdpr optout ")) {
       await this.bot.addUserIdToBlacklist(messageObj.userId)
       Logger.info(`User added blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channel} (${messageObj.roomId})`)
-      this.bot.queue.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
+      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give it up to 30 seconds to fully apply.`)
       return true
     }
 

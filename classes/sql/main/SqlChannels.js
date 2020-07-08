@@ -75,7 +75,7 @@ class SqlChannels {
   /**
    * Get all channel data about a singular bot
    * @param  botID Database id of the bot in question
-   * @return {Promise<SqlChannelObj[]>} All data about the channel
+   * @return {Promise<Object.<number, SqlChannelObj>>} All data about the channel
    */
   static async getChannelData (botID) {
     let results = await sqlPool.query(`SELECT botID,
