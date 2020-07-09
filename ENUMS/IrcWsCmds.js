@@ -6,5 +6,6 @@ module.exports = Object.freeze({
   "SET_CHANNELS": "set_channels",
   "SEND": "send", // send to irc
   "RECEIVE": "receive", // receive from irc
-  "REMOVE_BOT": "remove_bot"
+  "REMOVE_BOT": "remove_bot",
+  "GET_IRC_STATES": "ircstates"
 })

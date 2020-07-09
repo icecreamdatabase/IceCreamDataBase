@@ -58,6 +58,11 @@ class IrcConnector extends EventEmitter {
    */
 
   /**
+   * @typedef {Object} WsDataRequestIrcStates
+   * @property {number|string} botUserId
+   */
+
+  /**
    * @param {Bot} bot
    */
   constructor (bot) {
@@ -199,7 +204,6 @@ class IrcConnector extends EventEmitter {
     }
   }
 
-
   /**
    * @param {string} cmd
    * @param {Object} data
@@ -234,7 +238,9 @@ class IrcConnector extends EventEmitter {
       this.sendAuthData().then(() =>
         //Resend all channels after a reconnect. The chance of the TwitchIrcConnector having restarted is very high.
         this.bot.irc.updateBotChannels().then(() =>
-          Logger.info(`### WS (re)connect sending channels done: ${this.bot.userId} (${this.bot.userName})`)
+          this.requestIrcStates().then(() =>
+            Logger.info(`### WS (re)connect sending channels done: ${this.bot.userId} (${this.bot.userName})`)
+          )
         )
       )
     })
@@ -254,13 +260,36 @@ class IrcConnector extends EventEmitter {
     })
 
     this._ws.addEventListener('close', event => {
-      this._ws = null
+      Logger.warn(`IrcConnector close: ${event}`)
+      this._ws.terminate()
+      this._ws.removeAllListeners()
+      this._ws = undefined
       this.connect()
     })
-    this._ws.addEventListener('error', event => {
-      //this._ws = null
-      //connect()
-    })
+    //this._ws.addEventListener('error', event => {
+    //Logger.warn(`IrcConnector error: ${event}`)
+    //this._ws.terminate()
+    //this._ws.removeAllListeners()
+    //this._ws = undefined
+    //this.connect()
+    //})
+  }
+
+
+  async requestIrcStates () {
+    if (!this._ws || this._ws.readyState !== this._ws.OPEN) {
+      return
+    }
+    try {
+      Logger.info(`Requesting irc states of ${this.bot.userId} (${this.bot.userName}) to TwitchIrcConnector.`)
+      /**
+       * @type {WsDataRequestIrcStates}
+       */
+      let data = {botUserId: this.bot.userId}
+      await this.send(IrcWsCmds.GET_IRC_STATES, data)
+    } catch (e) {
+      Logger.warn(`Requesting irc states from TwitchIrcConnector failed even though the socket connection is open:\n${e}`)
+    }
   }
 
   async sendAuthData () {
