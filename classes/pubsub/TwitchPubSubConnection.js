@@ -135,7 +135,7 @@ class TwitchPubSubConnection extends EventEmitter {
     if (data.type !== "PING") {
       //Logger.debug(`~~> ${util.inspect(data)}`) //TODO: don't print auth
     }
-    if (this.ws) {
+    if (this.ws /* TODO: do this with the same queue as in IrcConnector && this.ws.readyState === this.ws.OPEN*/) {
       this.ws.send(JSON.stringify(data))
     } else {
       Logger.trace("No PubSub websocket object")

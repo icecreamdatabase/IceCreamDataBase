@@ -49,7 +49,6 @@ class UserIdLoginCache {
       }
     }
     await this.prefetchFromDatabase()
-    await this.bot.irc.updateBotChannels()
   }
 
   /**
@@ -117,7 +116,8 @@ class UserIdLoginCache {
     userInfosById = {}
     userInfosByName = {}
     await this.prefetchListOfIds(currentIds)
-    await this.checkNameChanges()
+    //await this.checkNameChanges() // this is included in updateBotChannels currently
+    await this.bot.irc.updateBotChannels()
     Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(userInfosById).length} ids.`)
   }
 }

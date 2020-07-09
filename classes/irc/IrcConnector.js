@@ -81,7 +81,7 @@ class IrcConnector extends EventEmitter {
      * @private
      */
     this._ws = undefined
-    this.connect()
+    //this.connect()
   }
 
   /**
@@ -228,16 +228,12 @@ class IrcConnector extends EventEmitter {
       console.log("Connected")
       // make sure we resend auth every time we connet to the server!
       this._lastSentAuthObj = undefined
-      this.sendAuthData().then(() => {
+      this.sendAuthData().then(() =>
         //Resend all channels after a reconnect. The chance of the TwitchIrcConnector having restarted is very high.
-        let channels = []
-        for (const channelKey in this.bot.irc.channels) {
-          if (Object.prototype.hasOwnProperty.call(this.bot.irc.channels, channelKey)) {
-            channels.push(this.bot.irc.channels[channelKey].channelName)
-          }
-        }
-        this.joinChannel(channels).then()
-      })
+        this.bot.irc.updateBotChannels().then(() =>
+          Logger.info(`### WS (re)connect sending channels done: ${this.bot.userId} (${this.bot.userName})`)
+        )
+      )
     })
 
     // Listen for messages

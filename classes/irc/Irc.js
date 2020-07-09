@@ -118,12 +118,23 @@ class Irc {
     return this._ircConnector
   }
 
+  get channelNames () {
+    let channelNames = []
+    for (const channelKey in this.channels) {
+      if (Object.prototype.hasOwnProperty.call(this.channels, channelKey)) {
+        channelNames.push(this.channels[channelKey].channelName)
+      }
+    }
+    return channelNames
+  }
+
   async setupIrc () {
     Logger.info(`### Connecting: ${this.bot.userId} (${this.bot.userName})`)
 
-    this._ircConnector = new IrcConnector(this.bot)
 
     await this.bot.userIdLoginCache.prefetchFromDatabase()
+
+    this._ircConnector = new IrcConnector(this.bot)
 
     //OnX modules
     this._privMsg = new PrivMsg(this.bot)
@@ -132,12 +143,12 @@ class Irc {
     this._clearMsg = new ClearMsg(this.bot)
     this._userState = new UserState(this.bot)
 
-    await this.updateBotChannels()
-    Logger.info("### Connected: " + this.bot.userId + " (" + this.bot.userName + ")")
-    await this.bot.userIdLoginCache.checkNameChanges()
+    this.ircConnector.connect()
+
+    Logger.info(`### Connected: ${this.bot.userId} (${this.bot.userName})`)
     setInterval(this.updateBotChannels.bind(this), UPDATE_ALL_CHANNELS_INTERVAL)
 
-    Logger.info("### Fully setup: " + this.bot.userId + " (" + this.bot.userName + ")")
+    Logger.info(`### Fully setup: ${this.bot.userId} (${this.bot.userName})`)
   }
 
   /**
@@ -145,66 +156,29 @@ class Irc {
    * @returns {Promise<void>} "All channels updated promise"
    */
   async updateBotChannels () {
-    let allChannelData = await SqlChannels.getChannelData(this.bot.userId)
+    await this.bot.userIdLoginCache.checkNameChanges()
 
-    //remove unused channels
-    for (let channelId in this.channels) {
-      if (Object.prototype.hasOwnProperty.call(this.channels, channelId)) {
-        //check
-        let contains = false
-        for (let currentChannelId in allChannelData) {
-          if (Object.prototype.hasOwnProperty.call(allChannelData, currentChannelId)) {
-            if (allChannelData[currentChannelId].channelID === this.channels[channelId].channelID) {
-              if (allChannelData[currentChannelId].channelName !== this.channels[channelId].channelName) {
-                //user has changed their name. Leave the old channel and join the new one.
-                await this.ircConnector.leaveChannel(this.channels[channelId].channelName)
-                await this.ircConnector.joinChannel(allChannelData[currentChannelId].channelName)
-              }
-              contains = true
-            }
-          }
-        }
-        //part
-        if (!contains) {
-          let channelName = await this.bot.userIdLoginCache.idToName(channelId)
-          if (channelName) {
-            await this.ircConnector.leaveChannel(channelName)
-            Logger.info(this.bot.userName + " Parted: #" + channelName)
-          }
-        }
-      }
-    }
-    //add new channels
-    for (let channelId in allChannelData) {
-      if (Object.prototype.hasOwnProperty.call(allChannelData, channelId)) {
-        //check
-        let contains = false
-        for (let currentChannelId in this.channels) {
-          if (Object.prototype.hasOwnProperty.call(this.channels, currentChannelId)) {
-            if (this.channels[currentChannelId].channelID === allChannelData[channelId].channelID) {
-              contains = true
-              // Don't reset these 3 values. Copy them over instead.
-              allChannelData[channelId].botStatus = this.channels[currentChannelId].botStatus || null
-              allChannelData[channelId].lastMessage = this.channels[currentChannelId].lastMessage || ""
-              allChannelData[channelId].lastMessageTimeMillis = this.channels[currentChannelId].lastMessageTimeMillis || 0
-            }
-          }
-        }
-        //join
-        if (!contains) {
-          let channelName = await this.bot.userIdLoginCache.idToName(channelId)
-          if (channelName) {
-            await this.ircConnector.joinChannel(channelName)
-            Logger.info(this.bot.userName + " Joined: #" + channelName)
-          }
-          allChannelData[channelId].botStatus = null
-          allChannelData[channelId].lastMessage = ""
-          allChannelData[channelId].lastMessageTimeMillis = 0
-        }
+    let channelsFromDb = await SqlChannels.getChannelData(this.bot.userId)
+
+    for (const channelId in channelsFromDb) {
+      if (Object.prototype.hasOwnProperty.call(channelsFromDb, channelId)) {
+        // Don't reset these 3 values. Copy them over instead.
+        channelsFromDb[channelId].botStatus = this.channels[channelId]
+          ? this.channels[channelId].botStatus || null
+          : null
+        channelsFromDb[channelId].lastMessage = this.channels[channelId]
+          ? this.channels[channelId].lastMessage || ""
+          : ""
+        channelsFromDb[channelId].lastMessageTimeMillis = this.channels[channelId]
+          ? this.channels[channelId].lastMessageTimeMillis || 0
+          : 0
       }
     }
     //save changes to bot array
-    this.channels = allChannelData
+    this.channels = channelsFromDb
+
+    //update irc join / part data
+    await this.ircConnector.setChannel(this.channelNames)
   }
 
   async updateBotRatelimits () {
