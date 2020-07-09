@@ -188,7 +188,7 @@ class Hardcoded {
         //}
       }
 
-      this.bot.irc.ircConnector.sayWithBoth(roomId, channelName, message, this.bot.userId, useSameSendConnectionForAllMessages)
+      this.bot.irc.ircConnector.sayWithBoth(roomId, channelName, message, useSameSendConnectionForAllMessages)
       messageInChunkCount++
       totalMessagesSent++
     }

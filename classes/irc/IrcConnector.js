@@ -13,31 +13,10 @@ const AUTH_UPDATE_INTERVAL_CHECK = 15000 // 15 seconds
 
 class IrcConnector extends EventEmitter {
   /**
-   * @typedef {Object} WsData
+   * @typedef {Object} WsDataMain
    * @property {string} cmd
-   * @property {WsDataAuth|WsDataJoinAndPart|WsDataSend|WsDataReceive} data
+   * @property {WsDataAuth|WsDataJoinPartSet|WsDataSend|WsDataReceive|WsDataRemoveBot} data
    * @property {string} version
-   */
-
-  /**
-   * @typedef {Object} WsDataSend
-   * @property {number|string} botUserId
-   * @property {number|string} channelId
-   * @property {string} channelName
-   * @property {string} message
-   * @property {number|string} [userId]
-   * @property {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
-   *
-   */
-
-  /**
-   * @typedef {Object} WsDataSetChannels
-   * @property {number|string} botUserId
-   * @property {string[]} channelNames
-   */
-
-  /**
-   * @typedef {rawPrivMsgObj} WsDataReceive
    */
 
   /**
@@ -50,9 +29,32 @@ class IrcConnector extends EventEmitter {
    */
 
   /**
-   * @typedef {Object} WsDataJoinAndPart
+   * @typedef {Object} WsDataJoinPartSet
    * @property {number|string} botUserId
    * @property {string[]} channelNames
+   */
+
+  /**
+   * Send to TwitchIrcConnector to send it twitch.
+   * @typedef {Object} WsDataSend
+   * @property {number|string} botUserId
+   * @property {string} channelName
+   * @property {string} message
+   * @property {number|string} [userId]
+   * @property {UserLevel} botStatus
+   * @property {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
+   * @property {number} [maxMessageLength]
+   *
+   */
+
+  /**
+   * Receive from twitch to send to the clients.
+   * @typedef {Object} WsDataReceive
+   */
+
+  /**
+   * @typedef {Object} WsDataRemoveBot
+   * @property {number|string} userId
    */
 
   /**
@@ -63,7 +65,7 @@ class IrcConnector extends EventEmitter {
     this._bot = bot
 
     /**
-     * @type {{cmd: string, data: WsDataSend|WsDataSetChannels|WsDataReceive|WsDataAuth|WsDataJoinAndPart}[]}
+     * @type {WsDataMain[]}
      * @private
      */
     this._wsSendQueue = []
@@ -102,7 +104,7 @@ class IrcConnector extends EventEmitter {
     if (!Array.isArray(channels)) {
       channels = [channels]
     }
-    /** @type {WsDataJoinAndPart} */
+    /** @type {WsDataJoinPartSet} */
     let data = {botUserId: this.bot.userId, channelNames: channels}
     await this.send(IrcWsCmds.JOIN, data)
   }
@@ -114,7 +116,7 @@ class IrcConnector extends EventEmitter {
     if (!Array.isArray(channels)) {
       channels = [channels]
     }
-    /** @type {WsDataJoinAndPart} */
+    /** @type {WsDataJoinPartSet} */
     let data = {botUserId: this.bot.userId, channelNames: channels}
     await this.send(IrcWsCmds.PART, data)
   }
@@ -152,7 +154,7 @@ class IrcConnector extends EventEmitter {
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
   sayWithMsgObj (msgObj, message, useSameSendConnectionAsPrevious) {
-    this.sayWithBoth(msgObj.roomId, msgObj.channel, message, msgObj.userId, useSameSendConnectionAsPrevious)
+    this.sayWithBoth(msgObj.roomId, msgObj.channel, message, useSameSendConnectionAsPrevious)
   }
 
   /**
@@ -161,20 +163,20 @@ class IrcConnector extends EventEmitter {
    * @param {string|number} channelId
    * @param {string} channelName
    * @param {string} message
-   * @param {string|number} userId
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  sayWithBoth (channelId, channelName, message, userId = -1, useSameSendConnectionAsPrevious = undefined) {
+  sayWithBoth (channelId, channelName, message, useSameSendConnectionAsPrevious = undefined) {
     this._wsSendQueue.push({
       cmd: IrcWsCmds.SEND,
       data: {
         botUserId: this.bot.userId,
-        channelId,
         channelName,
         message,
-        userId,
-        useSameSendConnectionAsPrevious
-      }
+        botStatus: this.bot.irc.channels[channelId].botStatus || UserLevels.DEFAULT,
+        useSameSendConnectionAsPrevious,
+        maxMessageLength: this.bot.irc.channels[channelId].maxMessageLength
+      },
+      version: this.version
     })
     this.emit('queue')
   }
@@ -184,7 +186,7 @@ class IrcConnector extends EventEmitter {
       if (this._ws && this._ws.readyState === this._ws.OPEN) {
         let queueElement = this._wsSendQueue[0]
         try {
-          await this.sendRaw(queueElement.cmd, queueElement.data)
+          await this.sendRaw(queueElement.cmd, queueElement.data, queueElement.version)
           this._wsSendQueue.shift()
           this.emit('queue')
           return
@@ -203,18 +205,19 @@ class IrcConnector extends EventEmitter {
    * @param {Object} data
    */
   async send (cmd, data) {
-    this._wsSendQueue.push({cmd, data})
+    this._wsSendQueue.push({cmd, data, version: this.version})
     this.emit('queue')
   }
 
   /**
    * @param {string} cmd
    * @param {Object} data
+   * @param {string} version
    */
-  async sendRaw (cmd, data) {
+  async sendRaw (cmd, data, version = this.version) {
     return new Promise((resolve, reject) => {
       try {
-        this._ws.send(JSON.stringify({cmd, data, version: this.version}), undefined, resolve)
+        this._ws.send(JSON.stringify({cmd, data, version}), undefined, resolve)
       } catch (e) {
         reject(e)
       }
@@ -222,7 +225,7 @@ class IrcConnector extends EventEmitter {
   }
 
   connect () {
-    this._ws = new WebSocket('ws://localhost:4702')
+    this._ws = new WebSocket('ws://localhost:4702') // TODO: config.cfg
     // Connection opened
     this._ws.addEventListener('open', event => {
       console.log("Connected")
@@ -239,7 +242,7 @@ class IrcConnector extends EventEmitter {
     // Listen for messages
     this._ws.addEventListener('message', async event => {
       /**
-       * @type {WsData}
+       * @type {WsDataMain}
        */
       let obj = JSON.parse(event.data)
       console.log(obj)

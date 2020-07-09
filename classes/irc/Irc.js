@@ -164,14 +164,8 @@ class Irc {
       if (Object.prototype.hasOwnProperty.call(channelsFromDb, channelId)) {
         // Don't reset these 3 values. Copy them over instead.
         channelsFromDb[channelId].botStatus = this.channels[channelId]
-          ? this.channels[channelId].botStatus || null
-          : null
-        channelsFromDb[channelId].lastMessage = this.channels[channelId]
-          ? this.channels[channelId].lastMessage || ""
-          : ""
-        channelsFromDb[channelId].lastMessageTimeMillis = this.channels[channelId]
-          ? this.channels[channelId].lastMessageTimeMillis || 0
-          : 0
+          ? this.channels[channelId].botStatus
+          : undefined
       }
     }
     //save changes to bot array

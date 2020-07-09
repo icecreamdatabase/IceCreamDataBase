@@ -56,7 +56,7 @@ class UserNotice {
           let announcementMessage = notificationObj[userNoticeType]
           if (announcementMessage) {
             announcementMessage = UserNotice.notificationParameter(announcementMessage, usernoticeObj)
-            this.bot.irc.ircConnector.sayWithBoth(usernoticeObj.tags["room-id"], usernoticeObj.param, announcementMessage, usernoticeObj.tags["user-id"])
+            this.bot.irc.ircConnector.sayWithBoth(usernoticeObj.tags["room-id"], usernoticeObj.param, announcementMessage)
           }
         }
       } else {
