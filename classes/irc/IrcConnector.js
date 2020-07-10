@@ -192,13 +192,13 @@ class IrcConnector extends EventEmitter {
   async checkQueue () {
     if (this._wsSendQueue.length > 0) {
       if (this._ws && this._ws.readyState === this._ws.OPEN) {
-        let queueElement = this._wsSendQueue[0]
+        let queueElement = this._wsSendQueue.shift()
         try {
           await this.sendRaw(queueElement.cmd, queueElement.data, queueElement.version)
-          this._wsSendQueue.shift()
           this.emit('queue')
           return
         } catch (e) {
+          this._wsSendQueue.unshift(queueElement)
           Logger.warn(`Sending MESSAGE to TwitchIrcConnector failed even though the socket connection is open:\n${e}`)
         }
       }
