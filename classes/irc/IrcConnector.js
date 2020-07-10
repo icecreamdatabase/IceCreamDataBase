@@ -51,7 +51,7 @@ class IrcConnector extends EventEmitter {
 
   /**
    * Receive from twitch to send to the clients.
-   * @typedef {Object} WsDataReceive
+   * @typedef {Object[]} WsDataReceive
    */
 
   /**
@@ -254,23 +254,25 @@ class IrcConnector extends EventEmitter {
        * @type {WsDataMain}
        */
       let obj = JSON.parse(event.data)
-      console.log(obj)
+      //console.log(obj)
       if (obj.cmd) {
         if (obj.cmd === IrcWsCmds.RECEIVE) {
-          this.emit(obj.data.command.toString().toUpperCase(), obj.data)
+          for (const dataElement of obj.data) {
+            this.emit(dataElement.command.toString().toUpperCase(), dataElement)
+          }
         }
       }
     })
 
     this._ws.addEventListener('close', event => {
-      Logger.debug(`IrcConnector close`)
+      //Logger.debug(`IrcConnector close`)
       this._ws.terminate()
       this._ws.removeAllListeners()
       this._ws = undefined
       this.connect()
     })
     this._ws.addEventListener('error', event => {
-      Logger.debug(`IrcConnector error`)
+      //Logger.debug(`IrcConnector error`)
       //this._ws.terminate()
       //this._ws.removeAllListeners()
       //this._ws = undefined
