@@ -32,7 +32,7 @@ class WebSocket {
     WebSocket.instance = this
 
     // keep in mind that if the port is change the frontend needs the same change!
-    this.wss = new Ws.Server({port: config.wsPort})
+    this.wss = new Ws.Server({port: config.wsConfig.botServerPort})
     this.wss.on('connection', this.newConnection.bind(this))
     setInterval(() => {
       this.wss.clients.forEach(function each (client) {

@@ -9,6 +9,8 @@ const DiscordLog = require('../helper/DiscordLog')
 const UserLevels = require('../../ENUMS/UserLevels.js')
 const IrcWsCmds = require('../../ENUMS/IrcWsCmds')
 
+const config = require('../../config.json')
+
 const AUTH_UPDATE_INTERVAL_CHECK = 15000 // 15 seconds
 
 class IrcConnector extends EventEmitter {
@@ -229,7 +231,7 @@ class IrcConnector extends EventEmitter {
   }
 
   connect () {
-    this._ws = new WebSocket('ws://localhost:4702') // TODO: config.cfg
+    this._ws = new WebSocket(`ws://${config.wsConfig.TwitchIrcConnectorUrl}:${config.wsConfig.TwitchIrcConnectorPort}`)
     // Connection opened
     this._ws.addEventListener('open', event => {
       console.log("Connected")
@@ -274,7 +276,6 @@ class IrcConnector extends EventEmitter {
     //this.connect()
     //})
   }
-
 
   async requestIrcStates () {
     if (!this._ws || this._ws.readyState !== this._ws.OPEN) {
