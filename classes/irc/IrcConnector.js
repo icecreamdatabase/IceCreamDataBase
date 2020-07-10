@@ -185,6 +185,7 @@ class IrcConnector extends EventEmitter {
       },
       version: this.version
     })
+    Logger.debug(`${this.bot.userId} (${this.bot.userName}) --> ${message}`)
     this.emit('queue')
   }
 
@@ -262,19 +263,19 @@ class IrcConnector extends EventEmitter {
     })
 
     this._ws.addEventListener('close', event => {
-      Logger.warn(`IrcConnector close: ${event}`)
+      Logger.debug(`IrcConnector close`)
       this._ws.terminate()
       this._ws.removeAllListeners()
       this._ws = undefined
       this.connect()
     })
-    //this._ws.addEventListener('error', event => {
-    //Logger.warn(`IrcConnector error: ${event}`)
-    //this._ws.terminate()
-    //this._ws.removeAllListeners()
-    //this._ws = undefined
-    //this.connect()
-    //})
+    this._ws.addEventListener('error', event => {
+      Logger.debug(`IrcConnector error`)
+      //this._ws.terminate()
+      //this._ws.removeAllListeners()
+      //this._ws = undefined
+      //this.connect()
+    })
   }
 
   async requestIrcStates () {

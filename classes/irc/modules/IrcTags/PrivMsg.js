@@ -139,7 +139,7 @@ class PrivMsg {
     this.helper.addUsersToUserWasInChannelObj(messageObj.channel, [messageObj.username])
 
     if (channelObj.logMessages) {
-      Logger.info("<-- " + messageObj.channel + " " + messageObj.username + ": " + messageObj.message)
+      Logger.info(`${this.bot.userId} (${this.bot.userName}) <-- ${messageObj.channel} ${messageObj.username}: ${messageObj.message}`)
     }
 
     //hardcoded always first
