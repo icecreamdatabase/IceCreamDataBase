@@ -173,7 +173,7 @@ class Tts {
       }
       await SqlChannelPoints.dropChannel(this.bot.userId, parseInt(userId))
       DiscordLog.custom("tts-status-log", "Part:", username, DiscordLog.getDecimalFromHexString("#FF0000"))
-      setTimeout(this.bot.irc.updateBotChannels.bind(this.bot.irc), 3000)
+      setTimeout(this.bot.irc.updateBotChannels.bind(this.bot.irc), 1000) // Delay could in theory even be removed because we have separate send and receive connections
       //await this.bot.irc.updateBotChannels()
       return optionObj.response
     }
