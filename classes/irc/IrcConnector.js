@@ -185,7 +185,7 @@ class IrcConnector extends EventEmitter {
       },
       version: this.version
     })
-    Logger.debug(`${this.bot.userId} (${this.bot.userName}) --> ${message}`)
+    Logger.debug(`${this.bot.userId} (${this.bot.userName}) --> ${channelName} :${message}`)
     this.emit('queue')
   }
 
