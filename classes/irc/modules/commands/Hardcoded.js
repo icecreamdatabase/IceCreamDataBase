@@ -71,7 +71,7 @@ class Hardcoded {
       && messageObj.message.startsWith("<s ")) {
 
       //TODO: make this high priority "first in queue" again
-      this.bot.irc.ircConnector.say(messageObj.channel, "Shutting down FeelsBadMan")
+      this.bot.irc.ircConnector.sayWithBoth(messageObj.roomId, messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
