@@ -67,7 +67,7 @@ class CustomCommands {
           responseMessage = responseMessage.replace(new RegExp(NEWLINE_SEPERATOR, 'g'), "")
         }
 
-        this.bot.irc.queue.sayWithMsgObj(privMsgObj, responseMessage)
+        this.bot.irc.ircConnector.sayWithMsgObj(privMsgObj, responseMessage)
         hasTakenAction = true
       }
     }

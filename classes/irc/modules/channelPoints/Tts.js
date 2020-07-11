@@ -103,7 +103,7 @@ class Tts {
         }
       }
       if (responseMessage) {
-        this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+        this.bot.irc.ircConnector.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
       }
       return true
     }
@@ -138,7 +138,7 @@ class Tts {
         await SqlChannels.addChannel(this.bot.userId, userId, username, false, false, false, true, false, true, false)
         DiscordLog.custom("tts-status-log", "Join:", username + "\n(" + channelInfo["broadcaster_type"] + ")", DiscordLog.getDecimalFromHexString("#00FF00"))
         this.bot.irc.updateBotChannels().then(() => {
-          this.bot.irc.ircConnectionPool.rejoinChannel(username).then()
+          this.bot.irc.ircConnector.rejoinChannel(username).then()
         })
         return optionObj.response.success
       } else {
@@ -565,7 +565,7 @@ class Tts {
 
       }
       if (responseMessage) {
-        this.bot.irc.queue.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
+        this.bot.irc.ircConnector.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
       }
     }

@@ -36,5 +36,10 @@
     "XXXXXXXX",
     "YYYYYYYY",
     "ZZZZZZZZ"
-  ]
+  ],
+  "wsConfig": {
+    "botServerPort": 4700,
+    "TwitchIrcConnectorUrl": "localhost",
+    "TwitchIrcConnectorPort": 4701
+  }
 }

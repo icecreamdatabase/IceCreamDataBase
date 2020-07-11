@@ -16,6 +16,9 @@ SELECT (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 MINUTE
        (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH)  AS 'month',
        (SELECT COUNT(*) FROM ttsLog)                                              AS 'total';
 
+-- Average message length
+SELECT ROUND(AVG(LENGTH(rawMessage))) AS `avgMsgLength` FROM ttsLog;
+
 -- Total messages per hour of day
 SELECT COUNT(*), HOUR(TIMESTAMP) as 'hourOfTheDay'
 FROM ttsLog

@@ -4,6 +4,7 @@ const Ws = require('ws')
 const util = require('util')
 const Logger = require('./helper/Logger')
 const DiscordLog = require('./helper/DiscordLog')
+const config = require('./../config.json')
 
 const WEBSOCKETPINGINTERVAL = 15000
 
@@ -30,7 +31,8 @@ class WebSocket {
     }
     WebSocket.instance = this
 
-    this.wss = new Ws.Server({port: 4700})
+    // keep in mind that if the port is change the frontend needs the same change!
+    this.wss = new Ws.Server({port: config.wsConfig.botServerPort})
     this.wss.on('connection', this.newConnection.bind(this))
     setInterval(() => {
       this.wss.clients.forEach(function each (client) {

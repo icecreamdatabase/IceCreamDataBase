@@ -9,6 +9,10 @@ const DiscordLog = require('../../../helper/DiscordLog')
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const TtsWebSocket = require('../channelPoints/TtsWebSocket')
 
+const BATCH_MAX_FACTOR = 0.8 // limit of 100 * 0.8 = 80 messages per chunk
+const BATCH_DELAY_BETWEEN_CHUNKS = 30000 //m
+const BATCH_DEFAULT_LIMIT = 250
+
 class Hardcoded {
   /**
    * @param {Bot} bot
@@ -58,7 +62,7 @@ class Hardcoded {
       && messageObj.message.startsWith("<tags ")) {
 
       DiscordLog.debug(JSON.stringify(messageObj, null, 2))
-      this.bot.irc.queue.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done.")
+      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done.")
       return true
     }
 
@@ -66,7 +70,8 @@ class Hardcoded {
     if (messageObj.userLevel >= UserLevels.BOTOWNER
       && messageObj.message.startsWith("<s ")) {
 
-      this.bot.irc.ircConnectionPool.say(messageObj.channel, "Shutting down FeelsBadMan")
+      //TODO: make this high priority "first in queue" again
+      this.bot.irc.ircConnector.say(messageObj.channel, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
@@ -80,7 +85,7 @@ class Hardcoded {
       )
     ) {
       this.bot.api.other.constructor.wolframAlphaRequest(messageObj.message.substr(messageObj.message.indexOf(" ") + 1)).then((message) => {
-        this.bot.irc.queue.sayWithMsgObj(messageObj, "Query returned: " + message)
+        this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Query returned: " + message)
       })
       return true
     }
@@ -96,11 +101,11 @@ class Hardcoded {
         try {
           // noinspection JSUnusedLocalSymbols
           let ss = (x) => {
-            this.bot.irc.queue.sayWithMsgObj(messageObj, x.toString())
+            this.bot.irc.ircConnector.sayWithMsgObj(messageObj, x.toString())
           }
           // noinspection JSUnusedLocalSymbols
           let so = (x) => {
-            this.bot.irc.queue.sayWithMsgObj(messageObj, util.inspect(x))
+            this.bot.irc.ircConnector.sayWithMsgObj(messageObj, util.inspect(x))
           }
           msg = (eval(evalString) || "").toString()
         } catch (err) {
@@ -117,7 +122,7 @@ class Hardcoded {
       } else {
         msg = messageObj.username + ", Nothing to eval given..."
       }
-      this.bot.irc.queue.sayWithMsgObj(messageObj, msg)
+      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, msg)
     }
 
     /* batchsay */
@@ -134,12 +139,70 @@ class Hardcoded {
 
       if (url) {
         this.bot.api.other.constructor.getWebsiteContent(url).then(body =>
-          this.bot.irc.queue.batchSay(messageObj.roomId, messageObj.channel, body.split(/(?:\n|\r\n)+/g), undefined, sameConnection))
+          this.batchSay(messageObj.roomId, messageObj.channel, body.split(/(?:\n|\r\n)+/g), undefined, sameConnection))
       }
     }
 
     return false
   }
+
+  /**
+   * Say an array of strings.
+   * @param {string|number} roomId
+   * @param {string} channelName
+   * @param {string[]} messages
+   * @param {number} batchLimit
+   * @param {boolean} useSameSendConnectionForAllMessages
+   * @return {Promise<void>}
+   */
+  async batchSay (roomId, channelName, messages, batchLimit = BATCH_DEFAULT_LIMIT, useSameSendConnectionForAllMessages = false) {
+    let channelObj = this.bot.irc.channels[roomId]
+    let botStatus = channelObj.botStatus || UserLevels.DEFAULT
+    let messageInChunkCount = 0
+    let currentLimit = botStatus >= UserLevels.VIP
+      ? this.bot.irc.rateLimitModerator
+      : this.bot.irc.rateLimitUser
+    currentLimit = Math.min(currentLimit * BATCH_MAX_FACTOR, batchLimit)
+    let totalMessagesSent = 0
+
+    Logger.info(`New limit: ${currentLimit}`)
+    for (let message of messages) {
+      if (messageInChunkCount >= currentLimit) {
+        messageInChunkCount = 0
+
+        // update limit
+        channelObj = this.bot.irc.channels[roomId]
+        botStatus = channelObj.botStatus || UserLevels.DEFAULT
+        currentLimit = botStatus >= UserLevels.VIP
+          ? this.bot.irc.rateLimitModerator
+          : this.bot.irc.rateLimitUser
+        currentLimit = Math.min(currentLimit * BATCH_MAX_FACTOR, batchLimit)
+
+        Logger.info(`New limit: ${currentLimit}`)
+        Logger.info(`${totalMessagesSent}/${messages.length} sent`)
+        Logger.info(`Starting pause for: ${BATCH_DELAY_BETWEEN_CHUNKS / 1000}s`)
+        await sleep(BATCH_DELAY_BETWEEN_CHUNKS)
+        //TODO: find a way to bring this feature back. (Let the queue fully drain before sending more messages)
+        //while (this._messageQueue.length > 0) {
+        //  await sleep(100)
+        //}
+      }
+
+      this.bot.irc.ircConnector.sayWithBoth(roomId, channelName, message, useSameSendConnectionForAllMessages)
+      messageInChunkCount++
+      totalMessagesSent++
+    }
+    Logger.info("Done")
+  }
+}
+
+/**
+ * Basic sleep function
+ * @param ms
+ * @returns {Promise<unknown>}
+ */
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 module.exports = Hardcoded
