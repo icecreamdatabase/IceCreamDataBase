@@ -95,7 +95,7 @@ class Tts {
               try {
                 responseMessage = await this[optionId](privMsgObj, ttsStrings.options[optionId], commands.slice(2))
               } catch (e) {
-                // ignored
+                Logger.warn(e)
               }
             }
             handled = true
