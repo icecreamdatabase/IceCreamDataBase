@@ -6,6 +6,7 @@ const DiscordLog = require('../../../helper/DiscordLog')
 const TtsWebSocket = require('./TtsWebSocket')
 const UserLevels = require("../../../../ENUMS/UserLevels")
 const ttsStrings = require("../../../../json/tts-strings")
+const Logger = require("../../../helper/Logger")
 
 /**
  *
