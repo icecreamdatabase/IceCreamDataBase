@@ -12,7 +12,7 @@ class WebSocket {
   /**
    * @typedef {object} WsDataReceive
    * @property {string} cmd
-   * @property {WsDataReceiveTts|object} data
+   * @property {WsDataReceiveTts|WsTtsMessage|object} data
    * @property {string} version
    */
 

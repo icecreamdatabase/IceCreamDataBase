@@ -32,6 +32,23 @@ let reloadOldVersionsIntervalId
 
 class TtsWebSocket {
   /**
+   * @typedef {object} WsTtsMessage
+   * @property {string} channel
+   * @property {string} redeemer
+   * @property {TtsMessageData[]} data
+   * @property {boolean} queue
+   * @property {number} volume
+   * @property {number} maxMessageTime
+   */
+
+  /**
+   * @typedef {object} TtsMessageData
+   * @property {string} message
+   * @property {string} voice
+   * @property {number} [playbackrate]
+   */
+
+  /**
    * Get voice language in ISO code by voice name or id.
    * @param voice voice or id
    * @param useCase is case sensitivity
