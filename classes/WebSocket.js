@@ -50,7 +50,7 @@ class WebSocket {
   }
 
   get WS_SENT_VERSION () {
-    return "3.0.1"
+    return "3.0.2"
   }
 
   get WS_CMD_TTS_CONNECT () {
