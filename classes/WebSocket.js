@@ -179,8 +179,9 @@ class WebSocket {
    */
   getWebsocketClientCount (cmd) {
     let currentWebsocketClientCount = 0
-    this.wss.clients.forEach(function each (client) {
+    this.wss.clients.forEach(client => {
       if (client.readyState === Ws.OPEN
+        && Object.prototype.hasOwnProperty.call(client, "data")
         && Object.prototype.hasOwnProperty.call(client.data, "cmd")
         && client.data.cmd === cmd.toLowerCase()) {
         currentWebsocketClientCount++
