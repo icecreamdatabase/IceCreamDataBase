@@ -35,6 +35,7 @@ class TtsWebSocket {
    * @typedef {object} WsTtsMessage
    * @property {string} channel
    * @property {string} redeemer
+   * @property {string} redeemerColor
    * @property {TtsMessageData[]} data
    * @property {boolean} queue
    * @property {number} volume
@@ -156,9 +157,11 @@ class TtsWebSocket {
    * @param {string} message
    */
   static sendTts (privMsgObj, settingObj, message) {
+    /** @type {WsTtsMessage} */
     let data = {
       channel: privMsgObj.channel,
       redeemer: privMsgObj.username,
+      redeemerColor: privMsgObj.raw.tags.color,
       //id: privMsgObj.raw.tags.id,
       data: [],
       queue: settingObj.queue,
