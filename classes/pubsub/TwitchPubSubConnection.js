@@ -13,10 +13,13 @@ class TwitchPubSubConnection extends EventEmitter {
   constructor (bot) {
     super()
     this.bot = bot
-    this.ws = null
+    this._ws = null
     this.heartbeatHandle = null
     this.awaitingPong = false
     this.topics = []
+
+    this._wsSendQueue = []
+    this.on('queue', this.checkQueue.bind(this))
   }
 
   /**
@@ -65,9 +68,9 @@ class TwitchPubSubConnection extends EventEmitter {
   async connect () {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) connecting to PubSub`)
     return new Promise((resolve) => {
-      this.ws = new WebSocket(host, [], {})
+      this._ws = new WebSocket(host, [], {})
 
-      this.ws.addEventListener('open', event => {
+      this._ws.addEventListener('open', event => {
         if (event.target.readyState === WebSocket.OPEN) {
           Logger.debug(`${this.bot.userId} (${this.bot.userName}) PubSub socket open.`)
           this.heartbeat()
@@ -76,11 +79,11 @@ class TwitchPubSubConnection extends EventEmitter {
         }
       })
 
-      this.ws.addEventListener('error', error => {
+      this._ws.addEventListener('error', error => {
         Logger.error(JSON.stringify(error))
       })
 
-      this.ws.addEventListener('message', event => {
+      this._ws.addEventListener('message', event => {
         let message = JSON.parse(event.data)
         if (message.type === 'PONG') {
           this.awaitingPong = false
@@ -100,7 +103,7 @@ class TwitchPubSubConnection extends EventEmitter {
         }
       })
 
-      this.ws.addEventListener('close', () => {
+      this._ws.addEventListener('close', () => {
         //Logger.debug('INFO: Socket Closed')
         clearInterval(this.heartbeatHandle)
         this.reconnect()
@@ -123,7 +126,25 @@ class TwitchPubSubConnection extends EventEmitter {
       this.reconnect()
     } else {
       this.awaitingPong = true
-      this.ws.send(JSON.stringify({type: 'PING'}))
+      this._ws.send(JSON.stringify({type: 'PING'}))
+    }
+  }
+
+  async checkQueue () {
+    if (this._wsSendQueue.length > 0) {
+      if (this._ws && this._ws.readyState === this._ws.OPEN) {
+        let queueElement = this._wsSendQueue.shift()
+        try {
+          await this.sendRaw(queueElement)
+          this.emit('queue')
+          return
+        } catch (e) {
+          this._wsSendQueue.unshift(queueElement)
+          Logger.warn(`Sending MESSAGE to TwitchIrcConnector failed even though the socket connection is open:\n${e}`)
+        }
+      }
+      await sleep(500)
+      this.emit('queue')
     }
   }
 
@@ -135,11 +156,21 @@ class TwitchPubSubConnection extends EventEmitter {
     if (data.type !== "PING") {
       //Logger.debug(`~~> ${util.inspect(data)}`) //TODO: don't print auth
     }
-    if (this.ws /* TODO: do this with the same queue as in IrcConnector && this.ws.readyState === this.ws.OPEN*/) {
-      this.ws.send(JSON.stringify(data))
-    } else {
-      Logger.trace("No PubSub websocket object")
-    }
+    this._wsSendQueue.push(data)
+    this.emit('queue')
+  }
+
+  /**
+   * @param {Object} data
+   */
+  async sendRaw (data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this._ws.send(JSON.stringify(data), undefined, resolve)
+      } catch (e) {
+        reject(e)
+      }
+    })
   }
 
   /**
@@ -156,6 +187,16 @@ class TwitchPubSubConnection extends EventEmitter {
     }
     return text
   }
+}
+
+
+/**
+ * Basic sleep function
+ * @param ms
+ * @returns {Promise<unknown>}
+ */
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 module.exports = TwitchPubSubConnection
