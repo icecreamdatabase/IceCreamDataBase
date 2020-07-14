@@ -9,25 +9,28 @@ const Irc = require('./irc/Irc')
 const PubSub = require('./pubsub/PubSub')
 //ENUMS
 
-
-const UPDATE_USERBLACKLIST_INTERVAL = 15000 // 15 seconds
+const UPDATE_USERBLACKLIST_INTERVAL = 120000 // 2 minutes
 const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
-class Bot {
+class Bot extends EventEmitter{
   constructor (id) {
+    super()
+    /** @type {UserIdLoginCache} @private */
     this._userIdLoginCache = undefined
+    /** @type {Api} @private */
     this._api = undefined
+    /** @type {Irc} @private */
     this._irc = undefined
+    /** @type {PubSub} @private */
     this._pubSub = undefined
-
-    this.refreshEmmitter = new EventEmitter()
-    this.refreshEmmitter.on('refresh', this.onRefresh.bind(this))
+    this.refreshEventName = 'refresh'
 
     this.userBlacklist = []
     setInterval(this.updateUserBlacklist.bind(this), UPDATE_USERBLACKLIST_INTERVAL)
     // noinspection JSIgnoredPromiseFromCall
     this.updateUserBlacklist()
 
+    this.on(this.refreshEventName, this.updateUserBlacklist.bind(this))
     this.authentication = new Authentication(this, id)
     this.authentication.init().then(this.onAuthentication.bind(this))
   }
@@ -74,10 +77,6 @@ class Bot {
     }
   }
 
-  onRefresh () {
-    //TODO
-  }
-
   get userId () {
     return this.authentication.userId
   }
@@ -86,10 +85,18 @@ class Bot {
     return this.authentication.userName
   }
 
+  /**
+   * @param {number|string} userId
+   * @return {boolean} isUserBlackListed
+   */
   isUserIdInBlacklist (userId) {
     return this.userBlacklist.includes(parseInt(userId))
   }
 
+  /**
+   * @param {number|string} userId
+   * @return {Promise<void>}
+   */
   async addUserIdToBlacklist (userId) {
     SqlBlacklist.addUserId(userId)
     await this.updateUserBlacklist()

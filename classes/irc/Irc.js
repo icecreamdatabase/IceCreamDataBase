@@ -62,6 +62,7 @@ class Irc {
      */
     this.channels = {}
 
+    this.bot.on(this.bot.refreshEventName, this.updateBotChannels.bind(this))
     this.updateBotRatelimits().then(this.setupIrc.bind(this))
   }
 

@@ -8,10 +8,7 @@ const UserLevels = require("../../../../ENUMS/UserLevels")
 const ttsStrings = require("../../../../json/tts-strings")
 const Logger = require("../../../helper/Logger")
 
-/**
- *
- * @type {number}
- */
+/** @type {number} */
 const ttsCommandCooldownMs = 3000
 
 class Tts {

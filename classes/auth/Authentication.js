@@ -21,7 +21,7 @@ class Authentication {
     setInterval(this.validate.bind(this), VALIDATE_INTERVAL)
     setInterval(this.update.bind(this), UPDATE_INTERVAL)
 
-    this.bot.refreshEmmitter.on('refresh', this.update.bind(this))
+    this.bot.on(this.bot.refreshEventName, this.update.bind(this))
   }
 
   /**
@@ -85,7 +85,8 @@ class Authentication {
         await this.refresh()
       }
     } catch (e) {
-      if (Object.prototype.hasOwnProperty.call(e, "response")) {
+      if (Object.prototype.hasOwnProperty.call(e, "response")
+        && Object.prototype.hasOwnProperty.call(e.response, "status")) {
         //if unauthorized (expired or wrong token) also this.refresh()
         if (e.response.status === 401) {
           Logger.info(`Unauthorized. Needs to refresh for ${this.bot.userName}`)

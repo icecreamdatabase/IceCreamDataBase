@@ -4,7 +4,7 @@ const SqlLocalCommands = require('../../../sql/modules/SqlCommands')
 const Helper = require('./Helper')
 const UserLevels = require('../../../../ENUMS/UserLevels')
 
-const UPDATE_COMMAND_INTERVAL = 15000 //ms
+const UPDATE_COMMAND_INTERVAL = 120000 // 2 minutes
 
 class Commands {
   /**
@@ -18,6 +18,7 @@ class Commands {
 
     setInterval(this.updateCommandData.bind(this), UPDATE_COMMAND_INTERVAL)
     this.updateCommandData.bind(this)()
+    this.bot.on(this.bot.refreshEventName, this.updateCommandData.bind(this))
   }
 
   /**
@@ -33,14 +34,6 @@ class Commands {
    * @returns {boolean} don't allow further commands
    */
   handle (messageObj) {
-    if (messageObj.userLevel >= UserLevels.BOTADMIN
-      && messageObj.message.startsWith("<r ")) {
-
-      this.updateCommandData.bind(this)()
-      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Reloaded Commands FeelsGoodMan")
-      return true
-    }
-
     // noinspection JSIgnoredPromiseFromCall
     this.handleNormal(messageObj)
     // noinspection JSIgnoredPromiseFromCall

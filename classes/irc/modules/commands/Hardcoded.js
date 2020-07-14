@@ -35,6 +35,14 @@ class Hardcoded {
    */
   handle (messageObj) {
     if (messageObj.userLevel >= UserLevels.BOTADMIN
+      && messageObj.message.startsWith("<r ")) {
+
+      this.bot.emit(this.bot.refreshEventName)
+      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Reloaded everything FeelsGoodMan")
+      return true
+    }
+
+    if (messageObj.userLevel >= UserLevels.BOTADMIN
       && messageObj.message.startsWith("<t ")) {
       let ttsSettingsObject = this.bot.irc.privMsg.channelPoints.getSettingObj(messageObj.roomId)
       if (ttsSettingsObject) {

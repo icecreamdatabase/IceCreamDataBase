@@ -15,6 +15,8 @@ class UserIdLoginCache {
     this._bot = bot
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
+
+    this.bot.on(this.bot.refreshEventName, this.updateMaps.bind(this))
   }
 
   /**
@@ -88,7 +90,7 @@ class UserIdLoginCache {
   /**
    *
    * @param {string} name
-   * @return {Promise<null|number|string>}
+   * @return {Promise<undefined|number|string>}
    */
   async nameToId (name) {
     name = name.toLowerCase().trim()
@@ -103,8 +105,8 @@ class UserIdLoginCache {
         userInfosById[user._id] = user.name
         userInfosByName[user.name.toLowerCase()] = user._id
       } else {
-        Logger.warn(`nameToId failed with name: ${name}`)
-        return null
+        Logger.warn(`nameToId failed with name: ${name}\nChannel is probably banned.`)
+        return undefined
       }
     }
 

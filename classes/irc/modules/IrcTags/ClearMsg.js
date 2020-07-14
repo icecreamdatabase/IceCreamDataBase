@@ -1,7 +1,6 @@
 "use strict"
 
-// 5 minutes
-const CLEAR_OLD_ENTIRES_INTERVAL = 30000
+const CLEAR_OLD_ENTIRES_INTERVAL = 300000 // 5 minutes
 const KEEP_OLD_ENTRY_AMOUNT = 100
 let deletedMsgIds = []
 

@@ -9,7 +9,7 @@ const Sql = require('../../../sql/modules/SqlUserNotice.js')
 const UserNoticeTypes = require('../../../../ENUMS/UserNoticeTypes.js')
 
 const timeunits = ["nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "decades", "centuries", "millennia"]
-const UPDATE_NOTIFICATION_INTERVAL = 15000 //ms
+const UPDATE_NOTIFICATION_INTERVAL = 300000 // 5 minutes
 
 class UserNotice {
   /**
@@ -27,6 +27,7 @@ class UserNotice {
     //run it once and start the interval
     setInterval(this.updateNotificationData.bind(this), UPDATE_NOTIFICATION_INTERVAL)
     this.updateNotificationData.bind(this)()
+    this.bot.on(this.bot.refreshEventName, this.updateNotificationData.bind(this))
   }
 
   /**

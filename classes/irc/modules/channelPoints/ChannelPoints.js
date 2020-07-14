@@ -112,6 +112,8 @@ class ChannelPoints {
 
     setTimeout(this.updateChannelPointSettings.bind(this), 2000)
     setInterval(this.updateChannelPointSettings.bind(this), UPDATE_INTERVAL)
+
+    this.bot.on(this.bot.refreshEventName, this.updateChannelPointSettings.bind(this))
   }
 
   /**
