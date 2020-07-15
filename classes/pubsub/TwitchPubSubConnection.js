@@ -37,8 +37,11 @@ class TwitchPubSubConnection extends EventEmitter {
         }
       }
       this.send(request)
-      Array.prototype.push.apply(this.topics, topics)
-      //TODO: unsub roughly like this: this.topics = this.topics.filter(c => !topicsToRemove.includes(c))
+      for (const topic of topics) {
+        if (!this.topics.includes(topic)) {
+          this.topics.push(topic)
+        }
+      }
     }
   }
 
@@ -109,8 +112,10 @@ class TwitchPubSubConnection extends EventEmitter {
         this.reconnect()
       })
 
-      // make sure that we rejoin topics after reconnecting
-      this.subscribe(this.topics)
+      // make sure that we rejoin topics after reconnecting but also clear out the old topics we are now no longer subscribed to.
+      let topics = this.topics
+      this.topics = []
+      this.subscribe(topics)
     })
   }
 
