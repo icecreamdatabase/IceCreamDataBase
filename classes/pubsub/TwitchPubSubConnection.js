@@ -121,7 +121,7 @@ class TwitchPubSubConnection extends EventEmitter {
       })
 
       this._ws.addEventListener('error', error => {
-        Logger.error(JSON.stringify(error))
+        Logger.error(`TwitchPubSubconnection pubsub / ws error:\n${JSON.stringify(error, null, 2)}`)
       })
     })
   }
