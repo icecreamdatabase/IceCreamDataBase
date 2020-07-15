@@ -84,6 +84,8 @@ class TwitchPubSubConnection extends EventEmitter {
 
       this._ws.addEventListener('error', error => {
         Logger.error(JSON.stringify(error))
+        clearInterval(this.heartbeatHandle)
+        this.reconnect()
       })
 
       this._ws.addEventListener('message', event => {
