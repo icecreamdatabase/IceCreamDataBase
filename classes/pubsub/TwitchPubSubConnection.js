@@ -13,7 +13,11 @@ class TwitchPubSubConnection extends EventEmitter {
   constructor (bot) {
     super()
     this.bot = bot
-    this._ws = null
+    /**
+     * @type {WebSocket}
+     * @private
+     */
+    this._ws = undefined
     this.heartbeatHandle = null
     this.awaitingPong = false
     this.topics = []
@@ -77,15 +81,15 @@ class TwitchPubSubConnection extends EventEmitter {
         if (event.target.readyState === WebSocket.OPEN) {
           Logger.debug(`${this.bot.userId} (${this.bot.userName}) PubSub socket open.`)
           this.heartbeat()
+          clearInterval(this.heartbeatHandle)
           this.heartbeatHandle = setInterval(this.heartbeat.bind(this), heartbeatInterval)
+
+          // make sure that we rejoin topics after reconnecting but also clear out the old topics we are now no longer subscribed to.
+          let topics = this.topics
+          this.topics = []
+          this.subscribe(topics)
           resolve()
         }
-      })
-
-      this._ws.addEventListener('error', error => {
-        Logger.error(JSON.stringify(error))
-        clearInterval(this.heartbeatHandle)
-        this.reconnect()
       })
 
       this._ws.addEventListener('message', event => {
@@ -110,19 +114,22 @@ class TwitchPubSubConnection extends EventEmitter {
 
       this._ws.addEventListener('close', () => {
         //Logger.debug('INFO: Socket Closed')
-        clearInterval(this.heartbeatHandle)
+        this._ws.terminate()
+        this._ws.removeAllListeners()
+        this._ws = undefined
         this.reconnect()
       })
 
-      // make sure that we rejoin topics after reconnecting but also clear out the old topics we are now no longer subscribed to.
-      let topics = this.topics
-      this.topics = []
-      this.subscribe(topics)
+      this._ws.addEventListener('error', error => {
+        Logger.error(JSON.stringify(error))
+      })
     })
   }
 
   reconnect () {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) reconnecting to PubSub`)
+    this._ws.terminate()
+    this._ws.close()
     setTimeout(this.connect.bind(this), reconnectInterval)
   }
 
