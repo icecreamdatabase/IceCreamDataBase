@@ -543,8 +543,7 @@ class Tts {
             this.lastTts[privMsgObj.roomId] = Date.now()
 
             // check: timed out / deleted
-            //let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj)
-            let wasSent = true
+            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj)
             if (wasSent) {
               //Accept
               responseMessage = ttsStrings.redemeResponse.acceptMessage
@@ -563,8 +562,6 @@ class Tts {
         }
 
       }
-      hasTakenAction = true
-      responseMessage = "We are terribly sorry but the TTS system is currently offline. We don't know when it will be available again. There is nothing we can do at the moment."
       if (responseMessage) {
         this.bot.irc.ircConnector.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
         hasTakenAction = true
