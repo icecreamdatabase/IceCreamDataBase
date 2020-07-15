@@ -79,7 +79,7 @@ class UserIdLoginCache {
         userInfosById[user._id] = user.name
         userInfosByName[user.name.toLowerCase()] = user._id
       } else {
-        Logger.warn(`idToName failed with id: ${id}\nChannel is probably banned.`)
+        Logger.debug(`idToName failed with id: ${id}\nChannel is probably banned.`)
         return undefined
       }
     }
@@ -105,7 +105,7 @@ class UserIdLoginCache {
         userInfosById[user._id] = user.name
         userInfosByName[user.name.toLowerCase()] = user._id
       } else {
-        Logger.warn(`nameToId failed with name: ${name}\nChannel is probably banned.`)
+        Logger.debug(`nameToId failed with name: ${name}\nChannel is probably banned.`)
         return undefined
       }
     }
