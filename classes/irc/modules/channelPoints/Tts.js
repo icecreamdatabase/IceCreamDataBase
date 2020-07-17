@@ -36,6 +36,10 @@ class Tts {
     return this.bot.irc.privMsg.channelPoints.channelPointsSettings
   }
 
+  hasChannelPointsSettingsForId (userId) {
+    return this.bot.irc.privMsg.channelPoints.hasSettingsForChannelID(userId)
+  }
+
   /**
    * Handle the privMsgObj by checking for all TTS related triggers.
    * @param {privMsgObj} privMsgObj
@@ -330,41 +334,47 @@ class Tts {
    * @returns {Promise<string>}
    */
   async handleSettings (privMsgObj, optionObj, parameters) {
-    if (privMsgObj.userLevel >= UserLevels.MODERATOR) {
-      let responseMessage = ""
-      if (parameters[0]) {
-        let handled = false
-        for (let optionId in optionObj.options) {
-          if (Object.prototype.hasOwnProperty.call(optionObj.options, optionId)
-            && optionObj.options[optionId].commands.includes(parameters[0])
-            && optionId in this && typeof this[optionId] === "function") {
-            let settingParameter = parameters.slice(1).join(' ')
-            let newValue
-            try {
-              newValue = await this[optionId](privMsgObj.roomId, settingParameter)
-              if (settingParameter) {
-                responseMessage += `${optionObj.response.successful} `
-              }
-            } catch (e) {
-              newValue = await this[optionId](privMsgObj.roomId, "")
-              responseMessage += `${optionObj.response.failRange} `
-            }
-            responseMessage += `${optionObj.response.get} "${newValue}" `
-            if (!settingParameter) {
-              responseMessage += `— Options: "${optionObj.options[optionId].options}" — Description: ${optionObj.options[optionId].description}`
-            }
-            handled = true
-          }
-        }
-        if (!handled) {
-          responseMessage = optionObj.response.failNotAnOption
-        }
-      } else {
-        responseMessage = optionObj.response.help
-      }
-      return responseMessage
+    // Not a moderator
+    if (privMsgObj.userLevel < UserLevels.MODERATOR) {
+      return ""
     }
-    return ""
+
+    // No setting selected --> default help with list of settings
+    if (!parameters[0]) {
+      return optionObj.response.help
+    }
+
+    // Not linked yet --> Telling the person to follow the instructions in "!tts help"
+    if (!this.hasChannelPointsSettingsForId(privMsgObj.roomId)) {
+      return optionObj.response.unlinked
+    }
+
+    // Handle messages
+    let responseMessage = ""
+    let handled = false
+    for (let optionId in optionObj.options) {
+      if (Object.prototype.hasOwnProperty.call(optionObj.options, optionId)
+        && optionObj.options[optionId].commands.includes(parameters[0])
+        && optionId in this && typeof this[optionId] === "function") {
+        let settingParameter = parameters.slice(1).join(' ')
+        let newValue
+        try {
+          newValue = await this[optionId](privMsgObj.roomId, settingParameter)
+          if (settingParameter) {
+            responseMessage += `${optionObj.response.successful} `
+          }
+        } catch (e) {
+          newValue = await this[optionId](privMsgObj.roomId, "")
+          responseMessage += `${optionObj.response.failRange} `
+        }
+        responseMessage += `${optionObj.response.get} "${newValue}" `
+        if (!settingParameter) {
+          responseMessage += `— Options: "${optionObj.options[optionId].options}" — Description: ${optionObj.options[optionId].description}`
+        }
+        handled = true
+      }
+    }
+    return handled ? responseMessage : optionObj.response.failNotAnOption
   }
 
   /* Setting sub commands START */
