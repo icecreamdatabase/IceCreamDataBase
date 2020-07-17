@@ -1,4 +1,5 @@
 {
+  "tts-enabled":true,
   "logDiscord": true,
   "discord": {
     "bot-log": {

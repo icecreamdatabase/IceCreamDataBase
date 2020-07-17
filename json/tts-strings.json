@@ -3,6 +3,7 @@
   "ignorecooldown": false,
   "response": "This is a channelpoint based TTS system made by i\uDB40\uDC00c\uDB40\uDC00d\uDB40\uDC00b. If you would like to add this bot to your own channel, head to the twitch channel of this bot account and type \"!tts register\" into the chat. — Available commands are: \"!tts help\", \"!tts voices\", \"!tts stats\", \"!tts skip\" (mod only), \"!tts settings\" (mod only), \"!tts link\" (mod only), \"!tts unregister\" (broadcaster only)",
   "globalResponsePrefix": "icdbBot \uD83D\uDCE3",
+  "ttsOfflineMessage": "We are terribly sorry but the TTS system is currently offline. We don't know when or if it will be available again. There is nothing we can do at the moment.",
   "redemeResponse": {
     "acceptMessage": "",
     "rejectUserLevelMessage": "Your TTS message has not been sent. You are not a subscriber.",

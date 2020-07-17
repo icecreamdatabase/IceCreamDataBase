@@ -1,4 +1,7 @@
 "use strict"
+
+const path = require("path")
+const fs = require("fs")
 //CLASSES
 const SqlChannels = require('../../../sql/main/SqlChannels')
 const SqlChannelPoints = require('../../../sql/modules/SqlChannelPoints')
@@ -20,6 +23,18 @@ class Tts {
 
     this.lastTts = {}
     this.ttsCommandLastUsage = {}
+
+    /** @type {boolean} */
+    this.enableTts = true
+    this.updateTtsEnabled()
+    this.bot.on(this.bot.refreshEventName, this.updateTtsEnabled.bind(this))
+    setInterval(this.updateTtsEnabled.bind(this), 60000)
+  }
+
+  updateTtsEnabled () {
+    let file = fs.readFileSync(path.resolve(__dirname, "../../../../config.json"))
+    let enabled = JSON.parse(file)["tts-enabled"]
+    this.enableTts = enabled === undefined ? true : enabled
   }
 
   /**
@@ -122,6 +137,9 @@ class Tts {
    */
   async handleRegister (privMsgObj, optionObj, parameters) {
     if (this.bot.irc.channels[privMsgObj.roomId].ttsRegisterEnabled) {
+      if (!this.enableTts) {
+        return ttsStrings.ttsOfflineMessage
+      }
       //channel and connection creating
       let userId = privMsgObj.userId
       let username = privMsgObj.username
@@ -553,7 +571,10 @@ class Tts {
             this.lastTts[privMsgObj.roomId] = Date.now()
 
             // check: timed out / deleted
-            let wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj)
+            let wasSent
+            if (this.enableTts) {
+              wasSent = await TtsWebSocket.sendTtsWithTimeoutCheck(privMsgObj, settingObj)
+            }
             if (wasSent) {
               //Accept
               responseMessage = ttsStrings.redemeResponse.acceptMessage
@@ -571,6 +592,9 @@ class Tts {
           responseMessage = ttsStrings.redemeResponse.rejectUserLevelMessage
         }
 
+        if (!this.enableTts) {
+          responseMessage = ttsStrings.ttsOfflineMessage
+        }
       }
       if (responseMessage) {
         this.bot.irc.ircConnector.sayWithMsgObj(privMsgObj, `${ttsStrings.globalResponsePrefix} @${privMsgObj.username}, ${responseMessage}`)
