@@ -16,8 +16,33 @@ SELECT (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 MINUTE
        (SELECT COUNT(*) FROM ttsLog WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH)  AS 'month',
        (SELECT COUNT(*) FROM ttsLog)                                              AS 'total';
 
+-- message stats for one channel
+SELECT roomId,
+       COUNT(*)                                         AS 'totalMsgs',
+       ROUND(AVG(LENGTH(rawMessage)))                   AS 'avgChars',
+       SUM(LENGTH(rawMessage))                          AS 'totalChars',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 4, 2)  AS 'min$',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'max$'
+FROM ttsLog
+WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH
+  AND roomId = 42481140;
+
+-- message stats per channel
+SELECT ch.channelName,
+       COUNT(tl.id)                                     as 'totalMsgs',
+       ROUND(AVG(LENGTH(rawMessage)))                   AS 'avgChars',
+       SUM(LENGTH(rawMessage))                          AS 'totalChars',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 4, 2)  AS 'min$',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'max$'
+FROM ttsLog tl
+         INNER JOIN channels ch ON ch.ID = tl.roomId
+WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH
+GROUP BY ch.channelName
+ORDER BY totalChars DESC;
+
 -- Average message length
-SELECT ROUND(AVG(LENGTH(rawMessage))) AS `avgMsgLength` FROM ttsLog;
+SELECT ROUND(AVG(LENGTH(rawMessage))) AS `avgMsgLength`
+FROM ttsLog;
 
 -- Total messages per hour of day
 SELECT COUNT(*), HOUR(TIMESTAMP) as 'hourOfTheDay'
