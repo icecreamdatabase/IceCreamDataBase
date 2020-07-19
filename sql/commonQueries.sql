@@ -25,7 +25,7 @@ SELECT roomId,
        ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'max$'
 FROM ttsLog
 WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH
-  AND roomId = 42481140;
+  AND roomId = ?;
 
 -- message stats per channel
 SELECT ch.channelName,
