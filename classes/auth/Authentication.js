@@ -86,6 +86,7 @@ class Authentication {
       }
     } catch (e) {
       if (Object.prototype.hasOwnProperty.call(e, "response")
+        && e.response
         && Object.prototype.hasOwnProperty.call(e.response, "status")) {
         //if unauthorized (expired or wrong token) also this.refresh()
         if (e.response.status === 401) {

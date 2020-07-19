@@ -102,7 +102,7 @@ class Kraken {
 
     for (let chunk of requestChunks) {
       let responseChunk = await this.userInfosFromIds(chunk)
-      if (responseChunk["_total"] > 0) {
+      if (responseChunk && responseChunk["_total"] > 0) {
         users = users.concat(responseChunk["users"])
       }
     }
