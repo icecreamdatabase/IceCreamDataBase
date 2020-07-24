@@ -19,6 +19,7 @@ class IrcConnector extends EventEmitter {
    * @property {string} cmd
    * @property {WsDataAuth|WsDataJoinPartSet|WsDataSend|WsDataReceive|WsDataRemoveBot} data
    * @property {string} version
+   * @property {number|string} applicationId
    */
 
   /**
@@ -194,7 +195,7 @@ class IrcConnector extends EventEmitter {
       if (this._ws && this._ws.readyState === this._ws.OPEN) {
         let queueElement = this._wsSendQueue.shift()
         try {
-          await this.sendRaw(queueElement.cmd, queueElement.data, queueElement.version)
+          await this.sendRaw(queueElement.cmd, queueElement.data)
           this.emit('queue')
           return
         } catch (e) {
@@ -212,7 +213,7 @@ class IrcConnector extends EventEmitter {
    * @param {Object} data
    */
   async send (cmd, data) {
-    this._wsSendQueue.push({cmd, data, version: this.version})
+    this._wsSendQueue.push({cmd, data, version: undefined, applicationId: undefined})
     this.emit('queue')
   }
 
@@ -220,11 +221,12 @@ class IrcConnector extends EventEmitter {
    * @param {string} cmd
    * @param {Object} data
    * @param {string} version
+   * @param {string} applicationId
    */
-  async sendRaw (cmd, data, version = this.version) {
+  async sendRaw (cmd, data, version = this.version, applicationId = config.wsConfig.TwitchIrcConnectorOwnApplicationId) {
     return new Promise((resolve, reject) => {
       try {
-        this._ws.send(JSON.stringify({cmd, data, version}), undefined, resolve)
+        this._ws.send(JSON.stringify({cmd, data, version, applicationId}), undefined, resolve)
       } catch (e) {
         reject(e)
       }

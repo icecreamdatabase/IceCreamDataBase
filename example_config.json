@@ -41,6 +41,7 @@
   "wsConfig": {
     "botServerPort": 4700,
     "TwitchIrcConnectorUrl": "localhost",
-    "TwitchIrcConnectorPort": 4701
+    "TwitchIrcConnectorPort": 4701,
+    "TwitchIrcConnectorOwnApplicationId": "IceCreamDataBase"
   }
 }
