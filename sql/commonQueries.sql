@@ -21,22 +21,26 @@ SELECT roomId,
        COUNT(*)                                         AS 'totalMsgs',
        ROUND(AVG(LENGTH(rawMessage)))                   AS 'avgChars',
        SUM(LENGTH(rawMessage))                          AS 'totalChars',
-       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 4, 2)  AS 'min$',
-       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'max$'
+       -- ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 4, 2)  AS 'costNormal$',
+       -- ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'costWavenet$',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 20, 2) AS '$min',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 25, 2) AS '$max'
 FROM ttsLog
-WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH
-  AND roomId = ?;
+WHERE roomId = ?
+  AND TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 MONTH;
 
 -- message stats per channel
 SELECT ch.channelName,
        COUNT(tl.id)                                     as 'totalMsgs',
        ROUND(AVG(LENGTH(rawMessage)))                   AS 'avgChars',
        SUM(LENGTH(rawMessage))                          AS 'totalChars',
-       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 4, 2)  AS 'min$',
-       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'max$'
+       -- ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 4, 2)  AS 'costNormal$',
+       -- ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'costWavenet$',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 20, 2) AS '$min',
+       ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 25, 2) AS '$max'
 FROM ttsLog tl
          INNER JOIN channels ch ON ch.ID = tl.roomId
-WHERE TIMESTAMP >= now() - INTERVAL 1 MONTH
+WHERE TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 MONTH
 GROUP BY ch.channelName
 ORDER BY totalChars DESC;
 
