@@ -96,7 +96,7 @@ class Authentication {
           Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.response.statusText}`)
         }
       } else {
-        Logger.error(`Token validate failed:\n${JSON.stringify(e)}`)
+        Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.message}`)
       }
     }
   }
