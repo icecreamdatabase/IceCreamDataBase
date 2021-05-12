@@ -26,8 +26,8 @@ SELECT roomId,
        ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 16, 2) AS 'neural$cost',
        ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 25, 2) AS 'neural$price'
 FROM ttsLog
-WHERE roomId = ?
-  AND TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 MONTH;
+WHERE TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 MONTH
+AND roomId = ?;
 
 -- message stats per channel
 SELECT ch.channelName,
