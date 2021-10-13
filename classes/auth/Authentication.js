@@ -73,7 +73,6 @@ class Authentication {
   }
 
   async validate () {
-    Logger.info(`Validating ${this.userName}...`)
     try {
       let result = await axios({
         method: 'get',

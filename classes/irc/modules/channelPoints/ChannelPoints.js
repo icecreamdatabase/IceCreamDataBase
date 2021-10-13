@@ -222,7 +222,8 @@ class ChannelPoints {
     this._channelPointsSettings = await SqlChannelPoints.getChannelPointsSettings(this.bot.userId)
     for (let channelId in this.channelPointsSettings) {
       if (this.channelPointsSettings[channelId].listenOnPubSub) {
-        this.bot.pubSub.subscribe(`community-points-channel-v1.${channelId}`, this.handlePubSub.bind(this))
+        // TODO: Something is breaking this and because we don't need this anymore I'm yeeting it!
+        //this.bot.pubSub.subscribe(`community-points-channel-v1.${channelId}`, this.handlePubSub.bind(this))
       }
     }
   }

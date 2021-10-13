@@ -70,7 +70,8 @@ class PubSub {
   }
 
   registerChannelPoints (roomId) {
-    this.pubSubConnectionPool.on(`community-points-channel-v1.${roomId}`, this.onReward.bind(this))
+    // TODO: Something is breaking this and because we don't need this anymore I'm yeeting it!
+    //this.pubSubConnectionPool.on(`community-points-channel-v1.${roomId}`, this.onReward.bind(this))
   }
 
   onReward (event) {
