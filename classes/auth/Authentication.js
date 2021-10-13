@@ -1,6 +1,7 @@
 "use strict"
 const Logger = require('../helper/Logger')
 const axios = require('axios')
+const https = require("https")
 const SqlAuth = require('../sql/main/SqlAuth')
 //ENUMS
 const TimeConversion = require('../../ENUMS/TimeConversion')
@@ -72,13 +73,16 @@ class Authentication {
   }
 
   async validate () {
+    Logger.info(`Validating ${this.userName}...`)
     try {
       let result = await axios({
         method: 'get',
         url: 'https://id.twitch.tv/oauth2/validate',
         headers: {
           'Authorization': `OAuth ${this.accessToken}`
-        }
+        },
+        timeout: 60000,
+        httpsAgent: new https.Agent({ keepAlive: true }),
       })
       //Logger.debug(`^^^ Validated token for: ${this.userId} (${this.userName})`)
       if (result.data["expires_in"] < (VALIDATE_INTERVAL + VALIDATE_REFRESH_OFFSET) / TimeConversion.SECONDSTOMILLISECONDS) {
