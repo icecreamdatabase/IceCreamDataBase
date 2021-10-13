@@ -93,7 +93,7 @@ class Authentication {
           Logger.info(`Unauthorized. Needs to refresh for ${this.bot.userName}`)
           await this.refresh()
         } else {
-          Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.response.statusText}`)
+          Logger.warn(`Token validate for ${this.bot.userName} errored: ${e.response.status} \n${e.response.statusText}`)
         }
       } else {
         Logger.warn(`Token validate for ${this.bot.userName} errored: \n${e.message}`)
