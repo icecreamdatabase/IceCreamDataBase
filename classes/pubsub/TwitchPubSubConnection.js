@@ -114,9 +114,11 @@ class TwitchPubSubConnection extends EventEmitter {
 
       this._ws.addEventListener('close', () => {
         //Logger.debug('INFO: Socket Closed')
-        this._ws.terminate()
-        this._ws.removeAllListeners()
-        this._ws = undefined
+        if (this._ws !== undefined) {
+          this._ws.terminate()
+          this._ws.removeAllListeners()
+          this._ws = undefined
+        }
         this.reconnect()
       })
 
