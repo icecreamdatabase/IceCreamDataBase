@@ -75,6 +75,7 @@ class TwitchPubSubConnection extends EventEmitter {
   async connect () {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) connecting to PubSub`)
     return new Promise((resolve) => {
+      clearInterval(this.heartbeatHandle)
       this._ws = new WebSocket(host, [], {})
 
       this._ws.addEventListener('open', event => {
@@ -113,7 +114,8 @@ class TwitchPubSubConnection extends EventEmitter {
       })
 
       this._ws.addEventListener('close', () => {
-        //Logger.debug('INFO: Socket Closed')
+        Logger.debug(`${this.bot.userId} (${this.bot.userName}) PubSub socket closed.`)
+        clearInterval(this.heartbeatHandle)
         if (this._ws !== undefined) {
           this._ws.terminate()
           this._ws.removeAllListeners()
@@ -123,7 +125,7 @@ class TwitchPubSubConnection extends EventEmitter {
       })
 
       this._ws.addEventListener('error', error => {
-        Logger.error(`TwitchPubSubconnection pubsub / ws error:\n${util.inspect(error)}`)
+        Logger.error(`${this.bot.userId} (${this.bot.userName}) PubSub socket errored:\n${util.inspect(error)}`)
       })
     })
   }
@@ -138,15 +140,16 @@ class TwitchPubSubConnection extends EventEmitter {
   }
 
   heartbeat () {
+    if (this._ws === undefined) {
+      Logger.warn(`${this.bot.userId} (${this.bot.userName}) PubSub WebSocket heartbeat without _ws object`)
+      return
+    }
     if (this.awaitingPong) {
       Logger.info(`${this.bot.userId} (${this.bot.userName}) PubSub WebSocket no pong received`)
-      Logger.debug("Ws no pong received.")
       this.reconnect()
     } else {
       this.awaitingPong = true
-      if (this._ws !== undefined) {
-        this._ws.send(JSON.stringify({type: 'PING'}))
-      }
+      this._ws.send(JSON.stringify({type: 'PING'}))
     }
   }
 
