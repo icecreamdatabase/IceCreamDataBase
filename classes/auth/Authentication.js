@@ -120,7 +120,7 @@ class Authentication {
       await this.update()
       Logger.debug(`Token refreshed for ${this.bot.userName}`)
     } catch (e) {
-      Logger.warn(`Token refresh failed for ${this.bot.userName}`)
+      Logger.warn(`Token refresh failed for ${this.bot.userName} \n${e.message}`)
     }
   }
 

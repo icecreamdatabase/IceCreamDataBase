@@ -121,7 +121,7 @@ class TwitchPubSubConnection extends EventEmitter {
       })
 
       this._ws.addEventListener('error', error => {
-        Logger.error(`TwitchPubSubconnection pubsub / ws error:\n${JSON.stringify(error, null, 2)}`)
+        Logger.error(`TwitchPubSubconnection pubsub / ws error:\n${util.inspect(error)}`)
       })
     })
   }
@@ -142,7 +142,9 @@ class TwitchPubSubConnection extends EventEmitter {
       this.reconnect()
     } else {
       this.awaitingPong = true
-      this._ws.send(JSON.stringify({type: 'PING'}))
+      if (this._ws !== undefined) {
+        this._ws.send(JSON.stringify({type: 'PING'}))
+      }
     }
   }
 
