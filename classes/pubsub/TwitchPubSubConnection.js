@@ -141,7 +141,7 @@ class TwitchPubSubConnection extends EventEmitter {
 
   heartbeat () {
     if (this._ws === undefined) {
-      Logger.warn(`${this.bot.userId} (${this.bot.userName}) PubSub WebSocket heartbeat without _ws object`)
+      //Logger.warn(`${this.bot.userId} (${this.bot.userName}) PubSub WebSocket heartbeat without _ws object`)
       return
     }
     if (this.awaitingPong) {
