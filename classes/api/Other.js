@@ -102,7 +102,7 @@ class Other {
         })
         return true
       } catch (e) {
-        return e.response.status === 400
+        return e.response !== undefined && e.response.status === 400
       }
     }
     return false
