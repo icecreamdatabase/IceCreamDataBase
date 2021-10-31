@@ -7,7 +7,7 @@ const Logger = require('../helper/Logger')
 
 const host = 'wss://pubsub-edge.twitch.tv'
 const heartbeatInterval = 1000 * 30 //ms between PING's
-const reconnectTimeout = 1000 * 10 //ms to wait before reconnect
+const reconnectTimeout = 1000 * 15 //ms to wait before reconnect
 
 class TwitchPubSubConnection extends EventEmitter {
   constructor (bot) {
