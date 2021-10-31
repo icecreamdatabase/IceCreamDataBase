@@ -6,8 +6,8 @@ const WebSocket = require('ws')
 const Logger = require('../helper/Logger')
 
 const host = 'wss://pubsub-edge.twitch.tv'
-const heartbeatInterval = 1000 * 15 //ms between PING's
-const reconnectInterval = 1000 * 10 //ms to wait before reconnect
+const heartbeatInterval = 1000 * 30 //ms between PING's
+const reconnectTimeout = 1000 * 10 //ms to wait before reconnect
 
 class TwitchPubSubConnection extends EventEmitter {
   constructor (bot) {
@@ -19,6 +19,7 @@ class TwitchPubSubConnection extends EventEmitter {
      */
     this._ws = undefined
     this.heartbeatHandle = null
+    this.reconnectHandle = null
     this.awaitingPong = false
     this.topics = []
 
@@ -76,6 +77,7 @@ class TwitchPubSubConnection extends EventEmitter {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) connecting to PubSub`)
     return new Promise((resolve) => {
       clearInterval(this.heartbeatHandle)
+      this._ws = null
       this._ws = new WebSocket(host, [], {})
 
       this._ws.addEventListener('open', event => {
@@ -132,11 +134,12 @@ class TwitchPubSubConnection extends EventEmitter {
 
   reconnect () {
     Logger.info(`${this.bot.userId} (${this.bot.userName}) reconnecting to PubSub`)
-    if (this._ws !== undefined) {
+    if (this._ws && this._ws.readyState === WebSocket.OPEN) {
       this._ws.terminate()
       this._ws.close()
     }
-    setTimeout(this.connect.bind(this), reconnectInterval)
+    clearTimeout(this.reconnectHandle);
+    this.reconnectHandle = setTimeout(this.connect.bind(this), reconnectTimeout)
   }
 
   heartbeat () {
