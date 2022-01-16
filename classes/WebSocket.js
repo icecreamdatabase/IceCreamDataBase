@@ -92,7 +92,7 @@ class WebSocket {
   newMessage (message) {
     Logger.log(`°° WS received: ${message}`)
     try {
-      message = message.replace(/[\u034f\u2800\u{E0000}\u180e\ufeff\u2000-\u200d\u206D]/gu, '')
+      message = message.toString().replace(/[\u034f\u2800\u{E0000}\u180e\ufeff\u2000-\u200d\u206D]/gu, '')
       let parsedMsg = JSON.parse(message)
       let version = versionStrToArray(parsedMsg.version)
 
@@ -125,7 +125,7 @@ class WebSocket {
       }
 
     } catch (e) {
-      Logger.error(`Websocket bad json: ${message}`)
+      Logger.error(`Websocket bad json: ${message}\n${e}`)
     }
   }
 
