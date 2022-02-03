@@ -138,7 +138,7 @@ class TwitchPubSubConnection extends EventEmitter {
       this._ws.terminate()
       this._ws.close()
     }
-    clearTimeout(this.reconnectHandle);
+    clearTimeout(this.reconnectHandle)
     this.reconnectHandle = setTimeout(this.connect.bind(this), reconnectTimeout)
   }
 

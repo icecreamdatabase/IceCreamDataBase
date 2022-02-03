@@ -27,7 +27,12 @@ SELECT roomId,
        ROUND(SUM(LENGTH(rawMessage)) / 1000000 * 25, 2) AS 'neural$price'
 FROM ttsLog
 WHERE TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 MONTH
-AND roomId = ?;
+  AND roomId = ?;
+
+
+SELECT COUNT(rawMessage) as 'messages', SUM(LENGTH(rawMessage)) as 'chars'
+FROM ttsLog
+WHERE TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 MONTH;
 
 -- message stats per channel
 SELECT ch.channelName,
@@ -75,14 +80,14 @@ FROM ttsLog
 WHERE TIMESTAMP >= now() - INTERVAL 1440 MINUTE -- written like this to prevent weird bugs with the current hour
 GROUP BY HOUR(TIMESTAMP);
 
--- Average messages per hour of day in the past week
+-- Average messages per hour of day in the last week of operations
 SELECT `hour`, ROUND(AVG(`count`)) as `avg`
 FROM (
          SELECT date(TIMESTAMP) as `day`,
                 hour(TIMESTAMP) as `hour`,
                 count(*)        as `count`
          FROM IceCreamDataBase.ttsLog
-         WHERE TIMESTAMP >= now() - INTERVAL 10080 MINUTE -- 7 days
+         WHERE TIMESTAMP >= '2020-07-17 16:24:27' - INTERVAL 1 WEEK
          GROUP BY `day`, `hour`
      ) s
 GROUP BY `hour`;
