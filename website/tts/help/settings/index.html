@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tailwind.css">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+
+  <title>TTS settings help</title>
+</head>
+<body>
+  <div class="navbar">
+    <ul>
+      <li><a href="../setup/index.html" style="text-decoration: none"; color:#000;>Setup&nbsp;&nbsp;&nbsp;</a></li>
+      <li><a href="../usage/index.html" style="text-decoration: none">How to use&nbsp;&nbsp;&nbsp;</a></li>
+      <li><a href="../commands/index.html" style="text-decoration: none">Commands&nbsp;&nbsp;&nbsp;</a></li>
+      <li><a href="../settings/index.html"style="text-decoration: none">Settings&nbsp;&nbsp;&nbsp;</a></li>
+    </ul>
+  </div>
+<br><br><br><br><br><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+  <h1><strong>All Settings</strong></h1><br>
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-one" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-one">Conversation</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">Allows users to use multiple voices in one message: "Brian: Kappa Kappa Keepo Justin: Wow what a memer".</p>
+            <p class="p-5">Usage: !tts settings Conversation true or !tts settings Conversation true</p>
+            <p class="p-5">Default: true</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-two" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-two"><strong>Sub</strong></label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">Make the TTS subscriber only. It will still cost points for none subs but no TTS is played.</p>
+            <p class="p-5">Usage: !tts settings Sub true or!tts settings Sub false</p>
+            <p class="p-5">Default: false</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-three" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-three">Queue</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">If disabled new messages skip currently playing messages.</p>
+            <p class="p-5">Usage: !tts settings Queue true or!tts settings Queue false</p>
+            <p class="p-5">Default: true</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-four" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-four">Voice</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">Default voice name. Check available voices here: TODO: add link <!--TODO: add link--></p>
+            <p class="p-5">Usage: Steve: Hello Steve: Hello</p>
+            <p class="p-5">Default: Brian</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-five" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-five">Volume</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">Volume of the TTS playback choose between 0 - 100. Choose between 0 - 100.</p>
+            <p class="p-5">Usage: !tts playback 0</p>
+            <p class="p-5">Default: 100</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-six" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-six">Maxmessagetime</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">Max duration of a single redemtion. Using multiple voices counts as one message for this setting.</p>
+            <p class="p-5">(0 = unlimted). Choose between 0 - 300.</p>
+            <p class="p-5">Usage: !tts maxmessagetime 0</p>
+            <p class="p-5">Default: 0</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-seven" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-seven">Cooldown</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">Time in seconds between TTS messages. It will still cost points!</p>
+            <p class="p-5">Usage: !tts Cooldown 30</p>
+            <p class="p-5">Default: 0</p>
+          </div>
+      </div>
+    </div>
+</div><br>
+<div class="w-full md:w-3/5 mx-auto p-8">
+    <div class="shadow-md">
+      <div class="tab w-full overflow-hidden border-t">
+         <input class="absolute opacity-0 " id="tab-multi-eight" type="checkbox" name="tabs">
+         <label class="block p-5 leading-normal cursor-pointer" for="tab-multi-eight">Timeoutcheck</label>
+          <div class="tab-content overflow-hidden border-l-2 bg-gray-100 border-indigo-500 leading-normal">
+            <p class="p-5">The bot doesn't play message which have been timed out in that timeframe. How long the bot should wait </p>
+            <p class="p-5">before playing the TTS message. Choose between 0 - 30.</p>
+            <p class="p-5">Usage: !tts timoutcheck 10</p>
+            <p class="p-5">Default: 2</p>
+          </div>
+      </div>
+    </div>
+</div>
+<br><br><br><br><br><br><br>
+</body>
+<script>
+  /* Optional Javascript to close the radio button version by clicking it again */
+  var myRadios = document.getElementsByName('tabs2');
+  var setCheck;
+  var x = 0;
+  for(x = 0; x < myRadios.length; x++){
+      myRadios[x].onclick = function(){
+          if(setCheck != this){
+               setCheck = this;
+          }else{
+              this.checked = false;
+              setCheck = null;
+      }
+      };
+  }
+</script>
+</html>
